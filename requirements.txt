@@ -5,3 +5,4 @@ python-dotenv
 fastapi-cors
 imaplib2
 email-validator
+pymongo[srv]==3.12
