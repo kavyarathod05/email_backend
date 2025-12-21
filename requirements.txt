@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+pymongo
+python-dotenv
+fastapi-cors
+imaplib2
+email-validator
