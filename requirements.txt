@@ -1,5 +1,6 @@
 fastapi
 uvicorn
-pydantic[email]
-email-validator>=2.0.0
 pymongo[srv]>=4.6.0
+python-dotenv
+email-validator>=2.0.0
+python-multipart

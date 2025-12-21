@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from datetime import datetime
+import uvicorn
 import os
 import csv
 from fastapi import UploadFile, File
@@ -393,3 +394,9 @@ def dashboard_recruiters(status: str = None):
         data.append(r)
 
     return data
+
+if __name__ == "__main__":
+    # Use the PORT provided by Render or default to 10000
+    port = int(os.getenv("PORT", 10000))
+    # '0.0.0.0' is required for Render to route traffic to your app
+    uvicorn.run(app, host="0.0.0.0", port=port)
