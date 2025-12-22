@@ -1,14 +1,14 @@
-name: Recruiter Outreach Cron (IST Schedule)
+name: Recruiter Outreach Cron (Evening IST)
 
 on:
   schedule:
-    # Line 1: 11:30 PM UTC to Midnight UTC (which is 5:00 AM to 5:30 AM IST)
-    - cron: '30-59 23 * * *'
-    # Line 2: 12:00 AM UTC to 3:30 AM UTC (which is 5:30 AM to 9:00 AM IST)
-    # This runs every 5 minutes during those hours
-    - cron: '*/5 0-2 * * *'
-    - cron: '0-30 3 * * *'
-  workflow_dispatch: # Allows manual testing
+    # Starts at 11:30 AM UTC (5:00 PM IST)
+    - cron: '30 11 * * *'
+    # Runs every 5 minutes from 12:00 PM to 1:00 PM UTC (5:30 PM to 6:30 PM IST)
+    - cron: '*/5 12 * * *'
+    # Runs every 5 minutes until 1:30 PM UTC (7:00 PM IST)
+    - cron: '0-30 13 * * *'
+  workflow_dispatch: 
 
 jobs:
   trigger-outreach:
