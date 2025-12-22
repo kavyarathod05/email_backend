@@ -1,0 +1,31 @@
+name: Recruiter Outreach Cron (IST Schedule)
+
+on:
+  schedule:
+    # Line 1: 11:30 PM UTC to Midnight UTC (which is 5:00 AM to 5:30 AM IST)
+    - cron: '30-59 23 * * *'
+    # Line 2: 12:00 AM UTC to 3:30 AM UTC (which is 5:30 AM to 9:00 AM IST)
+    # This runs every 5 minutes during those hours
+    - cron: '*/5 0-2 * * *'
+    - cron: '0-30 3 * * *'
+  workflow_dispatch: # Allows manual testing
+
+jobs:
+  trigger-outreach:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wake up Render
+        run: |
+          curl -s https://email-backend-zca0.onrender.com/ > /dev/null
+          echo "Waking up server..."
+          sleep 30
+
+      - name: Send One Email
+        run: |
+          curl -X POST https://email-backend-zca0.onrender.com/send-one \
+          -H "Content-Type: application/json"
+          
+      - name: Check for New Replies
+        run: |
+          curl -X POST https://email-backend-zca0.onrender.com/check-replies \
+          -H "Content-Type: application/json"
