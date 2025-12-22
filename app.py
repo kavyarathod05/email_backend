@@ -175,38 +175,55 @@ async def import_csv(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail="CSV processing failed")
 
 # ---------------- EMAIL LOGIC ----------------
+import requests
 
 def build_email(recruiter):
-    msg = EmailMessage()
-    msg["From"] = os.getenv("GMAIL_ID")
-    msg["To"] = recruiter["email"]
-    msg["Subject"] = os.getenv("EMAIL_SUBJECT")
-
-    html_template = os.getenv("EMAIL_TEMPLATE_HTML")
+    # Retrieve env variables
     resume_link = os.getenv("RESUME_LINK")
+    html_template = os.getenv("EMAIL_TEMPLATE_HTML")
+    subject = os.getenv("EMAIL_SUBJECT")
 
-    if not html_template or not resume_link:
-        raise Exception("EMAIL_TEMPLATE_HTML or RESUME_LINK missing in env")
+    # Create personal variables
+    name = recruiter.get("name") or "there"
+    company = recruiter.get("company") or "your team"
 
+    # Build the HTML content
     html_body = html_template.format(
-        name=recruiter.get("name") or "there",
-        company=recruiter.get("company") or "your team",
+        name=name,
+        company=company,
         resume_link=resume_link
     )
-    msg.set_content(f"Hi {recruiter.get('name','there')},\n\nPlease view my resume here:\n{resume_link}")
-    msg.add_alternative(html_body, subtype="html")
-    return msg
 
-def send_email(msg):
-    # Using Port 465 (SSL) is more reliable on Render than 587 (TLS)
+    # Return a clean dictionary that the Google Script understands
+    return {
+        "To": recruiter["email"],
+        "Subject": subject,
+        "HTMLPart": html_body
+    }
+
+def send_email(email_data):
+    """
+    Sends the email data to the Google Apps Script Bridge.
+    """
+    SCRIPT_URL = os.getenv("GOOGLE_SCRIPT_URL") 
+    
+    # We pass the data exactly as the Google Script expects it
+    payload = {
+        "to": email_data["To"],
+        "subject": email_data["Subject"],
+        "htmlBody": email_data["HTMLPart"]
+    }
+    
     try:
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15) as server:
-            server.login(os.getenv("GMAIL_ID"), os.getenv("GMAIL_APP_PASSWORD"))
-            server.send_message(msg)
-            logger.info(f"Email sent to {msg['To']}")
+        # Use a timeout so Render doesn't hang if Google is slow
+        response = requests.post(SCRIPT_URL, json=payload, timeout=10)
+        
+        if response.status_code == 200:
+            logger.info(f"Email successfully delivered to Google Bridge for {email_data['To']}")
+        else:
+            logger.error(f"Google Bridge Error: {response.status_code} - {response.text}")
     except Exception as e:
-        logger.error(f"SMTP Error: {e}")
-        raise Exception(f"Failed to send email via SMTP: {e}")
+        logger.error(f"Failed to connect to Google Bridge: {e}")
 
 @app.post("/send-one")
 def send_one_email():
@@ -215,8 +232,9 @@ def send_one_email():
         if not recruiter:
             return {"status": "no recruiters left"}
 
-        msg = build_email(recruiter)
-        send_email(msg)
+        # build_email now returns a dict, not an EmailMessage object
+        email_data = build_email(recruiter)
+        send_email(email_data)
 
         recruiters_col.update_one(
             {"_id": recruiter["_id"]},
@@ -226,7 +244,6 @@ def send_one_email():
     except Exception as e:
         logger.error(f"Error in send_one_email: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 # ---------------- REPLY CHECKER ----------------
 
 def check_replies():
