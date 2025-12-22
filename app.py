@@ -1,16 +1,20 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File, status
 from pymongo import MongoClient
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import datetime, timedelta
 import uvicorn
 import os
 import csv
-from fastapi import UploadFile, File
 import smtplib
-from email.message import EmailMessage
 import imaplib
 import email
+import logging
+from email.message import EmailMessage
 from fastapi.middleware.cors import CORSMiddleware
+
+# Setup Logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Load env variables
 load_dotenv()
@@ -21,17 +25,30 @@ MONGO_DB = os.getenv("MONGO_DB")
 if not MONGO_URI or not MONGO_DB:
     raise Exception("Missing MongoDB environment variables")
 
-client = MongoClient(MONGO_URI)
-db = client[MONGO_DB]
-
-recruiters_col = db["temp"]
+try:
+    client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+    db = client[MONGO_DB]
+    # Test connection
+    client.server_info()
+    recruiters_col = db["temp"]
+    logger.info("Connected to MongoDB successfully")
+except Exception as e:
+    logger.error(f"MongoDB Connection Error: {e}")
+    raise Exception(f"Could not connect to MongoDB: {e}")
 
 app = FastAPI()
-frontend_origin = os.getenv("FRONTEND_ORIGIN")
+
+# Proper CORS Setup
+frontend_origin = os.getenv("FRONTEND_ORIGIN", "").rstrip("/")
+origins = [
+    frontend_origin,
+    "http://localhost:5173",
+    "http://localhost:3000"
+]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[frontend_origin],
+    allow_origins=[o for o in origins if o],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -41,104 +58,24 @@ app.add_middleware(
 
 @app.get("/")
 def health():
-    return {"status": "Recruiter API running"}
+    return {"status": "Recruiter API running", "timestamp": datetime.utcnow()}
 
 # ---------------- ADD RECRUITER ----------------
 
 @app.post("/recruiters")
 def add_recruiter(data: dict):
-    email = data.get("email")
+    try:
+        email_addr = data.get("email")
+        if not email_addr:
+            raise HTTPException(status_code=400, detail="Email is required")
 
-    if not email:
-        raise HTTPException(status_code=400, detail="Email is required")
-
-    # prevent duplicates
-    if recruiters_col.find_one({"email": email}):
-        raise HTTPException(status_code=409, detail="Recruiter already exists")
-
-    recruiter = {
-        "email": email,
-        "name": data.get("name", ""),
-        "company": data.get("company", ""),
-        "status": "new",          # new | sent | replied
-        "sentAt": None,
-        "replied": False,
-        "followupSent": False,
-        "createdAt": datetime.utcnow()
-    }
-
-    recruiters_col.insert_one(recruiter)
-    return {"message": "Recruiter added successfully"}
-
-# ---------------- LIST RECRUITERS ----------------
-
-@app.get("/recruiters")
-def list_recruiters(status: str = None):
-    query = {}
-    if status:
-        query["status"] = status
-
-    results = []
-    for r in recruiters_col.find(query):
-        r["_id"] = str(r["_id"])
-        results.append(r)
-
-    return results
-
-# ---------------- UPDATE STATUS ----------------
-
-@app.patch("/recruiters/{email}")
-def update_status(email: str, data: dict):
-    update = {}
-
-    if "status" in data:
-        update["status"] = data["status"]
-
-    if "replied" in data:
-        update["replied"] = data["replied"]
-
-    if not update:
-        raise HTTPException(status_code=400, detail="No fields to update")
-
-    result = recruiters_col.update_one(
-        {"email": email},
-        {"$set": update}
-    )
-
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Recruiter not found")
-
-    return {"message": "Recruiter updated"}
-
-@app.post("/recruiters/import-csv")
-async def import_csv(file: UploadFile = File(...)):
-    if not file.filename.endswith(".csv"):
-        raise HTTPException(status_code=400, detail="Only CSV files allowed")
-
-    content = await file.read()
-    lines = content.decode("utf-8").splitlines()
-    reader = csv.DictReader(lines)
-
-    added = 0
-    skipped = 0
-
-    for row in reader:
-        email = row.get("Email")
-        if not email:
-            skipped += 1
-            continue
-
-        email = email.strip().lower()
-
-        # skip duplicates
-        if recruiters_col.find_one({"email": email}):
-            skipped += 1
-            continue
+        if recruiters_col.find_one({"email": email_addr}):
+            raise HTTPException(status_code=409, detail="Recruiter already exists")
 
         recruiter = {
-            "email": email,
-            "name": row.get("Name", "").strip(),
-            "company": row.get("Company", "").strip(),
+            "email": email_addr,
+            "name": data.get("name", ""),
+            "company": data.get("company", ""),
             "status": "new",
             "sentAt": None,
             "replied": False,
@@ -147,15 +84,97 @@ async def import_csv(file: UploadFile = File(...)):
         }
 
         recruiters_col.insert_one(recruiter)
-        added += 1
+        return {"message": "Recruiter added successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error adding recruiter: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
-    return {
-        "message": "CSV import completed",
-        "added": added,
-        "skipped": skipped
-    }
+# ---------------- LIST RECRUITERS ----------------
 
-EMAIL_SUBJECT = "Full-Stack / AI Intern | IIIT Gwalior | Summer 2026"
+@app.get("/recruiters")
+def list_recruiters(status: str = None):
+    try:
+        query = {}
+        if status:
+            query["status"] = status
+
+        results = []
+        for r in recruiters_col.find(query):
+            r["_id"] = str(r["_id"])
+            results.append(r)
+        return results
+    except Exception as e:
+        logger.error(f"Error listing recruiters: {e}")
+        raise HTTPException(status_code=500, detail="Error fetching data")
+
+# ---------------- UPDATE STATUS ----------------
+
+@app.patch("/recruiters/{email}")
+def update_status(email: str, data: dict):
+    try:
+        update = {}
+        if "status" in data: update["status"] = data["status"]
+        if "replied" in data: update["replied"] = data["replied"]
+
+        if not update:
+            raise HTTPException(status_code=400, detail="No fields to update")
+
+        result = recruiters_col.update_one({"email": email}, {"$set": update})
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Recruiter not found")
+
+        return {"message": "Recruiter updated"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating status: {e}")
+        raise HTTPException(status_code=500, detail="Update failed")
+
+# ---------------- CSV IMPORT ----------------
+
+@app.post("/recruiters/import-csv")
+async def import_csv(file: UploadFile = File(...)):
+    if not file.filename.endswith(".csv"):
+        raise HTTPException(status_code=400, detail="Only CSV files allowed")
+
+    try:
+        content = await file.read()
+        lines = content.decode("utf-8").splitlines()
+        reader = csv.DictReader(lines)
+
+        added, skipped = 0, 0
+        for row in reader:
+            email_addr = row.get("Email")
+            if not email_addr:
+                skipped += 1
+                continue
+
+            email_addr = email_addr.strip().lower()
+            if recruiters_col.find_one({"email": email_addr}):
+                skipped += 1
+                continue
+
+            recruiter = {
+                "email": email_addr,
+                "name": row.get("Name", "").strip(),
+                "company": row.get("Company", "").strip(),
+                "status": "new",
+                "sentAt": None,
+                "replied": False,
+                "followupSent": False,
+                "createdAt": datetime.utcnow()
+            }
+            recruiters_col.insert_one(recruiter)
+            added += 1
+
+        return {"message": "CSV import completed", "added": added, "skipped": skipped}
+    except Exception as e:
+        logger.error(f"CSV Import Error: {e}")
+        raise HTTPException(status_code=500, detail="CSV processing failed")
+
+# ---------------- EMAIL LOGIC ----------------
 
 def build_email(recruiter):
     msg = EmailMessage()
@@ -174,229 +193,168 @@ def build_email(recruiter):
         company=recruiter.get("company") or "your team",
         resume_link=resume_link
     )
-
-    # Plain-text fallback (important for deliverability)
-    msg.set_content(
-        f"Hi {recruiter.get('name','there')},\n\nPlease view my resume here:\n{resume_link}"
-    )
-
-    # HTML version (Gmail will use this)
+    msg.set_content(f"Hi {recruiter.get('name','there')},\n\nPlease view my resume here:\n{resume_link}")
     msg.add_alternative(html_body, subtype="html")
-
     return msg
 
-
 def send_email(msg):
-    with smtplib.SMTP("smtp.gmail.com", 587) as server:
-        server.starttls()
-        server.login(
-            os.getenv("GMAIL_ID"),
-            os.getenv("GMAIL_APP_PASSWORD")
-        )
-        server.send_message(msg)
-
+    # Using Port 465 (SSL) is more reliable on Render than 587 (TLS)
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15) as server:
+            server.login(os.getenv("GMAIL_ID"), os.getenv("GMAIL_APP_PASSWORD"))
+            server.send_message(msg)
+            logger.info(f"Email sent to {msg['To']}")
+    except Exception as e:
+        logger.error(f"SMTP Error: {e}")
+        raise Exception(f"Failed to send email via SMTP: {e}")
 
 @app.post("/send-one")
 def send_one_email():
-    recruiter = recruiters_col.find_one({"status": "new"})
+    try:
+        recruiter = recruiters_col.find_one({"status": "new"})
+        if not recruiter:
+            return {"status": "no recruiters left"}
 
-    if not recruiter:
-        return {"status": "no recruiters left"}
+        msg = build_email(recruiter)
+        send_email(msg)
 
-    msg = build_email(recruiter)
-    send_email(msg)
+        recruiters_col.update_one(
+            {"_id": recruiter["_id"]},
+            {"$set": {"status": "sent", "sentAt": datetime.utcnow()}}
+        )
+        return {"status": "email sent", "email": recruiter["email"]}
+    except Exception as e:
+        logger.error(f"Error in send_one_email: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
-    recruiters_col.update_one(
-        {"_id": recruiter["_id"]},
-        {
-            "$set": {
-                "status": "sent",
-                "sentAt": datetime.utcnow()
-            }
-        }
-    )
-
-    return {
-        "status": "email sent",
-        "email": recruiter["email"]
-    }
-
+# ---------------- REPLY CHECKER ----------------
 
 def check_replies():
-    mail = imaplib.IMAP4_SSL(
-        os.getenv("IMAP_SERVER"),
-        int(os.getenv("IMAP_PORT"))
-    )
+    try:
+        mail = imaplib.IMAP4_SSL(os.getenv("IMAP_SERVER"), int(os.getenv("IMAP_PORT")))
+        mail.login(os.getenv("GMAIL_ID"), os.getenv("GMAIL_APP_PASSWORD"))
+        mail.select("inbox")
 
-    mail.login(
-        os.getenv("GMAIL_ID"),
-        os.getenv("GMAIL_APP_PASSWORD")
-    )
+        status, messages = mail.search(None, 'UNSEEN')
+        if status != "OK":
+            mail.logout()
+            return 0
 
-    mail.select("inbox")
+        updated = 0
+        for e_id in messages[0].split():
+            _, msg_data = mail.fetch(e_id, "(RFC822)")
+            raw = msg_data[0][1]
+            msg = email.message_from_bytes(raw)
+            sender = email.utils.parseaddr(msg.get("From"))[1].lower()
+            subject = msg.get("Subject", "")
 
-    status, messages = mail.search(None, 'UNSEEN')
-    if status != "OK":
-        mail.logout()
-        return 0
+            body_snippet = ""
+            if msg.is_multipart():
+                for part in msg.walk():
+                    if part.get_content_type() == "text/plain":
+                        body_snippet = part.get_payload(decode=True).decode(errors="ignore")[:200]
+                        break
+            else:
+                body_snippet = msg.get_payload(decode=True).decode(errors="ignore")[:200]
 
-    updated = 0
-
-    for e_id in messages[0].split():
-        _, msg_data = mail.fetch(e_id, "(RFC822)")
-        raw = msg_data[0][1]
-        msg = email.message_from_bytes(raw)
-
-        sender = email.utils.parseaddr(msg.get("From"))[1].lower()
-        subject = msg.get("Subject", "")
-
-        # Extract short body snippet
-        body_snippet = ""
-        if msg.is_multipart():
-            for part in msg.walk():
-                if part.get_content_type() == "text/plain":
-                    body_snippet = part.get_payload(decode=True).decode(errors="ignore")[:200]
-                    break
-        else:
-            body_snippet = msg.get_payload(decode=True).decode(errors="ignore")[:200]
-
-        result = recruiters_col.update_one(
-            {"email": sender, "replied": False},
-            {
-                "$set": {
-                    "replied": True,
-                    "status": "replied",
-                    "replyAt": datetime.utcnow(),
-                    "replySubject": subject,
+            result = recruiters_col.update_one(
+                {"email": sender, "replied": False},
+                {"$set": {
+                    "replied": True, "status": "replied",
+                    "replyAt": datetime.utcnow(), "replySubject": subject,
                     "replySnippet": body_snippet
-                }
-            }
-        )
-
-        if result.modified_count:
-            updated += 1
-
-    mail.logout()
-    return updated
+                }}
+            )
+            if result.modified_count: updated += 1
+        
+        mail.logout()
+        return updated
+    except Exception as e:
+        logger.error(f"IMAP Error: {e}")
+        return 0
 
 @app.post("/check-replies")
 def check_replies_api():
     updated = check_replies()
-    return {
-        "status": "checked",
-        "replies_marked": updated
-    }
+    return {"status": "checked", "replies_marked": updated}
+
+# ---------------- FOLLOW UP ----------------
 
 def build_followup_email(recruiter):
     msg = EmailMessage()
     msg["From"] = os.getenv("GMAIL_ID")
     msg["To"] = recruiter["email"]
     msg["Subject"] = os.getenv("FOLLOWUP_SUBJECT")
-
-    html_template = os.getenv("FOLLOWUP_TEMPLATE_HTML")
     resume_link = os.getenv("RESUME_LINK")
+    html_template = os.getenv("FOLLOWUP_TEMPLATE_HTML")
 
     html_body = html_template.format(
         name=recruiter.get("name") or "there",
         company=recruiter.get("company") or "your team",
         resume_link=resume_link
     )
-
-    msg.set_content(
-        f"Hi {recruiter.get('name','there')},\n\nJust following up on my previous email.\n\nResume: {resume_link}"
-    )
+    msg.set_content(f"Hi {recruiter.get('name','there')},\n\nFollowing up.\n\nResume: {resume_link}")
     msg.add_alternative(html_body, subtype="html")
-
     return msg
 
-from datetime import timedelta
-
 def send_followup_if_due():
-    seven_days_ago = datetime.utcnow() - timedelta(days=7)
+    try:
+        seven_days_ago = datetime.utcnow() - timedelta(days=7)
+        recruiter = recruiters_col.find_one({
+            "status": "sent",
+            "replied": False,
+            "followupSent": False,
+            "sentAt": {"$lte": seven_days_ago}
+        })
 
-    recruiter = recruiters_col.find_one({
-        "status": "sent",
-        "replied": False,
-        "followupSent": False,
-        "sentAt": {"$lte": seven_days_ago}
-    })
+        if not recruiter:
+            return {"status": "no followups due"}
 
-    if not recruiter:
-        return {"status": "no followups due"}
+        msg = build_followup_email(recruiter)
+        send_email(msg)
 
-    msg = build_followup_email(recruiter)
-    send_email(msg)
-
-    recruiters_col.update_one(
-        {"_id": recruiter["_id"]},
-        {
-            "$set": {
-                "followupSent": True,
-                "followupAt": datetime.utcnow()
-            }
-        }
-    )
-
-    return {
-        "status": "followup sent",
-        "email": recruiter["email"]
-    }
-
+        recruiters_col.update_one(
+            {"_id": recruiter["_id"]},
+            {"$set": {"followupSent": True, "followupAt": datetime.utcnow()}}
+        )
+        return {"status": "followup sent", "email": recruiter["email"]}
+    except Exception as e:
+        logger.error(f"Followup Error: {e}")
+        return {"status": "error", "detail": str(e)}
 
 @app.post("/send-followup")
 def send_followup_api():
     return send_followup_if_due()
 
+# ---------------- DASHBOARD ----------------
 
 @app.get("/dashboard/stats")
 def dashboard_stats():
-    return {
-        "total": recruiters_col.count_documents({}),
-        "new": recruiters_col.count_documents({"status": "new"}),
-        "sent": recruiters_col.count_documents({"status": "sent"}),
-        "replied": recruiters_col.count_documents({"status": "replied"})
-    }
-
-
-@app.get("/dashboard/recruiters")
-def dashboard_recruiters(status: str = None):
-    query = {}
-    if status:
-        query["status"] = status
-
-    data = []
-    for r in recruiters_col.find(query).sort("createdAt", -1):
-        r["_id"] = str(r["_id"])
-        data.append(r)
-
-    return data
-
-
-@app.get("/dashboard/stats")
-def dashboard_stats():
-    return {
-        "total": recruiters_col.count_documents({}),
-        "new": recruiters_col.count_documents({"status": "new"}),
-        "sent": recruiters_col.count_documents({"status": "sent"}),
-        "replied": recruiters_col.count_documents({"status": "replied"})
-    }
-
+    try:
+        return {
+            "total": recruiters_col.count_documents({}),
+            "new": recruiters_col.count_documents({"status": "new"}),
+            "sent": recruiters_col.count_documents({"status": "sent"}),
+            "replied": recruiters_col.count_documents({"status": "replied"})
+        }
+    except Exception as e:
+        logger.error(f"Stats error: {e}")
+        raise HTTPException(status_code=500, detail="Database connection error")
 
 @app.get("/dashboard/recruiters")
 def dashboard_recruiters(status: str = None):
-    query = {}
-    if status:
-        query["status"] = status
-
-    data = []
-    for r in recruiters_col.find(query).sort("createdAt", -1):
-        r["_id"] = str(r["_id"])
-        data.append(r)
-
-    return data
+    try:
+        query = {}
+        if status: query["status"] = status
+        data = []
+        for r in recruiters_col.find(query).sort("createdAt", -1):
+            r["_id"] = str(r["_id"])
+            data.append(r)
+        return data
+    except Exception as e:
+        logger.error(f"Recruiters list error: {e}")
+        raise HTTPException(status_code=500, detail="Database connection error")
 
 if __name__ == "__main__":
-    # Use the PORT provided by Render or default to 10000
     port = int(os.getenv("PORT", 10000))
-    # '0.0.0.0' is required for Render to route traffic to your app
     uvicorn.run(app, host="0.0.0.0", port=port)
