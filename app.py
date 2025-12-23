@@ -58,8 +58,7 @@ app.add_middleware(
 
 @app.get("/")
 def health():
-    return {"status": "Recruiter API running", "timestamp": datetime.utcnow()}
-
+        return {"status": "ok", "timestamp": datetime.now(datetime.UTC)}
 # ---------------- ADD RECRUITER ----------------
 
 @app.post("/recruiters")
@@ -230,8 +229,7 @@ def send_one_email():
     try:
         recruiter = recruiters_col.find_one({"status": "new"})
         if not recruiter:
-            return {"status": "no recruiters left"}
-
+            return {"ok": False, "msg": "empty"} # Minimal response
         # build_email now returns a dict, not an EmailMessage object
         email_data = build_email(recruiter)
         send_email(email_data)
@@ -240,10 +238,10 @@ def send_one_email():
             {"_id": recruiter["_id"]},
             {"$set": {"status": "sent", "sentAt": datetime.utcnow()}}
         )
-        return {"status": "email sent", "email": recruiter["email"]}
+        return {"ok":True}
     except Exception as e:
         logger.error(f"Error in send_one_email: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        return {"ok":False , "err":"fail"}
 # ---------------- REPLY CHECKER ----------------
 
 def check_replies():
@@ -293,8 +291,7 @@ def check_replies():
 @app.post("/check-replies")
 def check_replies_api():
     updated = check_replies()
-    return {"status": "checked", "replies_marked": updated}
-
+    return {"ok": True, "count": updated} # Keep it short
 # ---------------- FOLLOW UP ----------------
 
 def build_followup_email(recruiter):
