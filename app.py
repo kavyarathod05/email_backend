@@ -58,7 +58,8 @@ app.add_middleware(
 
 @app.get("/")
 def health():
-        return {"status": "ok", "timestamp": datetime.now(datetime.UTC)}
+    return {"status": "ok", "timestamp": datetime.utcnow()}
+
 # ---------------- ADD RECRUITER ----------------
 
 @app.post("/recruiters")
