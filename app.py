@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File, status
 from pymongo import MongoClient
 from dotenv import load_dotenv
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import uvicorn
 import os
 import csv
@@ -181,13 +181,21 @@ def build_email(recruiter):
     # Retrieve env variables
     resume_link = os.getenv("RESUME_LINK")
     html_template = os.getenv("EMAIL_TEMPLATE_HTML")
-    subject = os.getenv("EMAIL_SUBJECT")
+    subject_template = os.getenv("EMAIL_SUBJECT") # Get it as a template
 
     # Create personal variables
     name = recruiter.get("name") or "there"
     company = recruiter.get("company") or "your team"
 
-    # Build the HTML content
+    # --- 1. Format the Subject with Company Name ---
+    try:
+        # This replaces {company} in the subject line
+        subject = subject_template.format(company=company)
+    except Exception:
+        # Fallback if format fails or placeholder is missing
+        subject = subject_template
+
+    # --- 2. Build the HTML content ---
     html_body = html_template.format(
         name=name,
         company=company,
@@ -200,7 +208,6 @@ def build_email(recruiter):
         "Subject": subject,
         "HTMLPart": html_body
     }
-
 def send_email(email_data):
     """
     Sends the email data to the Google Apps Script Bridge.
@@ -294,54 +301,135 @@ def check_replies_api():
     updated = check_replies()
     return {"ok": True, "count": updated} # Keep it short
 # ---------------- FOLLOW UP ----------------
+import os
+import smtplib
+from email.message import EmailMessage
+from datetime import datetime, timedelta, timezone
+
+# ---------------- FOLLOW UP LOGIC ----------------
 
 def build_followup_email(recruiter):
-    msg = EmailMessage()
-    msg["From"] = os.getenv("GMAIL_ID")
-    msg["To"] = recruiter["email"]
-    msg["Subject"] = os.getenv("FOLLOWUP_SUBJECT")
+    """
+    Builds the follow-up email matching the 'send-one' structure exactly.
+    """
+    # 1. Get Data & Defaults
+    rec_name = recruiter.get("name") or "there"
+    rec_company = recruiter.get("company") or "your company"
+    
+    # 2. Load Configuration from ENV
     resume_link = os.getenv("RESUME_LINK")
+    subject_template = os.getenv("FOLLOWUP_SUBJECT", "Following up | Summer '26 Intern @{company}")
     html_template = os.getenv("FOLLOWUP_TEMPLATE_HTML")
+    
+    # --- LOGGING START ---
+    logger.info(f"Building follow-up for: {recruiter['email']}")
+    if not html_template:
+        logger.error("CRITICAL: FOLLOWUP_TEMPLATE_HTML is missing or empty in .env")
+    # --- LOGGING END ---
 
-    html_body = html_template.format(
-        name=recruiter.get("name") or "there",
-        company=recruiter.get("company") or "your team",
-        resume_link=resume_link
-    )
-    msg.set_content(f"Hi {recruiter.get('name','there')},\n\nFollowing up.\n\nResume: {resume_link}")
-    msg.add_alternative(html_body, subtype="html")
-    return msg
+    # 3. Format the Subject
+    try:
+        subject = subject_template.format(company=rec_company)
+    except Exception as e:
+        logger.warning(f"Subject format failed: {e}. Using fallback.")
+        subject = f"Following up | Summer '26 Intern @{rec_company}"
+
+    # 4. Format the HTML Body
+    if html_template:
+        try:
+            html_body = html_template.format(
+                name=rec_name,
+                company=rec_company,
+                resume_link=resume_link
+            )
+            # Log length to verify it's not empty
+            logger.info(f"Generated HTML Body Length: {len(html_body)} chars")
+        except KeyError as e:
+            logger.error(f"Template Error: Missing placeholder {e} in FOLLOWUP_TEMPLATE_HTML")
+            html_body = f"<p>Hi {rec_name}, just following up for {rec_company}. (Template Error)</p>"
+        except Exception as e:
+            logger.error(f"Body formatting failed: {e}")
+            html_body = f"<p>Hi {rec_name}, just following up for {rec_company}.</p>"
+    else:
+        # Fallback if ENV is missing
+        html_body = f"<p>Hi {rec_name}, just following up for {rec_company}.</p>"
+
+    # 5. RETURN DICTIONARY (Crucial: Matches build_email structure)
+    return {
+        "To": recruiter["email"],
+        "Subject": subject,
+        "HTMLPart": html_body
+    }
 
 def send_followup_if_due():
+    """
+    Checks for exactly ONE recruiter due for a followup.
+    """
     try:
-        seven_days_ago = datetime.utcnow() - timedelta(days=7)
-        recruiter = recruiters_col.find_one({
+        now = datetime.now(timezone.utc)
+        seven_days_ago = now - timedelta(days=7)
+
+        # Query Logic:
+        # 1. Status is 'sent' AND No Reply yet
+        # 2. AND (Either it's the first followup >7 days from sentAt OR recurring >7 days from last followup)
+        query = {
             "status": "sent",
             "replied": False,
-            "followupSent": False,
-            "sentAt": {"$lte": seven_days_ago}
-        })
+            "$or": [
+                {
+                    "followupAt": {"$exists": False},
+                    "sentAt": {"$lte": seven_days_ago}
+                },
+                {
+                    "followupAt": {"$lte": seven_days_ago}
+                }
+            ]
+        }
+
+        recruiter = recruiters_col.find_one(query)
 
         if not recruiter:
+            logger.info("No follow-ups due at this time.")
             return {"status": "no followups due"}
 
-        msg = build_followup_email(recruiter)
-        send_email(msg)
+        logger.info(f"Found due follow-up for: {recruiter['email']}")
 
+        # Build the email data
+        email_data = build_followup_email(recruiter)
+        
+        # Check if body is empty before sending
+        if not email_data["HTMLPart"]:
+            logger.error(f"ABORTING: Generated HTML body is empty for {recruiter['email']}")
+            return {"status": "error", "detail": "Empty body generated"}
+
+        # SEND using the existing working function
+        send_email(email_data)
+
+        # Update Database
         recruiters_col.update_one(
             {"_id": recruiter["_id"]},
-            {"$set": {"followupSent": True, "followupAt": datetime.utcnow()}}
+            {
+                "$set": {
+                    "followupSent": True,
+                    "followupAt": now
+                }
+            }
         )
-        return {"status": "followup sent", "email": recruiter["email"]}
-    except Exception as e:
-        logger.error(f"Followup Error: {e}")
-        return {"status": "error", "detail": str(e)}
 
+        logger.info(f"Follow-up marked as sent for {recruiter['email']}")
+        return {
+            "status": "followup sent", 
+            "email": recruiter["email"],
+            "company": recruiter.get("company")
+        }
+
+    except Exception as e:
+        logger.error(f"Follow-up Process Error: {e}")
+        return {"status": "error", "detail": str(e)}
+    
 @app.post("/send-followup")
 def send_followup_api():
     return send_followup_if_due()
-
-# ---------------- DASHBOARD ----------------
 
 @app.get("/dashboard/stats")
 def dashboard_stats():
