@@ -227,10 +227,15 @@ def send_email(email_data):
         
         if response.status_code == 200:
             logger.info(f"Email successfully delivered to Google Bridge for {email_data['To']}")
+            return True, None
         else:
-            logger.error(f"Google Bridge Error: {response.status_code} - {response.text}")
+            error_msg = f"Google Bridge Error: {response.status_code} - {response.text}"
+            logger.error(error_msg)
+            return False, error_msg
     except Exception as e:
-        logger.error(f"Failed to connect to Google Bridge: {e}")
+        error_msg = f"Failed to connect to Google Bridge: {e}"
+        logger.error(error_msg)
+        return False, error_msg
 
 @app.post("/send-one")
 def send_one_email():
@@ -240,13 +245,20 @@ def send_one_email():
             return {"ok": False, "msg": "empty"} # Minimal response
         # build_email now returns a dict, not an EmailMessage object
         email_data = build_email(recruiter)
-        send_email(email_data)
+        success, error_msg = send_email(email_data)
 
-        recruiters_col.update_one(
-            {"_id": recruiter["_id"]},
-            {"$set": {"status": "sent", "sentAt": datetime.utcnow()}}
-        )
-        return {"ok":True}
+        if success:
+            recruiters_col.update_one(
+                {"_id": recruiter["_id"]},
+                {"$set": {"status": "sent", "sentAt": datetime.utcnow()}}
+            )
+            return {"ok":True}
+        else:
+            recruiters_col.update_one(
+                {"_id": recruiter["_id"]},
+                {"$set": {"status": "error", "errorDetail": error_msg}}
+            )
+            return {"ok":False, "err": error_msg}
     except Exception as e:
         logger.error(f"Error in send_one_email: {e}")
         return {"ok":False , "err":"fail"}
@@ -399,29 +411,43 @@ def send_followup_if_due():
         
         # Check if body is empty before sending
         if not email_data["HTMLPart"]:
-            logger.error(f"ABORTING: Generated HTML body is empty for {recruiter['email']}")
-            return {"status": "error", "detail": "Empty body generated"}
+            error_msg = "Empty body generated"
+            logger.error(f"ABORTING: {error_msg} for {recruiter['email']}")
+            recruiters_col.update_one({"_id": recruiter["_id"]}, {"$set": {"status": "error", "errorDetail": error_msg}})
+            return {"status": "error", "detail": error_msg}
 
         # SEND using the existing working function
-        send_email(email_data)
+        success, error_msg = send_email(email_data)
 
-        # Update Database
-        recruiters_col.update_one(
-            {"_id": recruiter["_id"]},
-            {
-                "$set": {
-                    "followupSent": True,
-                    "followupAt": now
+        if success:
+            # Update Database
+            recruiters_col.update_one(
+                {"_id": recruiter["_id"]},
+                {
+                    "$set": {
+                        "followupSent": True,
+                        "followupAt": now
+                    }
                 }
-            }
-        )
+            )
 
-        logger.info(f"Follow-up marked as sent for {recruiter['email']}")
-        return {
-            "status": "followup sent", 
-            "email": recruiter["email"],
-            "company": recruiter.get("company")
-        }
+            logger.info(f"Follow-up marked as sent for {recruiter['email']}")
+            return {
+                "status": "followup sent", 
+                "email": recruiter["email"],
+                "company": recruiter.get("company")
+            }
+        else:
+            recruiters_col.update_one(
+                {"_id": recruiter["_id"]},
+                {
+                    "$set": {
+                        "status": "error",
+                        "errorDetail": error_msg
+                    }
+                }
+            )
+            return {"status": "error", "detail": error_msg}
 
     except Exception as e:
         logger.error(f"Follow-up Process Error: {e}")
@@ -438,7 +464,9 @@ def dashboard_stats():
             "total": recruiters_col.count_documents({}),
             "new": recruiters_col.count_documents({"status": "new"}),
             "sent": recruiters_col.count_documents({"status": "sent"}),
-            "replied": recruiters_col.count_documents({"status": "replied"})
+            "replied": recruiters_col.count_documents({"status": "replied"}),
+            "errors": recruiters_col.count_documents({"status": "error"}),
+            "followups": recruiters_col.count_documents({"followupSent": True})
         }
     except Exception as e:
         logger.error(f"Stats error: {e}")
