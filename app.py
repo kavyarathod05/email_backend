@@ -16,6 +16,10 @@ from email.message import EmailMessage
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
+import io
+
+class CSVImportRequest(BaseModel):
+    csvText: str
 
 class TestEmailRequest(BaseModel):
     email: str
@@ -305,6 +309,45 @@ async def import_csv(file: UploadFile = File(...)):
         return {"message": "CSV import completed", "added": added, "skipped": skipped}
     except Exception as e:
         logger.error(f"CSV Import Error: {e}")
+        raise HTTPException(status_code=500, detail="CSV processing failed")
+
+@app.post("/recruiters/import-text")
+async def import_text(data: CSVImportRequest):
+    if not data.csvText:
+        raise HTTPException(status_code=400, detail="CSV text is required")
+
+    try:
+        lines = data.csvText.strip().splitlines()
+        reader = csv.DictReader(lines)
+
+        added, skipped = 0, 0
+        for row in reader:
+            email_addr = row.get("Email")
+            if not email_addr:
+                skipped += 1
+                continue
+
+            email_addr = email_addr.strip().lower()
+            if recruiters_col.find_one({"email": email_addr}):
+                skipped += 1
+                continue
+
+            recruiter = {
+                "email": email_addr,
+                "name": row.get("Name", "").strip(),
+                "company": row.get("Company", "").strip(),
+                "status": "new",
+                "sentAt": None,
+                "replied": False,
+                "followupSent": False,
+                "createdAt": datetime.utcnow()
+            }
+            recruiters_col.insert_one(recruiter)
+            added += 1
+
+        return {"message": "Text import completed", "added": added, "skipped": skipped}
+    except Exception as e:
+        logger.error(f"CSV Text Import Error: {e}")
         raise HTTPException(status_code=500, detail="CSV processing failed")
 
 # ---------------- EMAIL LOGIC ----------------

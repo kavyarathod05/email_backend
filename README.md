@@ -1,55 +1,85 @@
-# Email Automation Backend - Template & Logic Documentation
+# 🚀 Advanced Email Outreach Automation
 
-This document explains how the dynamic email template system works, how it interacts with MongoDB, and how it combines with Environment Variables for a seamless outreach experience.
+A professional-grade system designed to automate, track, and optimize recruiter outreach for internships and full-time roles. This platform combines a FastAPI backend with a React dashboard to manage the entire lifecycle of an application—from initial contact to final breakup emails.
 
-## 1. Template Storage (MongoDB)
+---
 
-Templates are stored in the `templates` collection in MongoDB. Each template consists of:
-- **Name**: A descriptive name (e.g., "SDE Intern Intro").
-- **Subject**: The email subject line.
-- **HTML Body**: The raw HTML content of the email.
-- **Type**: Defines the stage of the outreach (`initial`, `followup1`, or `breakup`).
+## 🛠️ System Architecture
 
-## 2. Dynamic Placeholders
+- **Backend**: FastAPI (Python 3.10+)
+- **Database**: MongoDB (NoSQL for flexible recruiter and template data)
+- **Delivery**: Google Apps Script Bridge (Gmail API bypass for high deliverability)
+- **Inbound**: IMAP (Automatic reply detection)
+- **Frontend**: React (Vite) with a polished, data-driven dashboard
 
-The system uses standard Python string formatting (`.format()`). You can use the following placeholders in your **Subject** or **HTML Body**:
+---
 
-| Placeholder | Description | Example Output |
-| :--- | :--- | :--- |
-| `{name}` | Recruiter's first name (falls back to 'there') | "Hi Kavya," |
-| `{company}` | Recruiter's company (falls back to 'your company') | "at Google" |
-| `{resume_link}` | **Recommended.** A styled, clickable HTML link to your resume. | `<a href="...">Resume</a>` |
-| `{resume_url}` | The raw URL to your resume (useful for manual `<a>` tags). | `https://drive.google.com/...` |
+## ✨ Core Features
 
-> [!NOTE]
-> The `{resume_url}` and `{resume_link}` are automatically powered by the `RESUME_LINK` variable in your `.env` file.
+### 1. Dynamic Multistage Outreach
+- **Initial Phase**: Send personalized emails using round-robin template selection.
+- **Stage 1 Follow-up**: Automatically nudges recruiters 4 days after the initial send if no reply is detected.
+- **Stage 2 "Breakup"**: A final, high-impact email sent 6 days after the follow-up to close the loop.
 
-## 3. Fallback Logic: DB vs .env
+### 2. Intelligent Engagement Tracking
+- **Open Tracking**: Invisible 1x1 pixel tracking injected into every email.
+- **Click Tracking**: Every link to your resume is wrapped in a redirect tracker.
+- **Real-time Analytics**: Dashboard shows exactly when an email was opened or a link was clicked, down to the second.
 
-The system follows a "DB-First" approach to give you maximum flexibility.
+### 3. Automated Reply Detection
+- Connects to your Gmail via IMAP to scan for "UNSEEN" messages.
+- Scans sender addresses and automatically marks recruiters as `replied` in the database.
+- Captures subject lines and snippets of the reply for quick viewing in the dashboard.
 
-### Initial Emails (`/send-one`)
-1. **With Template ID**: If you select a specific template in the Tester UI, that template is used.
-2. **Without Template ID**: If no ID is provided, the system falls back to the legacy `.env` variables:
-   - `EMAIL_SUBJECT`
-   - `EMAIL_TEMPLATE_HTML`
+### 4. Template & A/B Management
+- **Round-Robin Selection**: Rotate through multiple "Initial" templates to see which subject lines or pitches perform best.
+- **Placeholders**: Supports dynamic injection of `{name}`, `{company}`, `{resume_link}`, and `{resume_url}`.
+- **Tester UI**: Send live tests to yourself before launching a campaign.
 
-### Automated Follow-ups (`/send-followup`)
-The background automation logic (Stage 1 and 2) automatically checks the database:
-1. **Search by Type**: It looks for the latest template marked as `followup1` (for Stage 1) or `breakup` (for Stage 2).
-2. **Fallback to .env**: If no template of that type exists in the database, it falls back to the `.env` variables:
-   - `FOLLOWUP_SUBJECT` / `FOLLOWUP_TEMPLATE_HTML`
-   - `BREAKUP_SUBJECT` / `BREAKUP_TEMPLATE_HTML`
+### 5. Data Management
+- **CSV Import**: Bulk upload recruiters with automatic deduplication.
+- **Filtering**: View recruiters by status (New, Sent, Replied, Opened, Clicked, Error).
 
-## 4. Analytics & Tracking
+---
 
-When an email is sent:
-- The `templateId` and `templateName` are saved to the Recruiter's document.
-- Tracking pixels and link redirects are automatically injected.
-- Engagement (Opens, Clicks, Replies) is aggregated by Template Name in the **Analytics** dashboard.
+## ⚙️ Detailed Logic
 
-## 5. Development Tips
+### Follow-up Engine (`app.py`)
+The system follows strict timing rules to avoid spamming while staying persistent:
+- **Rule 1**: If `status == "sent"` AND `replied == False` AND 4 days have passed since `sentAt` → Send **Stage 1 Followup**.
+- **Rule 2**: If `followupStage == 1` AND 6 days have passed since `followupAt` → Send **Stage 2 Breakup**.
 
-- **Raw HTML**: You can paste full HTML layouts into the Template Manager.
-- **Testing**: Use the **Tester** tab to send a live email to yourself. Select different templates from the dropdown to verify formatting.
-- **Simulations**: Use the **Simulate Open/Click** buttons to verify that the tracking hooks are updating your dashboard correctly.
+### Tracking Logic
+- **`{resume_link}`**: Generates a pre-styled HTML `<a>` tag: `<a href="...">Resume</a>`.
+- **`{resume_url}`**: Returns just the raw tracking string, perfect for custom buttons or footers.
+
+### Google Bridge
+To ensure maximum deliverability, emails are handed off to a Google Apps Script that sends via your authenticated Gmail account, bypassing common "Spam" flags triggered by standard SMTP libraries.
+
+---
+
+## 📊 Dashboard Overview
+
+1. **Overview & Stats**: High-level funnel (Total -> Sent -> Opened -> Replied).
+2. **Recruiter Database**: The "Command Center" with deep filters and engagement timestamps.
+3. **Template Manager**: Create, edit, and categorize templates by stage.
+4. **Import & Tests**: Clean CSV uploads and end-to-end flow testing.
+
+---
+
+## 🚀 Getting Started
+
+1. **Setup MongoDB**: Create collections for `temp` (recruiters) and `templates`.
+2. **Configure `.env`**:
+   - `MONGO_URI`, `MONGO_DB`
+   - `GOOGLE_SCRIPT_URL` (Your bridge endpoint)
+   - `GMAIL_ID`, `GMAIL_APP_PASSWORD` (For IMAP)
+   - `TRACKING_BASE_URL` (Your public backend URL)
+   - `RESUME_LINK` (Link to your CV)
+3. **Run Backend**: `uvicorn app:app --reload`
+4. **Run Frontend**: `npm run dev`
+
+---
+
+> [!TIP]
+> Use the **"Test Panel"** in the dashboard to simulate Opens and Clicks. It's the best way to verify your tracking pixel is working before you send out 100+ emails!
