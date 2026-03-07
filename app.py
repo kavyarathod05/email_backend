@@ -402,8 +402,19 @@ def send_one_email(req: SendOneRequest = SendOneRequest()):
             
         template_doc = None
         template_id = req.templateId if req else None
+        
         if template_id:
             template_doc = templates_col.find_one({"_id": ObjectId(template_id)})
+        else:
+            # Round-robin selection for initial templates
+            initial_templates = list(templates_col.find({"type": "initial"}).sort("createdAt", 1))
+            if initial_templates:
+                total_sent = recruiters_col.count_documents({
+                    "status": {"$in": ["sent", "replied", "error"]}, 
+                    "followupStage": {"$in": [0, None]}
+                })
+                template_doc = initial_templates[total_sent % len(initial_templates)]
+                template_id = str(template_doc["_id"])
             
         # build_email now returns a dict, not an EmailMessage object
         email_data = build_email(recruiter, template_doc)
@@ -411,9 +422,9 @@ def send_one_email(req: SendOneRequest = SendOneRequest()):
 
         if success:
             update_fields = {"status": "sent", "sentAt": datetime.utcnow()}
-            if template_id:
-                update_fields["templateUsed"] = template_id
-                update_fields["templateName"] = template_doc.get("name") if template_doc else None
+            if template_doc:
+                update_fields["templateUsed"] = str(template_doc["_id"])
+                update_fields["templateName"] = template_doc.get("name")
 
             recruiters_col.update_one(
                 {"_id": recruiter["_id"]},
@@ -495,20 +506,21 @@ def build_followup_email(recruiter, stage):
     rec_name = recruiter.get("name") or "there"
     rec_company = recruiter.get("company") or "your company"
     
-    # 2. Check Database for Custom Template
+    # 2. Check Database for Custom Template (Round-robin)
     target_type = "followup1" if stage == 1 else "breakup"
-    template_doc = templates_col.find_one({"type": target_type}, sort=[("createdAt", -1)])
+    db_templates = list(templates_col.find({"type": target_type}).sort("createdAt", 1))
     
-    resume_link = os.getenv("RESUME_LINK")
     template_id_used = None
     template_name_used = None
     
-    if template_doc:
+    if db_templates:
+        total_sent_at_stage = recruiters_col.count_documents({"followupStage": stage})
+        template_doc = db_templates[total_sent_at_stage % len(db_templates)]
         subject_template = template_doc.get("subject", "")
         html_template = template_doc.get("htmlBody", "")
         template_id_used = str(template_doc["_id"])
         template_name_used = template_doc.get("name")
-        logger.info(f"Using DB template '{template_name_used}' for stage {stage} followup.")
+        logger.info(f"Using DB template '{template_name_used}' (round-robin) for stage {stage} followup.")
     else:
         # Fallback to .env
         logger.info(f"Using .env template fallback for stage {stage} followup.")
