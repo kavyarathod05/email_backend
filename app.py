@@ -13,6 +13,13 @@ import logging
 import urllib.parse
 from email.message import EmailMessage
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
+class TestEmailRequest(BaseModel):
+    email: str
+    name: str = "Test Name"
+    company: str = "Test Company"
+    templateType: str = "initial"
 
 # Setup Logging
 logging.basicConfig(level=logging.INFO)
@@ -541,11 +548,47 @@ def dashboard_recruiters(status: str = None):
         data = []
         for r in recruiters_col.find(query).sort("createdAt", -1):
             r["_id"] = str(r["_id"])
+            # Ensure PyMongo's naive UTC datetimes are serialized as UTC by appending 'Z'
+            for key, value in r.items():
+                if hasattr(value, "isoformat"):
+                    r[key] = value.isoformat() + "Z"
             data.append(r)
         return data
     except Exception as e:
-        logger.error(f"Recruiters list error: {e}")
         raise HTTPException(status_code=500, detail="Database connection error")
+
+@app.post("/test-email")
+def test_email_endpoint(data: TestEmailRequest):
+    try:
+        req_data = data.dict()
+        recruiter = {
+            "_id": "test_id_123",
+            "email": req_data["email"],
+            "name": req_data["name"],
+            "company": req_data["company"]
+        }
+        
+        template_type = req_data.get("templateType", "initial")
+        
+        if template_type == "initial":
+            email_data = build_email(recruiter)
+        elif template_type == "followup1":
+            email_data = build_followup_email(recruiter, stage=1)
+        elif template_type == "breakup":
+            email_data = build_followup_email(recruiter, stage=2)
+        else:
+            return {"status": "error", "detail": "Invalid template type"}
+            
+        success, error_msg = send_email(email_data)
+        
+        if success:
+            return {"status": "success", "message": f"Sent {template_type} email to {recruiter['email']}"}
+        else:
+            return {"status": "error", "detail": error_msg}
+            
+    except Exception as e:
+        logger.error(f"Test email error: {e}")
+        return {"status": "error", "detail": str(e)}
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 10000))
