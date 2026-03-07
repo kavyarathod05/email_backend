@@ -1,4 +1,5 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File, status
+from fastapi import FastAPI, HTTPException, UploadFile, File, status, Response, Query
+from fastapi.responses import RedirectResponse
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
@@ -9,6 +10,7 @@ import smtplib
 import imaplib
 import email
 import logging
+import urllib.parse
 from email.message import EmailMessage
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -60,6 +62,33 @@ app.add_middleware(
 def health():
     return {"status": "ok", "timestamp": datetime.utcnow()}
 
+# ---------------- TRACKING ----------------
+
+@app.get("/track/open/{email}")
+def track_open(email: str):
+    try:
+        recruiters_col.update_one(
+            {"email": email},
+            {"$set": {"opened": True, "openedAt": datetime.now(timezone.utc)}}
+        )
+    except Exception as e:
+        logger.error(f"Error tracking open for {email}: {e}")
+    
+    # Return 1x1 transparent GIF
+    pixel = b'GIF89a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;'
+    return Response(content=pixel, media_type="image/gif")
+
+@app.get("/track/click/{email}")
+def track_click(email: str, url: str):
+    try:
+        recruiters_col.update_one(
+            {"email": email},
+            {"$set": {"clicked": True, "clickedAt": datetime.now(timezone.utc)}}
+        )
+    except Exception as e:
+        logger.error(f"Error tracking click for {email}: {e}")
+    return RedirectResponse(url=url, status_code=status.HTTP_302_FOUND)
+
 # ---------------- ADD RECRUITER ----------------
 
 @app.post("/recruiters")
@@ -80,6 +109,9 @@ def add_recruiter(data: dict):
             "sentAt": None,
             "replied": False,
             "followupSent": False,
+            "followupStage": 0,
+            "opened": False,
+            "clicked": False,
             "createdAt": datetime.utcnow()
         }
 
@@ -195,12 +227,21 @@ def build_email(recruiter):
         # Fallback if format fails or placeholder is missing
         subject = subject_template
 
-    # --- 2. Build the HTML content ---
+    # --- 2. Add Tracking if available ---
+    tracking_base = os.getenv("TRACKING_BASE_URL", "").rstrip("/")
+    pixel_img = ""
+    if tracking_base:
+        encoded_resume = urllib.parse.quote(resume_link)
+        resume_link = f"{tracking_base}/track/click/{recruiter['email']}?url={encoded_resume}"
+        pixel_img = f'<img src="{tracking_base}/track/open/{recruiter["email"]}" width="1" height="1" style="display:none;" />'
+
+    # --- 3. Build the HTML content ---
     html_body = html_template.format(
         name=name,
         company=company,
         resume_link=resume_link
     )
+    html_body += pixel_img
 
     # Return a clean dictionary that the Google Script understands
     return {
@@ -320,7 +361,7 @@ from datetime import datetime, timedelta, timezone
 
 # ---------------- FOLLOW UP LOGIC ----------------
 
-def build_followup_email(recruiter):
+def build_followup_email(recruiter, stage):
     """
     Builds the follow-up email matching the 'send-one' structure exactly.
     """
@@ -328,15 +369,19 @@ def build_followup_email(recruiter):
     rec_name = recruiter.get("name") or "there"
     rec_company = recruiter.get("company") or "your company"
     
-    # 2. Load Configuration from ENV
+    # 2. Load Configuration from ENV based on stage
     resume_link = os.getenv("RESUME_LINK")
-    subject_template = os.getenv("FOLLOWUP_SUBJECT", "Following up | Summer '26 Intern @{company}")
-    html_template = os.getenv("FOLLOWUP_TEMPLATE_HTML")
+    if stage == 1:
+        subject_template = os.getenv("FOLLOWUP_SUBJECT", "Following up | Summer '26 Intern @{company}")
+        html_template = os.getenv("FOLLOWUP_TEMPLATE_HTML")
+    else:
+        subject_template = os.getenv("BREAKUP_SUBJECT", "Wrapping up | Summer '26 Intern @{company}")
+        html_template = os.getenv("BREAKUP_TEMPLATE_HTML")
     
     # --- LOGGING START ---
-    logger.info(f"Building follow-up for: {recruiter['email']}")
+    logger.info(f"Building follow-up stage {stage} for: {recruiter['email']}")
     if not html_template:
-        logger.error("CRITICAL: FOLLOWUP_TEMPLATE_HTML is missing or empty in .env")
+        logger.error(f"CRITICAL: Template is missing or empty in .env for stage {stage}")
     # --- LOGGING END ---
 
     # 3. Format the Subject
@@ -344,9 +389,17 @@ def build_followup_email(recruiter):
         subject = subject_template.format(company=rec_company)
     except Exception as e:
         logger.warning(f"Subject format failed: {e}. Using fallback.")
-        subject = f"Following up | Summer '26 Intern @{rec_company}"
+        subject = f"Following up | Summer '26 Intern @{rec_company}" if stage == 1 else f"Wrapping up | Summer '26 Intern @{rec_company}"
 
-    # 4. Format the HTML Body
+    # 4. Add Tracking if available
+    tracking_base = os.getenv("TRACKING_BASE_URL", "").rstrip("/")
+    pixel_img = ""
+    if tracking_base:
+        encoded_resume = urllib.parse.quote(resume_link)
+        resume_link = f"{tracking_base}/track/click/{recruiter['email']}?url={encoded_resume}"
+        pixel_img = f'<img src="{tracking_base}/track/open/{recruiter["email"]}" width="1" height="1" style="display:none;" />'
+
+    # 5. Format the HTML Body
     if html_template:
         try:
             html_body = html_template.format(
@@ -354,19 +407,20 @@ def build_followup_email(recruiter):
                 company=rec_company,
                 resume_link=resume_link
             )
+            html_body += pixel_img
             # Log length to verify it's not empty
             logger.info(f"Generated HTML Body Length: {len(html_body)} chars")
         except KeyError as e:
-            logger.error(f"Template Error: Missing placeholder {e} in FOLLOWUP_TEMPLATE_HTML")
-            html_body = f"<p>Hi {rec_name}, just following up for {rec_company}. (Template Error)</p>"
+            logger.error(f"Template Error: Missing placeholder {e} in template")
+            html_body = f"<p>Hi {rec_name}, just following up for {rec_company}. (Template Error)</p>" + pixel_img
         except Exception as e:
             logger.error(f"Body formatting failed: {e}")
-            html_body = f"<p>Hi {rec_name}, just following up for {rec_company}.</p>"
+            html_body = f"<p>Hi {rec_name}, just following up for {rec_company}.</p>" + pixel_img
     else:
         # Fallback if ENV is missing
-        html_body = f"<p>Hi {rec_name}, just following up for {rec_company}.</p>"
+        html_body = f"<p>Hi {rec_name}, just following up for {rec_company}.</p>" + pixel_img
 
-    # 5. RETURN DICTIONARY (Crucial: Matches build_email structure)
+    # 6. RETURN DICTIONARY (Crucial: Matches build_email structure)
     return {
         "To": recruiter["email"],
         "Subject": subject,
@@ -379,21 +433,21 @@ def send_followup_if_due():
     """
     try:
         now = datetime.now(timezone.utc)
-        seven_days_ago = now - timedelta(days=7)
 
         # Query Logic:
         # 1. Status is 'sent' AND No Reply yet
-        # 2. AND (Either it's the first followup >7 days from sentAt OR recurring >7 days from last followup)
+        # 2. AND (Either it's stage 0 and 4 days have passed OR stage 1 and 6 days have passed since last)
         query = {
             "status": "sent",
             "replied": False,
             "$or": [
                 {
-                    "followupAt": {"$exists": False},
-                    "sentAt": {"$lte": seven_days_ago}
+                    "followupStage": {"$in": [0, None]},
+                    "sentAt": {"$lte": now - timedelta(days=4)}
                 },
                 {
-                    "followupAt": {"$lte": seven_days_ago}
+                    "followupStage": 1,
+                    "followupAt": {"$lte": now - timedelta(days=6)}
                 }
             ]
         }
@@ -406,8 +460,12 @@ def send_followup_if_due():
 
         logger.info(f"Found due follow-up for: {recruiter['email']}")
 
+        # Determine next stage
+        current_stage = recruiter.get("followupStage", 0)
+        next_stage = current_stage + 1
+
         # Build the email data
-        email_data = build_followup_email(recruiter)
+        email_data = build_followup_email(recruiter, next_stage)
         
         # Check if body is empty before sending
         if not email_data["HTMLPart"]:
@@ -426,12 +484,13 @@ def send_followup_if_due():
                 {
                     "$set": {
                         "followupSent": True,
-                        "followupAt": now
+                        "followupAt": now,
+                        "followupStage": next_stage
                     }
                 }
             )
 
-            logger.info(f"Follow-up marked as sent for {recruiter['email']}")
+            logger.info(f"Follow-up Stage {next_stage} marked as sent for {recruiter['email']}")
             return {
                 "status": "followup sent", 
                 "email": recruiter["email"],
@@ -466,7 +525,9 @@ def dashboard_stats():
             "sent": recruiters_col.count_documents({"status": "sent"}),
             "replied": recruiters_col.count_documents({"status": "replied"}),
             "errors": recruiters_col.count_documents({"status": "error"}),
-            "followups": recruiters_col.count_documents({"followupSent": True})
+            "followups": recruiters_col.count_documents({"followupSent": True}),
+            "opened": recruiters_col.count_documents({"opened": True}),
+            "clicked": recruiters_col.count_documents({"clicked": True})
         }
     except Exception as e:
         logger.error(f"Stats error: {e}")
