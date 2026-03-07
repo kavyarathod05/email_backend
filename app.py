@@ -507,6 +507,7 @@ def build_followup_email(recruiter, stage):
     rec_company = recruiter.get("company") or "your company"
     
     # 2. Check Database for Custom Template (Round-robin)
+    resume_link = os.getenv("RESUME_LINK")
     target_type = "followup1" if stage == 1 else "breakup"
     db_templates = list(templates_col.find({"type": target_type}).sort("createdAt", 1))
     
