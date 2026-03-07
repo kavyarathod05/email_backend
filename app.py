@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File, status, Response, Query
 from fastapi.responses import RedirectResponse
 from pymongo import MongoClient
+from bson import ObjectId
 from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
 import uvicorn
@@ -14,12 +15,23 @@ import urllib.parse
 from email.message import EmailMessage
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import Optional
 
 class TestEmailRequest(BaseModel):
     email: str
     name: str = "Test Name"
     company: str = "Test Company"
     templateType: str = "initial"
+    templateId: Optional[str] = None
+
+class TemplateBase(BaseModel):
+    name: str
+    subject: str
+    htmlBody: str
+    type: str = "initial"
+
+class SendOneRequest(BaseModel):
+    templateId: Optional[str] = None
 
 # Setup Logging
 logging.basicConfig(level=logging.INFO)
@@ -40,6 +52,7 @@ try:
     # Test connection
     client.server_info()
     recruiters_col = db["temp"]
+    templates_col = db["templates"]
     logger.info("Connected to MongoDB successfully")
 except Exception as e:
     logger.error(f"MongoDB Connection Error: {e}")
@@ -68,6 +81,87 @@ app.add_middleware(
 @app.get("/")
 def health():
     return {"status": "ok", "timestamp": datetime.utcnow()}
+
+# ---------------- TEMPLATES ----------------
+
+@app.get("/templates")
+def list_templates():
+    try:
+        results = []
+        for t in templates_col.find().sort("createdAt", -1):
+            t["_id"] = str(t["_id"])
+            results.append(t)
+        return results
+    except Exception as e:
+        logger.error(f"Error listing templates: {e}")
+        raise HTTPException(status_code=500, detail="Error fetching templates")
+
+@app.post("/templates")
+def create_template(data: TemplateBase):
+    try:
+        template = {
+            "name": data.name,
+            "subject": data.subject,
+            "htmlBody": data.htmlBody,
+            "type": data.type,
+            "createdAt": datetime.utcnow()
+        }
+        result = templates_col.insert_one(template)
+        return {"message": "Template created", "id": str(result.inserted_id)}
+    except Exception as e:
+        logger.error(f"Error creating template: {e}")
+        raise HTTPException(status_code=500, detail="Error creating template")
+
+@app.put("/templates/{template_id}")
+def update_template(template_id: str, data: TemplateBase):
+    try:
+        update_data = {
+            "name": data.name,
+            "subject": data.subject,
+            "htmlBody": data.htmlBody,
+            "type": data.type,
+            "updatedAt": datetime.utcnow()
+        }
+        result = templates_col.update_one({"_id": ObjectId(template_id)}, {"$set": update_data})
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Template not found")
+        return {"message": "Template updated"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating template: {e}")
+        raise HTTPException(status_code=500, detail="Error updating template")
+
+@app.delete("/templates/{template_id}")
+def delete_template(template_id: str):
+    try:
+        result = templates_col.delete_one({"_id": ObjectId(template_id)})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Template not found")
+        return {"message": "Template deleted"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting template: {e}")
+        raise HTTPException(status_code=500, detail="Error deleting template")
+
+# ---------------- TEST WEBHOOKS ----------------
+
+@app.post("/test/open/{email}")
+def test_open_event(email: str):
+    recruiters_col.update_one(
+        {"email": email},
+        {"$set": {"opened": True, "openedAt": datetime.now(timezone.utc)}}
+    )
+    return {"message": "Simulated open"}
+
+@app.post("/test/click/{email}")
+def test_click_event(email: str):
+    recruiters_col.update_one(
+        {"email": email},
+        {"$set": {"clicked": True, "clickedAt": datetime.now(timezone.utc)}}
+    )
+    return {"message": "Simulated click"}
 
 # ---------------- TRACKING ----------------
 
@@ -216,11 +310,15 @@ async def import_csv(file: UploadFile = File(...)):
 # ---------------- EMAIL LOGIC ----------------
 import requests
 
-def build_email(recruiter):
+def build_email(recruiter, template_doc=None):
     # Retrieve env variables
     resume_link = os.getenv("RESUME_LINK")
-    html_template = os.getenv("EMAIL_TEMPLATE_HTML")
-    subject_template = os.getenv("EMAIL_SUBJECT") # Get it as a template
+    if template_doc:
+        html_template = template_doc.get("htmlBody", "")
+        subject_template = template_doc.get("subject", "")
+    else:
+        html_template = os.getenv("EMAIL_TEMPLATE_HTML")
+        subject_template = os.getenv("EMAIL_SUBJECT") # Get it as a template
 
     # Create personal variables
     name = recruiter.get("name") or "there"
@@ -243,11 +341,21 @@ def build_email(recruiter):
         pixel_img = f'<img src="{tracking_base}/track/open/{recruiter["email"]}" width="1" height="1" style="display:none;" />'
 
     # --- 3. Build the HTML content ---
-    html_body = html_template.format(
-        name=name,
-        company=company,
-        resume_link=resume_link
-    )
+    resume_url = resume_link
+    resume_html = f'<a href="{resume_url}" target="_blank" style="color: #2563eb; font-weight: 600; text-decoration: underline;">Resume</a>'
+
+    try:
+        html_body = html_template.format(
+            name=name,
+            company=company,
+            resume_url=resume_url,
+            resume_link=resume_html
+        )
+    except KeyError as e:
+        logger.error(f"Template formatting error: Missing key {e}")
+        # Fallback for older templates that might just use {resume_link} or something else
+        html_body = html_template.replace("{resume_link}", resume_html).replace("{name}", name).replace("{company}", company)
+
     html_body += pixel_img
 
     # Return a clean dictionary that the Google Script understands
@@ -286,19 +394,30 @@ def send_email(email_data):
         return False, error_msg
 
 @app.post("/send-one")
-def send_one_email():
+def send_one_email(req: SendOneRequest = SendOneRequest()):
     try:
         recruiter = recruiters_col.find_one({"status": "new"})
         if not recruiter:
             return {"ok": False, "msg": "empty"} # Minimal response
+            
+        template_doc = None
+        template_id = req.templateId if req else None
+        if template_id:
+            template_doc = templates_col.find_one({"_id": ObjectId(template_id)})
+            
         # build_email now returns a dict, not an EmailMessage object
-        email_data = build_email(recruiter)
+        email_data = build_email(recruiter, template_doc)
         success, error_msg = send_email(email_data)
 
         if success:
+            update_fields = {"status": "sent", "sentAt": datetime.utcnow()}
+            if template_id:
+                update_fields["templateUsed"] = template_id
+                update_fields["templateName"] = template_doc.get("name") if template_doc else None
+
             recruiters_col.update_one(
                 {"_id": recruiter["_id"]},
-                {"$set": {"status": "sent", "sentAt": datetime.utcnow()}}
+                {"$set": update_fields}
             )
             return {"ok":True}
         else:
@@ -376,14 +495,29 @@ def build_followup_email(recruiter, stage):
     rec_name = recruiter.get("name") or "there"
     rec_company = recruiter.get("company") or "your company"
     
-    # 2. Load Configuration from ENV based on stage
+    # 2. Check Database for Custom Template
+    target_type = "followup1" if stage == 1 else "breakup"
+    template_doc = templates_col.find_one({"type": target_type}, sort=[("createdAt", -1)])
+    
     resume_link = os.getenv("RESUME_LINK")
-    if stage == 1:
-        subject_template = os.getenv("FOLLOWUP_SUBJECT", "Following up | Summer '26 Intern @{company}")
-        html_template = os.getenv("FOLLOWUP_TEMPLATE_HTML")
+    template_id_used = None
+    template_name_used = None
+    
+    if template_doc:
+        subject_template = template_doc.get("subject", "")
+        html_template = template_doc.get("htmlBody", "")
+        template_id_used = str(template_doc["_id"])
+        template_name_used = template_doc.get("name")
+        logger.info(f"Using DB template '{template_name_used}' for stage {stage} followup.")
     else:
-        subject_template = os.getenv("BREAKUP_SUBJECT", "Wrapping up | Summer '26 Intern @{company}")
-        html_template = os.getenv("BREAKUP_TEMPLATE_HTML")
+        # Fallback to .env
+        logger.info(f"Using .env template fallback for stage {stage} followup.")
+        if stage == 1:
+            subject_template = os.getenv("FOLLOWUP_SUBJECT", "Following up | Summer '26 Intern @{company}")
+            html_template = os.getenv("FOLLOWUP_TEMPLATE_HTML")
+        else:
+            subject_template = os.getenv("BREAKUP_SUBJECT", "Wrapping up | Summer '26 Intern @{company}")
+            html_template = os.getenv("BREAKUP_TEMPLATE_HTML")
     
     # --- LOGGING START ---
     logger.info(f"Building follow-up stage {stage} for: {recruiter['email']}")
@@ -407,31 +541,36 @@ def build_followup_email(recruiter, stage):
         pixel_img = f'<img src="{tracking_base}/track/open/{recruiter["email"]}" width="1" height="1" style="display:none;" />'
 
     # 5. Format the HTML Body
+    resume_url = resume_link
+    resume_html = f'<a href="{resume_url}" target="_blank" style="color: #2563eb; font-weight: 600; text-decoration: underline;">Resume</a>'
+
     if html_template:
         try:
             html_body = html_template.format(
                 name=rec_name,
                 company=rec_company,
-                resume_link=resume_link
+                resume_url=resume_url,
+                resume_link=resume_html
             )
             html_body += pixel_img
             # Log length to verify it's not empty
             logger.info(f"Generated HTML Body Length: {len(html_body)} chars")
         except KeyError as e:
-            logger.error(f"Template Error: Missing placeholder {e} in template")
-            html_body = f"<p>Hi {rec_name}, just following up for {rec_company}. (Template Error)</p>" + pixel_img
+            logger.error(f"Template Error: Missing placeholder {e} in template. Falling back to simple replace.")
+            html_body = html_template.replace("{resume_link}", resume_html).replace("{name}", rec_name).replace("{company}", rec_company) + pixel_img
         except Exception as e:
             logger.error(f"Body formatting failed: {e}")
             html_body = f"<p>Hi {rec_name}, just following up for {rec_company}.</p>" + pixel_img
     else:
         # Fallback if ENV is missing
-        html_body = f"<p>Hi {rec_name}, just following up for {rec_company}.</p>" + pixel_img
+        html_body = f"<p>Hi {rec_name}, just following up for {rec_company}. {resume_html}</p>" + pixel_img
 
-    # 6. RETURN DICTIONARY (Crucial: Matches build_email structure)
     return {
         "To": recruiter["email"],
         "Subject": subject,
-        "HTMLPart": html_body
+        "HTMLPart": html_body,
+        "templateUsed": template_id_used,
+        "templateName": template_name_used
     }
 
 def send_followup_if_due():
@@ -486,15 +625,18 @@ def send_followup_if_due():
 
         if success:
             # Update Database
+            update_fields = {
+                "followupSent": True,
+                "followupAt": now,
+                "followupStage": next_stage
+            }
+            if email_data.get("templateUsed"):
+                update_fields["templateUsed"] = email_data["templateUsed"]
+                update_fields["templateName"] = email_data["templateName"]
+
             recruiters_col.update_one(
                 {"_id": recruiter["_id"]},
-                {
-                    "$set": {
-                        "followupSent": True,
-                        "followupAt": now,
-                        "followupStage": next_stage
-                    }
-                }
+                {"$set": update_fields}
             )
 
             logger.info(f"Follow-up Stage {next_stage} marked as sent for {recruiter['email']}")
@@ -522,6 +664,39 @@ def send_followup_if_due():
 @app.post("/send-followup")
 def send_followup_api():
     return send_followup_if_due()
+
+@app.get("/dashboard/analytics")
+def dashboard_analytics():
+    try:
+        pipeline_sent = [
+            {"$match": {"sentAt": {"$ne": None}}},
+            {"$group": {
+                "_id": {"$dateToString": {"format": "%Y-%m-%d", "date": "$sentAt"}},
+                "count": {"$sum": 1}
+            }},
+            {"$sort": {"_id": 1}}
+        ]
+        sent_per_day = list(recruiters_col.aggregate(pipeline_sent))
+
+        pipeline_templates = [
+            {"$match": {"status": {"$in": ["sent", "replied"]}}},
+            {"$group": {
+                "_id": {"$ifNull": ["$templateName", "Default"]},
+                "sent": {"$sum": 1},
+                "opened": {"$sum": {"$cond": [{"$eq": ["$opened", True]}, 1, 0]}},
+                "clicked": {"$sum": {"$cond": [{"$eq": ["$clicked", True]}, 1, 0]}},
+                "replied": {"$sum": {"$cond": [{"$eq": ["$replied", True]}, 1, 0]}}
+            }}
+        ]
+        template_metrics = list(recruiters_col.aggregate(pipeline_templates))
+
+        return {
+            "sentPerDay": [{"date": x["_id"], "count": x["count"]} for x in sent_per_day],
+            "templateMetrics": [{"name": x["_id"], "sent": x["sent"], "opened": x["opened"], "clicked": x["clicked"], "replied": x["replied"]} for x in template_metrics]
+        }
+    except Exception as e:
+        logger.error(f"Analytics error: {e}")
+        raise HTTPException(status_code=500, detail="Analytics error")
 
 @app.get("/dashboard/stats")
 def dashboard_stats():
@@ -571,7 +746,10 @@ def test_email_endpoint(data: TestEmailRequest):
         template_type = req_data.get("templateType", "initial")
         
         if template_type == "initial":
-            email_data = build_email(recruiter)
+            template_doc = None
+            if req_data.get("templateId"):
+                template_doc = templates_col.find_one({"_id": ObjectId(req_data["templateId"])})
+            email_data = build_email(recruiter, template_doc)
         elif template_type == "followup1":
             email_data = build_followup_email(recruiter, stage=1)
         elif template_type == "breakup":
