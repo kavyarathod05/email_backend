@@ -217,6 +217,7 @@ def add_recruiter(data: dict):
             "followupStage": 0,
             "opened": False,
             "clicked": False,
+            "techStack": data.get("techStack", ""),
             "createdAt": datetime.utcnow()
         }
 
@@ -278,29 +279,39 @@ async def import_csv(file: UploadFile = File(...)):
 
     try:
         content = await file.read()
-        lines = content.decode("utf-8").splitlines()
+        text = content.decode("utf-8-sig")  # strip BOM if present
+        lines = text.splitlines()
         reader = csv.DictReader(lines)
+        # Normalize headers: strip whitespace/CR and lowercase
+        if reader.fieldnames:
+            reader.fieldnames = [f.strip().lower() for f in reader.fieldnames]
 
         added, skipped = 0, 0
         for row in reader:
-            email_addr = row.get("Email")
+            # Normalize row keys too (handles any extra whitespace)
+            norm_row = {k.strip().lower(): (v or "").strip() for k, v in row.items() if k}
+            email_addr = norm_row.get("email", "")
             if not email_addr:
                 skipped += 1
                 continue
 
-            email_addr = email_addr.strip().lower()
+            email_addr = email_addr.lower()
             if recruiters_col.find_one({"email": email_addr}):
                 skipped += 1
                 continue
 
             recruiter = {
                 "email": email_addr,
-                "name": row.get("Name", "").strip(),
-                "company": row.get("Company", "").strip(),
+                "name": norm_row.get("name", ""),
+                "company": norm_row.get("company", ""),
                 "status": "new",
                 "sentAt": None,
                 "replied": False,
                 "followupSent": False,
+                "followupStage": 0,
+                "opened": False,
+                "clicked": False,
+                "techStack": norm_row.get("techstack", ""),
                 "createdAt": datetime.utcnow()
             }
             recruiters_col.insert_one(recruiter)
@@ -317,33 +328,53 @@ async def import_text(data: CSVImportRequest):
         raise HTTPException(status_code=400, detail="CSV text is required")
 
     try:
-        lines = data.csvText.strip().splitlines()
+        # Normalize line endings and strip BOM
+        text = data.csvText.strip().replace("\r\n", "\n").replace("\r", "\n")
+        lines = text.splitlines()
+        if not lines:
+            return {"message": "No data provided", "added": 0, "skipped": 0}
+
         reader = csv.DictReader(lines)
+        # Normalize headers: strip whitespace/CR and lowercase
+        if reader.fieldnames:
+            reader.fieldnames = [f.strip().lower() for f in reader.fieldnames]
 
         added, skipped = 0, 0
+        rows_seen = 0
         for row in reader:
-            email_addr = row.get("Email")
+            rows_seen += 1
+            # Normalize row keys too
+            norm_row = {k.strip().lower(): (v or "").strip() for k, v in row.items() if k}
+            email_addr = norm_row.get("email", "")
+            logger.info(f"Processing row {rows_seen}: email='{email_addr}' norm_row={norm_row}")
             if not email_addr:
+                logger.warning(f"Row {rows_seen} skipped: no email. Row data: {norm_row}")
                 skipped += 1
                 continue
 
-            email_addr = email_addr.strip().lower()
+            email_addr = email_addr.lower()
             if recruiters_col.find_one({"email": email_addr}):
+                logger.info(f"Row {rows_seen} skipped: duplicate email '{email_addr}'")
                 skipped += 1
                 continue
 
             recruiter = {
                 "email": email_addr,
-                "name": row.get("Name", "").strip(),
-                "company": row.get("Company", "").strip(),
+                "name": norm_row.get("name", ""),
+                "company": norm_row.get("company", ""),
                 "status": "new",
                 "sentAt": None,
                 "replied": False,
                 "followupSent": False,
+                "followupStage": 0,
+                "opened": False,
+                "clicked": False,
+                "techStack": norm_row.get("techstack", ""),
                 "createdAt": datetime.utcnow()
             }
             recruiters_col.insert_one(recruiter)
             added += 1
+            logger.info(f"Added recruiter: {email_addr}")
 
         return {"message": "Text import completed", "added": added, "skipped": skipped}
     except Exception as e:
@@ -369,13 +400,10 @@ def build_email(recruiter, template_doc=None):
 
     # --- 1. Format the Subject with Company Name ---
     try:
-        # This replaces {company} in the subject line
         subject = subject_template.format(company=company)
     except Exception:
-        # Fallback if format fails or placeholder is missing
         subject = subject_template
 
-    # --- 2. Add Tracking if available ---
     tracking_base = os.getenv("TRACKING_BASE_URL", "").rstrip("/")
     pixel_img = ""
     if tracking_base:
@@ -383,7 +411,24 @@ def build_email(recruiter, template_doc=None):
         resume_link = f"{tracking_base}/track/click/{recruiter['email']}?url={encoded_resume}"
         pixel_img = f'<img src="{tracking_base}/track/open/{recruiter["email"]}" width="1" height="1" style="display:none;" />'
 
-    # --- 3. Build the HTML content ---
+    # --- 4. Build Mailto Buttons (Psychological CTA) ---
+    def make_mailto(subj, body_text):
+        quoted_subj = urllib.parse.quote(subj)
+        quoted_body = urllib.parse.quote(body_text)
+        return f"mailto:rathodkavya2005@gmail.com?subject={quoted_subj}&body={quoted_body}"
+
+    yes_link = make_mailto(f"Re: Internship @ {company}", f"Hi Kavya,\n\nI saw your application for {company}. Let's chat. When are you free?")
+    no_link = make_mailto(f"Contact for Internship @ {company}", f"Hi Kavya,\n\nI'm not the best person to speak with. You should reach out to [Name/Email] instead.")
+    
+    mailto_html = f"""
+    <div style="margin-top: 25px; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+        <p style="margin-top: 0; color: #64748b; font-size: 14px;">One-click quick reply:</p>
+        <a href="{yes_link}" style="display: inline-block; padding: 10px 18px; background: #22c55e; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; margin-right: 10px;">Yes, let's chat</a>
+        <a href="{no_link}" style="display: inline-block; padding: 10px 18px; background: #94a3b8; color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">Not the right person</a>
+    </div>
+    """
+
+    # --- 5. Build the HTML content ---
     resume_url = resume_link
     resume_html = f'<a href="{resume_url}" target="_blank" style="color: #2563eb; font-weight: 600; text-decoration: underline;">Resume</a>'
 
@@ -396,12 +441,12 @@ def build_email(recruiter, template_doc=None):
         )
     except KeyError as e:
         logger.error(f"Template formatting error: Missing key {e}")
-        # Fallback for older templates that might just use {resume_link} or something else
         html_body = html_template.replace("{resume_link}", resume_html).replace("{name}", name).replace("{company}", company)
 
+    # Inject Mailto Buttons
+    html_body += mailto_html
     html_body += pixel_img
 
-    # Return a clean dictionary that the Google Script understands
     return {
         "To": recruiter["email"],
         "Subject": subject,
@@ -425,8 +470,14 @@ def send_email(email_data):
         response = requests.post(SCRIPT_URL, json=payload, timeout=10)
         
         if response.status_code == 200:
-            logger.info(f"Email successfully delivered to Google Bridge for {email_data['To']}")
-            return True, None
+            # Stricter check: Look for "Success" in the body
+            if "Success" in response.text:
+                logger.info(f"Email successfully delivered to Google Bridge for {email_data['To']}")
+                return True, None
+            else:
+                error_msg = f"Google Bridge returned 200 but failed: {response.text}"
+                logger.error(error_msg)
+                return False, error_msg
         else:
             error_msg = f"Google Bridge Error: {response.status_code} - {response.text}"
             logger.error(error_msg)
@@ -543,52 +594,43 @@ from datetime import datetime, timedelta, timezone
 
 def build_followup_email(recruiter, stage):
     """
-    Builds the follow-up email matching the 'send-one' structure exactly.
+    Builds the follow-up email with behavioral branching.
     """
-    # 1. Get Data & Defaults
     rec_name = recruiter.get("name") or "there"
     rec_company = recruiter.get("company") or "your company"
-    
-    # 2. Check Database for Custom Template (Round-robin)
+    clicked = recruiter.get("clicked", False)
+    opened = recruiter.get("opened", False)
     resume_link = os.getenv("RESUME_LINK")
-    target_type = "followup1" if stage == 1 else "breakup"
-    db_templates = list(templates_col.find({"type": target_type}).sort("createdAt", 1))
     
-    template_id_used = None
-    template_name_used = None
-    
-    if db_templates:
-        total_sent_at_stage = recruiters_col.count_documents({"followupStage": stage})
-        template_doc = db_templates[total_sent_at_stage % len(db_templates)]
-        subject_template = template_doc.get("subject", "")
-        html_template = template_doc.get("htmlBody", "")
-        template_id_used = str(template_doc["_id"])
-        template_name_used = template_doc.get("name")
-        logger.info(f"Using DB template '{template_name_used}' (round-robin) for stage {stage} followup.")
-    else:
-        # Fallback to .env
-        logger.info(f"Using .env template fallback for stage {stage} followup.")
-        if stage == 1:
+    # 1. Determine Behavioral Subject/Body
+    if stage == 1:
+        if clicked:
+            subject_template = "Glad you saw my resume | Kavya @ {company}"
+            html_template = """<p>Hi {name},</p>
+            <p>I noticed you took a look at my resume recently—thanks for checking it out! 
+            I'm really excited about the work {company} is doing and would love to discuss how my background in building high-traffic systems could be a fit for your Summer '26 internship roles.</p>
+            <p>Do you have 10 minutes for a quick chat later this week?</p>"""
+        elif opened:
+            subject_template = "Quick question about {company} internship"
+            html_template = """<p>Hi {name},</p>
+            <p>I'm following up on my previous email. I noticed you opened it, and I wanted to share a specific highlight: 
+            I recently led a team of 5 to build a system handling <b>10k daily traffic</b>, which I think would be relevant to the scale {company} operates at.</p>
+            <p>I've attached my {resume_link} again for convenience. Would you be open to a brief chat?</p>"""
+        else:
             subject_template = os.getenv("FOLLOWUP_SUBJECT", "Following up | Summer '26 Intern @{company}")
             html_template = os.getenv("FOLLOWUP_TEMPLATE_HTML")
-        else:
-            subject_template = os.getenv("BREAKUP_SUBJECT", "Wrapping up | Summer '26 Intern @{company}")
-            html_template = os.getenv("BREAKUP_TEMPLATE_HTML")
-    
-    # --- LOGGING START ---
-    logger.info(f"Building follow-up stage {stage} for: {recruiter['email']}")
-    if not html_template:
-        logger.error(f"CRITICAL: Template is missing or empty in .env for stage {stage}")
-    # --- LOGGING END ---
+    else:
+        # Stage 2 (Breakup)
+        subject_template = os.getenv("BREAKUP_SUBJECT", "Wrapping up | Summer '26 Intern @{company}")
+        html_template = os.getenv("BREAKUP_TEMPLATE_HTML")
 
-    # 3. Format the Subject
+    # 2. Format the Subject
     try:
         subject = subject_template.format(company=rec_company)
-    except Exception as e:
-        logger.warning(f"Subject format failed: {e}. Using fallback.")
-        subject = f"Following up | Summer '26 Intern @{rec_company}" if stage == 1 else f"Wrapping up | Summer '26 Intern @{rec_company}"
+    except Exception:
+        subject = f"Following up | {rec_company}"
 
-    # 4. Add Tracking if available
+    # 3. Add Tracking
     tracking_base = os.getenv("TRACKING_BASE_URL", "").rstrip("/")
     pixel_img = ""
     if tracking_base:
@@ -596,37 +638,44 @@ def build_followup_email(recruiter, stage):
         resume_link = f"{tracking_base}/track/click/{recruiter['email']}?url={encoded_resume}"
         pixel_img = f'<img src="{tracking_base}/track/open/{recruiter["email"]}" width="1" height="1" style="display:none;" />'
 
-    # 5. Format the HTML Body
+    # 4. Build Mailto Buttons
+    def make_mailto(subj, body_text):
+        quoted_subj = urllib.parse.quote(subj)
+        quoted_body = urllib.parse.quote(body_text)
+        return f"mailto:rathodkavya2005@gmail.com?subject={quoted_subj}&body={quoted_body}"
+
+    yes_link = make_mailto(f"Re: Internship @ {rec_company}", f"Hi Kavya,\n\nI saw your application. Let's chat. When are you free?")
+    no_link = make_mailto(f"Contact for Internship @ {rec_company}", f"Hi Kavya,\n\nI'm not the best person to speak with. You should reach out to [Name/Email] instead.")
+    
+    mailto_html = f"""
+    <div style="margin-top: 25px; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+        <p style="margin-top: 0; color: #64748b; font-size: 14px;">One-click quick reply:</p>
+        <a href="{yes_link}" style="display: inline-block; padding: 10px 18px; background: #22c55e; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; margin-right: 10px;">Yes, let's chat</a>
+        <a href="{no_link}" style="display: inline-block; padding: 10px 18px; background: #94a3b8; color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">Not the right person</a>
+    </div>
+    """
+
+    # 5. Build HTML Body
     resume_url = resume_link
     resume_html = f'<a href="{resume_url}" target="_blank" style="color: #2563eb; font-weight: 600; text-decoration: underline;">Resume</a>'
 
-    if html_template:
-        try:
-            html_body = html_template.format(
-                name=rec_name,
-                company=rec_company,
-                resume_url=resume_url,
-                resume_link=resume_html
-            )
-            html_body += pixel_img
-            # Log length to verify it's not empty
-            logger.info(f"Generated HTML Body Length: {len(html_body)} chars")
-        except KeyError as e:
-            logger.error(f"Template Error: Missing placeholder {e} in template. Falling back to simple replace.")
-            html_body = html_template.replace("{resume_link}", resume_html).replace("{name}", rec_name).replace("{company}", rec_company) + pixel_img
-        except Exception as e:
-            logger.error(f"Body formatting failed: {e}")
-            html_body = f"<p>Hi {rec_name}, just following up for {rec_company}.</p>" + pixel_img
-    else:
-        # Fallback if ENV is missing
-        html_body = f"<p>Hi {rec_name}, just following up for {rec_company}. {resume_html}</p>" + pixel_img
+    try:
+        html_body = html_template.format(
+            name=rec_name,
+            company=rec_company,
+            resume_url=resume_url,
+            resume_link=resume_html
+        )
+    except Exception:
+        html_body = html_template.replace("{resume_link}", resume_html).replace("{name}", rec_name).replace("{company}", rec_company)
+
+    html_body += mailto_html
+    html_body += pixel_img
 
     return {
         "To": recruiter["email"],
         "Subject": subject,
-        "HTMLPart": html_body,
-        "templateUsed": template_id_used,
-        "templateName": template_name_used
+        "HTMLPart": html_body
     }
 
 def send_followup_if_due():
