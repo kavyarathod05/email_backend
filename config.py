@@ -1,0 +1,57 @@
+"""
+Centralized configuration: environment variables, MongoDB, logging, and CORS.
+"""
+import os
+import logging
+from dotenv import load_dotenv
+from pymongo import MongoClient
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+# --------------- Logging ---------------
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("email_automation")
+
+# --------------- Environment ---------------
+load_dotenv()
+
+MONGO_URI = os.getenv("MONGO_URI")
+MONGO_DB = os.getenv("MONGO_DB")
+
+if not MONGO_URI or not MONGO_DB:
+    raise Exception("Missing MongoDB environment variables")
+
+# --------------- MongoDB ---------------
+try:
+    client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+    db = client[MONGO_DB]
+    client.server_info()
+    recruiters_col = db["temp"]
+    templates_col = db["templates"]
+    logger.info("Connected to MongoDB successfully")
+except Exception as e:
+    logger.error(f"MongoDB Connection Error: {e}")
+    raise Exception(f"Could not connect to MongoDB: {e}")
+
+
+# --------------- App Factory ---------------
+def create_app() -> FastAPI:
+    """Create and configure the FastAPI application."""
+    application = FastAPI(title="Email Outreach Automation")
+
+    frontend_origin = os.getenv("FRONTEND_ORIGIN", "").rstrip("/")
+    origins = [
+        frontend_origin,
+        "http://localhost:5173",
+        "http://localhost:3000",
+    ]
+
+    application.add_middleware(
+        CORSMiddleware,
+        allow_origins=[o for o in origins if o],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    return application

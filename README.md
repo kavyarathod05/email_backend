@@ -14,10 +14,40 @@ A professional-grade system designed to automate, track, and optimize recruiter 
 
 ---
 
+## 📁 Project Structure
+
+```
+email_automation/
+├── app.py                        # Slim entrypoint — mounts routers, starts server
+├── config.py                     # Environment variables, MongoDB, logging, CORS
+├── models.py                     # Pydantic request models
+├── requirements.txt
+│
+├── routes/                       # API route handlers
+│   ├── health.py                 # GET /
+│   ├── templates.py              # CRUD /templates
+│   ├── recruiters.py             # CRUD /recruiters, CSV/text import
+│   ├── tracking.py               # Open/click tracking, test webhooks
+│   ├── email.py                  # /send-one, /test-email, /check-replies, /send-followup
+│   └── dashboard.py              # /dashboard/analytics, /dashboard/stats, /dashboard/recruiters
+│
+├── services/                     # Business logic
+│   ├── email_builder.py          # build_email(), build_followup_email() with template resolution
+│   ├── email_sender.py           # Google Apps Script Bridge delivery
+│   ├── reply_checker.py          # IMAP-based reply detection
+│   └── followup.py               # Follow-up engine with timing rules
+│
+├── test_flow.py                  # End-to-end pipeline test script
+├── clean_and_send.py             # DB cleanup + single send test
+└── .env                          # Environment configuration
+```
+
+---
+
 ## ✨ Core Features
 
 ### 1. Dynamic Multistage Outreach
-- **Initial Phase**: Send personalized emails using round-robin template selection.
+- **Initial Phase**: Send personalized emails using round-robin template selection from the database.
 - **Stage 1 Follow-up**: Automatically nudges recruiters 4 days after the initial send if no reply is detected.
 - **Stage 2 "Breakup"**: A final, high-impact email sent 6 days after the follow-up to close the loop.
 
@@ -32,26 +62,54 @@ A professional-grade system designed to automate, track, and optimize recruiter 
 - Captures subject lines and snippets of the reply for quick viewing in the dashboard.
 
 ### 4. Template & A/B Management
-- **Round-Robin Selection**: Rotate through multiple "Initial" templates to see which subject lines or pitches perform best.
-- **Placeholders**: Supports dynamic injection of `{name}`, `{company}`, `{resume_link}`, and `{resume_url}`.
-- **Tester UI**: Send live tests to yourself before launching a campaign.
+- **Round-Robin Selection**: Rotate through multiple templates for **all stages** (initial, followup1, breakup) to see which subject lines or pitches perform best.
+- **DB Template Priority**: Templates stored in MongoDB take priority over `.env` defaults. If no DB templates exist for a stage, the system falls back to behavioural branching (follow-up 1) or `.env` defaults.
+- **Behavioral Follow-up 1**: When no DB template exists for follow-up 1, the system adapts based on recruiter engagement:
+  - **Clicked resume** → personalized "glad you checked it out" message
+  - **Opened email** → highlights a specific achievement
+  - **No engagement** → uses the `.env` fallback template
+- **Tester UI**: Send live tests to yourself for **any stage** (initial, follow-up 1, breakup) using any DB template before launching a campaign.
 
-### 5. Data Management
+### 5. Template Placeholders
+
+Templates support these dynamic placeholders:
+
+| Placeholder      | Resolves To                                          | Example Usage             |
+|------------------|------------------------------------------------------|---------------------------|
+| `{name}`         | Recruiter's name (or "there")                        | `Hi {name},`              |
+| `{company}`      | Recruiter's company (or "your team")                 | `at {company}`            |
+| `{resume_link}`  | Bold, clickable `<a>` tag with click-tracking        | `View my {resume_link}`   |
+
+**Example template:**
+```html
+<p>Hi {name},</p>
+<p>I'd love to join {company}.</p>
+<p>🔗 <b>View my {resume_link}</b></p>
+```
+
+### 6. Data Management
 - **CSV Import**: Bulk upload recruiters with automatic deduplication.
+- **Text Import**: Paste CSV text directly into the dashboard without file uploads.
 - **Filtering**: View recruiters by status (New, Sent, Replied, Opened, Clicked, Error).
 
 ---
 
 ## ⚙️ Detailed Logic
 
-### Follow-up Engine (`app.py`)
+### Follow-up Engine (`services/followup.py`)
 The system follows strict timing rules to avoid spamming while staying persistent:
 - **Rule 1**: If `status == "sent"` AND `replied == False` AND 4 days have passed since `sentAt` → Send **Stage 1 Followup**.
 - **Rule 2**: If `followupStage == 1` AND 6 days have passed since `followupAt` → Send **Stage 2 Breakup**.
 
+### Email Builder (`services/email_builder.py`)
+Handles all template resolution for every email stage:
+- Supports DB templates (round-robin per stage) with `.env` fallback
+- Injects open-tracking pixel and click-tracking wrapper automatically
+- Appends one-click mailto Quick Reply buttons to every email
+
 ### Tracking Logic
 - **`{resume_link}`**: Generates a pre-styled HTML `<a>` tag: `<a href="...">Resume</a>`.
-- **`{resume_url}`**: Returns just the raw tracking string, perfect for custom buttons or footers.
+- **`{resume_url}`**: Returns just the raw tracking URL, perfect for custom buttons or footers.
 
 ### Google Bridge
 To ensure maximum deliverability, emails are handed off to a Google Apps Script that sends via your authenticated Gmail account, bypassing common "Spam" flags triggered by standard SMTP libraries.
@@ -62,8 +120,8 @@ To ensure maximum deliverability, emails are handed off to a Google Apps Script 
 
 1. **Overview & Stats**: High-level funnel (Total -> Sent -> Opened -> Replied).
 2. **Recruiter Database**: The "Command Center" with deep filters and engagement timestamps.
-3. **Template Manager**: Create, edit, and categorize templates by stage.
-4. **Import & Tests**: Clean CSV uploads and end-to-end flow testing.
+3. **Template Manager**: Create, edit, and categorize templates by stage (initial, followup1, breakup).
+4. **Import & Tests**: Clean CSV uploads, text paste imports, and end-to-end flow testing for all email stages.
 
 ---
 
@@ -76,10 +134,42 @@ To ensure maximum deliverability, emails are handed off to a Google Apps Script 
    - `GMAIL_ID`, `GMAIL_APP_PASSWORD` (For IMAP)
    - `TRACKING_BASE_URL` (Your public backend URL)
    - `RESUME_LINK` (Link to your CV)
-3. **Run Backend**: `uvicorn app:app --reload`
-4. **Run Frontend**: `npm run dev`
+   - `EMAIL_SUBJECT`, `EMAIL_TEMPLATE_HTML` (Default initial template)
+   - `FOLLOWUP_SUBJECT`, `FOLLOWUP_TEMPLATE_HTML` (Default follow-up template)
+   - `BREAKUP_SUBJECT`, `BREAKUP_TEMPLATE_HTML` (Default breakup template)
+3. **Install dependencies**: `pip install -r requirements.txt`
+4. **Run Backend**: `uvicorn app:app --reload --port 10000`
+5. **Run Frontend**: `cd recruiter-dashboard && npm run dev`
+
+---
+
+## 🔌 API Endpoints
+
+| Method   | Path                        | Description                           |
+|----------|-----------------------------|---------------------------------------|
+| `GET`    | `/`                         | Health check                          |
+| `GET`    | `/templates`                | List all templates                    |
+| `POST`   | `/templates`                | Create a template                     |
+| `PUT`    | `/templates/{id}`           | Update a template                     |
+| `DELETE` | `/templates/{id}`           | Delete a template                     |
+| `POST`   | `/recruiters`               | Add a recruiter                       |
+| `GET`    | `/recruiters`               | List recruiters (with optional `?status=` filter) |
+| `PATCH`  | `/recruiters/{email}`       | Update recruiter status               |
+| `POST`   | `/recruiters/import-csv`    | Import recruiters from CSV file       |
+| `POST`   | `/recruiters/import-text`   | Import recruiters from pasted CSV text|
+| `POST`   | `/send-one`                 | Send one initial email (picks next "new" recruiter) |
+| `POST`   | `/send-followup`            | Send one follow-up/breakup if due     |
+| `POST`   | `/test-email`               | Test any template (initial/followup1/breakup) |
+| `POST`   | `/check-replies`            | Scan inbox for replies                |
+| `GET`    | `/track/open/{email}`       | Open tracking pixel                   |
+| `GET`    | `/track/click/{email}`      | Click tracking redirect               |
+| `POST`   | `/test/open/{email}`        | Simulate open event                   |
+| `POST`   | `/test/click/{email}`       | Simulate click event                  |
+| `GET`    | `/dashboard/analytics`      | Sent-per-day and template metrics     |
+| `GET`    | `/dashboard/stats`          | Aggregate counts                      |
+| `GET`    | `/dashboard/recruiters`     | Recruiter list for dashboard          |
 
 ---
 
 > [!TIP]
-> Use the **"Test Panel"** in the dashboard to simulate Opens and Clicks. It's the best way to verify your tracking pixel is working before you send out 100+ emails!
+> Use the **"Test Panel"** in the dashboard to send Initial, Follow-up 1, and Breakup test emails. Select a DB template from the dropdown to verify placeholder resolution and formatting before launching a campaign.
