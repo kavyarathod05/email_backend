@@ -6,18 +6,37 @@ Template placeholder:
   - {company}     → recruiter company or "your team"
   - {resume_link} → bold, clickable <a> tag with click-tracking URL
 """
+
 import os
 import urllib.parse
 
 from config import logger, templates_col
-from services.ai_service import generate_company_sentence, generate_opening_line, generate_subject_lines
+from services.ai_service import (
+    generate_company_sentence,
+    generate_opening_line,
+    generate_subject_lines,
+    generate_research_line,
+    generate_proof_line,
+)
 
 # Generic/personal email domains — skip AI personalization for these
 GENERIC_DOMAINS = {
-    "gmail.com", "yahoo.com", "yahoo.co.in", "hotmail.com", "outlook.com",
-    "live.com", "aol.com", "icloud.com", "mail.com", "protonmail.com",
-    "zoho.com", "yandex.com", "gmx.com", "rediffmail.com",
+    "gmail.com",
+    "yahoo.com",
+    "yahoo.co.in",
+    "hotmail.com",
+    "outlook.com",
+    "live.com",
+    "aol.com",
+    "icloud.com",
+    "mail.com",
+    "protonmail.com",
+    "zoho.com",
+    "yandex.com",
+    "gmx.com",
+    "rediffmail.com",
 }
+
 
 def is_generic_email(email_addr: str) -> bool:
     """Returns True if the email is from a personal/generic domain."""
@@ -28,6 +47,7 @@ def is_generic_email(email_addr: str) -> bool:
 
 
 # ────────────────────── Shared Helpers ──────────────────────
+
 
 def _get_tracking_urls(recruiter_email: str, resume_raw: str):
     """
@@ -54,7 +74,7 @@ def _build_resume_link(resume_url: str) -> str:
     return (
         f'<a href="{resume_url}" target="_blank" '
         f'style="color: #2563eb; font-weight: 700; text-decoration: underline;">'
-        f'Resume</a>'
+        "Resume</a>"
     )
 
 
@@ -72,7 +92,7 @@ def _build_mailto_buttons(company: str):
     )
     no_link = _quote_mailto(
         f"Contact for Internship @ {company}",
-        f"Hi Kavya,\n\nI'm not the best person to speak with. You should reach out to [Name/Email] instead.",
+        "Hi Kavya,\n\nI'm not the best person to speak with. You should reach out to [Name/Email] instead.",
     )
 
     return f"""
@@ -84,11 +104,17 @@ def _build_mailto_buttons(company: str):
     """
 
 
-def _resolve_template(html_template: str, subject_template: str,
-                       name: str, company: str,
-                       resume_link_html: str,
-                       company_sentence: str = "",
-                       opening_line: str = ""):
+def _resolve_template(
+    html_template: str,
+    subject_template: str,
+    name: str,
+    company: str,
+    resume_link_html: str,
+    company_sentence: str = "",
+    opening_line: str = "",
+    research_line: str = "",
+    proof_line: str = "",
+):
     """
     Safely substitute placeholders in a template string.
 
@@ -98,6 +124,8 @@ def _resolve_template(html_template: str, subject_template: str,
       {resume_link}      — bold, clickable <a> tag with click-tracking
       {company_sentence} — AI-generated company description
       {opening_line}     — AI-generated opening line
+      {research_line}    — AI-generated research line
+      {proof_line}       — AI-generated proof of work line
     """
     try:
         subject = subject_template.format(name=name, company=company)
@@ -111,9 +139,13 @@ def _resolve_template(html_template: str, subject_template: str,
             resume_link=resume_link_html,
             company_sentence=company_sentence,
             opening_line=opening_line,
+            research_line=research_line,
+            proof_line=proof_line,
         )
     except Exception as e:
-        logger.warning(f"Template formatting failed (.format()), using .replace() fallback: {e}")
+        logger.warning(
+            f"Template formatting failed (.format()), using .replace() fallback: {e}"
+        )
         html_body = html_template
         replacements = {
             "{name}": name,
@@ -121,6 +153,8 @@ def _resolve_template(html_template: str, subject_template: str,
             "{resume_link}": resume_link_html,
             "{company_sentence}": company_sentence,
             "{opening_line}": opening_line,
+            "{research_line}": research_line,
+            "{proof_line}": proof_line,
         }
         for placeholder, value in replacements.items():
             html_body = html_body.replace(placeholder, value)
@@ -129,6 +163,7 @@ def _resolve_template(html_template: str, subject_template: str,
 
 
 # ────────────────────── Build Initial Email ──────────────────────
+
 
 def build_email(recruiter: dict, template_doc: dict | None = None) -> dict:
     """
@@ -154,21 +189,37 @@ def build_email(recruiter: dict, template_doc: dict | None = None) -> dict:
     # AI Personalization
     company_sentence = ""
     opening_line = ""
+    research_line = ""
+    proof_line = ""
     if company and company != "your team":
         try:
-            logger.info(f"Triggering AI personalization for {recruiter['email']} ({company})")
+            logger.info(
+                f"Triggering AI personalization for {recruiter['email']} ({company})"
+            )
             company_sentence = generate_company_sentence(company)
             opening_line = generate_opening_line(company)
-            logger.info(f"AI Personalization applied: {company_sentence[:40]}...")
+            research_line = generate_research_line(company)
+            proof_line = generate_proof_line()
+            logger.info(
+                f"AI Personalization applied: {company_sentence[:20]}... | {opening_line[:20]}..."
+            )
         except Exception as e:
             logger.error(f"Error generating AI personalization: {e}")
     else:
-        logger.info(f"Skipping AI personalization due to missing company: {recruiter['email']}")
+        logger.info(
+            f"Skipping AI personalization due to missing company: {recruiter['email']}"
+        )
 
     subject, html_body = _resolve_template(
-        html_template, subject_template,
-        name, company, resume_link_html,
-        company_sentence, opening_line
+        html_template,
+        subject_template,
+        name,
+        company,
+        resume_link_html,
+        company_sentence,
+        opening_line,
+        research_line,
+        proof_line,
     )
 
     html_body += _build_mailto_buttons(company)
@@ -182,6 +233,7 @@ def build_email(recruiter: dict, template_doc: dict | None = None) -> dict:
 
 
 # ────────────────────── Build Follow-up / Breakup Email ──────────────────────
+
 
 def _get_behavioral_template(stage: int, recruiter: dict):
     """
@@ -210,7 +262,9 @@ def _get_behavioral_template(stage: int, recruiter: dict):
             )
         else:
             return (
-                os.getenv("FOLLOWUP_SUBJECT", "Following up | Summer '26 Intern @{company}"),
+                os.getenv(
+                    "FOLLOWUP_SUBJECT", "Following up | Summer '26 Intern @{company}"
+                ),
                 os.getenv("FOLLOWUP_TEMPLATE_HTML", ""),
             )
     else:
@@ -221,8 +275,9 @@ def _get_behavioral_template(stage: int, recruiter: dict):
         )
 
 
-def build_followup_email(recruiter: dict, stage: int,
-                         template_doc: dict | None = None) -> dict:
+def build_followup_email(
+    recruiter: dict, stage: int, template_doc: dict | None = None
+) -> dict:
     """
     Build a follow-up or breakup email payload.
 
@@ -249,9 +304,11 @@ def build_followup_email(recruiter: dict, stage: int,
         if stage == 1:
             clicked = recruiter.get("clicked", False)
             opened = recruiter.get("opened", False)
-            
+
             if clicked or opened:
-                subject_template, html_template = _get_behavioral_template(stage, recruiter)
+                subject_template, html_template = _get_behavioral_template(
+                    stage, recruiter
+                )
             else:
                 # If not opened/clicked, check for DB templates or use fallback
                 template_type = "followup1"
@@ -260,6 +317,7 @@ def build_followup_email(recruiter: dict, stage: int,
                 )
                 if db_templates:
                     from config import recruiters_col
+
                     total_at_stage = recruiters_col.count_documents(
                         {"followupStage": stage}
                     )
@@ -269,7 +327,9 @@ def build_followup_email(recruiter: dict, stage: int,
                     template_used_id = str(chosen["_id"])
                     template_used_name = chosen.get("name", "")
                 else:
-                    subject_template, html_template = _get_behavioral_template(stage, recruiter)
+                    subject_template, html_template = _get_behavioral_template(
+                        stage, recruiter
+                    )
         else:
             # Stage 2 — breakup
             template_type = "breakup"
@@ -278,6 +338,7 @@ def build_followup_email(recruiter: dict, stage: int,
             )
             if db_templates:
                 from config import recruiters_col
+
                 total_at_stage = recruiters_col.count_documents(
                     {"followupStage": stage}
                 )
@@ -287,7 +348,9 @@ def build_followup_email(recruiter: dict, stage: int,
                 template_used_id = str(chosen["_id"])
                 template_used_name = chosen.get("name", "")
             else:
-                subject_template, html_template = _get_behavioral_template(stage, recruiter)
+                subject_template, html_template = _get_behavioral_template(
+                    stage, recruiter
+                )
 
     # --- Tracking ---
     resume_url, pixel_html = _get_tracking_urls(recruiter["email"], resume_raw)
@@ -296,12 +359,18 @@ def build_followup_email(recruiter: dict, stage: int,
     # --- AI Personalization ---
     company_sentence = ""
     opening_line = ""
+    research_line = ""
+    proof_line = ""
     if company and company != "your team" and stage == 1:
         try:
-            logger.info(f"Triggering AI personalization for followup: {recruiter['email']} ({company})")
+            logger.info(
+                f"Triggering AI personalization for followup: {recruiter['email']} ({company})"
+            )
             company_sentence = generate_company_sentence(company)
             opening_line = generate_opening_line(company)
-            logger.info(f"AI Followup Personalization applied.")
+            research_line = generate_research_line(company)
+            proof_line = generate_proof_line()
+            logger.info("AI Followup Personalization applied.")
         except Exception as e:
             logger.error(f"Error generating AI personalization for followup: {e}")
 
@@ -311,6 +380,7 @@ def build_followup_email(recruiter: dict, stage: int,
             ai_subjects = generate_subject_lines(company)
             if ai_subjects:
                 from config import recruiters_col
+
                 sent_to_company = recruiters_col.count_documents(
                     {"company": company, "status": "sent"}
                 )
@@ -319,9 +389,15 @@ def build_followup_email(recruiter: dict, stage: int,
             logger.error(f"Error rotating AI subjects for followup: {e}")
 
     subject, html_body = _resolve_template(
-        html_template, subject_template,
-        name, company, resume_link_html,
-        company_sentence, opening_line
+        html_template,
+        subject_template,
+        name,
+        company,
+        resume_link_html,
+        company_sentence,
+        opening_line,
+        research_line,
+        proof_line,
     )
 
     html_body += _build_mailto_buttons(company)
