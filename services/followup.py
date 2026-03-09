@@ -24,10 +24,26 @@ def send_followup_if_due() -> dict:
             "replied": False,
             "$or": [
                 {
+                    # Scenario 2: Resume clicked but no reply (36 hours)
+                    "clicked": True,
+                    "followupStage": {"$in": [0, None]},
+                    "sentAt": {"$lte": now - timedelta(hours=36)},
+                },
+                {
+                    # Scenario 1: Opened but no reply (3 days)
+                    "opened": True,
+                    "clicked": False,
+                    "followupStage": {"$in": [0, None]},
+                    "sentAt": {"$lte": now - timedelta(days=3)},
+                },
+                {
+                    # Scenario 3: Not opened (Resend after 4 days)
+                    "opened": False,
                     "followupStage": {"$in": [0, None]},
                     "sentAt": {"$lte": now - timedelta(days=4)},
                 },
                 {
+                    # Stage 2 breakup (6 days after last followup)
                     "followupStage": 1,
                     "followupAt": {"$lte": now - timedelta(days=6)},
                 },

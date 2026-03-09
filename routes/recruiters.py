@@ -2,6 +2,7 @@
 Recruiter management routes: add, list, update, CSV/text import.
 """
 import csv
+import re
 from datetime import datetime
 from fastapi import APIRouter, HTTPException, UploadFile, File
 
@@ -9,6 +10,36 @@ from config import recruiters_col, logger
 from models import CSVImportRequest
 
 router = APIRouter(prefix="/recruiters", tags=["recruiters"])
+
+def extract_first_name(email_addr: str) -> str:
+    """
+    Extracts a first name from an email address.
+    Example: john.smith@stripe.com -> John
+    """
+    if not email_addr or "@" not in email_addr:
+        return "there"
+
+    local_part = email_addr.split("@")[0]
+    # Replace separators with spaces
+    name_cleaned = re.sub(r"[\._\-]", " ", local_part)
+    tokens = name_cleaned.split()
+
+    if tokens:
+        first_token = tokens[0]
+        # Edge case: no separators, take first 4-6 chars
+        if len(tokens) == 1 and len(first_token) > 7:
+             return first_token[:5].capitalize()
+        return first_token.capitalize()
+
+    return "there"
+
+def normalize_company(company_name: str) -> str:
+    """
+    Normalizes company name to proper case and removes trailing spaces.
+    """
+    if not company_name:
+        return ""
+    return company_name.strip().title()
 
 
 @router.post("")
@@ -21,10 +52,17 @@ def add_recruiter(data: dict):
         if recruiters_col.find_one({"email": email_addr}):
             raise HTTPException(status_code=409, detail="Recruiter already exists")
 
+        # Lead Enrichment
+        name = data.get("name", "")
+        if not name:
+            name = extract_first_name(email_addr)
+        
+        company = normalize_company(data.get("company", ""))
+
         recruiter = {
             "email": email_addr,
-            "name": data.get("name", ""),
-            "company": data.get("company", ""),
+            "name": name,
+            "company": company,
             "status": "new",
             "sentAt": None,
             "replied": False,
@@ -90,10 +128,18 @@ def update_status(email: str, data: dict):
 
 def _build_recruiter_from_row(norm_row: dict) -> dict:
     """Build a recruiter document from a normalised CSV row."""
+    # Lead Enrichment
+    email_addr = norm_row["email"]
+    name = norm_row.get("name", "")
+    if not name:
+        name = extract_first_name(email_addr)
+    
+    company = normalize_company(norm_row.get("company", ""))
+
     return {
-        "email": norm_row["email"],
-        "name": norm_row.get("name", ""),
-        "company": norm_row.get("company", ""),
+        "email": email_addr,
+        "name": name,
+        "company": company,
         "status": "new",
         "sentAt": None,
         "replied": False,

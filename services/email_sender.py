@@ -26,7 +26,7 @@ def send_email(email_data: dict) -> tuple[bool, str | None]:
         if response.status_code == 200:
             if "Success" in response.text:
                 logger.info(
-                    f"Email successfully delivered to Google Bridge for {email_data['To']}"
+                    f"Email SENT to {email_data['To']} | Subject: '{email_data['Subject']}'"
                 )
                 return True, None
             else:
