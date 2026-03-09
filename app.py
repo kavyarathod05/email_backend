@@ -17,6 +17,53 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
 import io
+import re
+
+def extract_first_name(email_addr: str) -> str:
+    """
+    Extracts a first name from an email address.
+    Example: john.smith@stripe.com -> John
+    """
+    if not email_addr or "@" not in email_addr:
+        return "there"
+    
+    local_part = email_addr.split("@")[0]
+    # Replace separators with spaces
+    name_cleaned = re.sub(r"[\._\-]", " ", local_part)
+    tokens = name_cleaned.split()
+    
+    if tokens:
+        first_token = tokens[0]
+        # Edge case: no separators, take first 4-6 chars
+        if len(tokens) == 1 and len(first_token) > 7:
+             # If it's a long string without separators, hard to guess, but let's try a heuristic
+             # or just take the first part. User says take first 4-6 chars.
+             return first_token[:5].capitalize()
+        return first_token.capitalize()
+    
+    return "there"
+
+def normalize_company(company_name: str) -> str:
+    """
+    Normalizes company name to proper case and removes trailing spaces.
+    """
+    if not company_name:
+        return ""
+    return company_name.strip().title()
+
+# Generic/personal email domains — skip AI personalization for these
+GENERIC_DOMAINS = {
+    "gmail.com", "yahoo.com", "yahoo.co.in", "hotmail.com", "outlook.com",
+    "live.com", "aol.com", "icloud.com", "mail.com", "protonmail.com",
+    "zoho.com", "yandex.com", "gmx.com", "rediffmail.com",
+}
+
+def is_generic_email(email_addr: str) -> bool:
+    """Returns True if the email is from a personal/generic domain (gmail, yahoo, etc.)."""
+    if not email_addr or "@" not in email_addr:
+        return True
+    domain = email_addr.split("@")[1].lower().strip()
+    return domain in GENERIC_DOMAINS
 
 class CSVImportRequest(BaseModel):
     csvText: str
@@ -203,13 +250,21 @@ def add_recruiter(data: dict):
         if not email_addr:
             raise HTTPException(status_code=400, detail="Email is required")
 
+        email_addr = email_addr.lower()
         if recruiters_col.find_one({"email": email_addr}):
             raise HTTPException(status_code=409, detail="Recruiter already exists")
 
+        # Lead Enrichment
+        name = data.get("name", "")
+        if not name:
+            name = extract_first_name(email_addr)
+        
+        company = normalize_company(data.get("company", ""))
+
         recruiter = {
             "email": email_addr,
-            "name": data.get("name", ""),
-            "company": data.get("company", ""),
+            "name": name,
+            "company": company,
             "status": "new",
             "sentAt": None,
             "replied": False,
@@ -222,7 +277,7 @@ def add_recruiter(data: dict):
         }
 
         recruiters_col.insert_one(recruiter)
-        return {"message": "Recruiter added successfully"}
+        return {"message": "Recruiter added successfully", "name": name, "company": company}
     except HTTPException:
         raise
     except Exception as e:
@@ -300,10 +355,17 @@ async def import_csv(file: UploadFile = File(...)):
                 skipped += 1
                 continue
 
+            # Lead Enrichment
+            name = norm_row.get("name", "")
+            if not name:
+                name = extract_first_name(email_addr)
+            
+            company = normalize_company(norm_row.get("company", ""))
+
             recruiter = {
                 "email": email_addr,
-                "name": norm_row.get("name", ""),
-                "company": norm_row.get("company", ""),
+                "name": name,
+                "company": company,
                 "status": "new",
                 "sentAt": None,
                 "replied": False,
@@ -358,10 +420,17 @@ async def import_text(data: CSVImportRequest):
                 skipped += 1
                 continue
 
+            # Lead Enrichment
+            name = norm_row.get("name", "")
+            if not name:
+                name = extract_first_name(email_addr)
+            
+            company = normalize_company(norm_row.get("company", ""))
+
             recruiter = {
                 "email": email_addr,
-                "name": norm_row.get("name", ""),
-                "company": norm_row.get("company", ""),
+                "name": name,
+                "company": company,
                 "status": "new",
                 "sentAt": None,
                 "replied": False,
@@ -380,9 +449,82 @@ async def import_text(data: CSVImportRequest):
     except Exception as e:
         logger.error(f"CSV Text Import Error: {e}")
         raise HTTPException(status_code=500, detail="CSV processing failed")
-
 # ---------------- EMAIL LOGIC ----------------
 import requests
+
+HF_API_KEY = os.getenv("HF_API_KEY", "")
+HF_MODEL = "Qwen/Qwen2.5-Coder-32B-Instruct"
+HF_API_URL = "https://router.huggingface.co/v1/chat/completions"
+
+# --- In-memory company sentence cache (reduces API calls, no external DB needed) ---
+_company_sentence_cache: dict = {}
+
+def _hf_generate(prompt: str, max_tokens: int = 60) -> str:
+    """Call Hugging Face Inference API (free tier) using chat/completions format."""
+    if not HF_API_KEY:
+        return ""
+    try:
+        resp = requests.post(
+            HF_API_URL,
+            headers={"Authorization": f"Bearer {HF_API_KEY}", "Content-Type": "application/json"},
+            json={
+                "model": HF_MODEL,
+                "messages": [{"role": "user", "content": prompt}],
+                "max_tokens": max_tokens,
+                "temperature": 0.7
+            },
+            timeout=20
+        )
+        if resp.status_code == 200:
+            data = resp.json()
+            return data["choices"][0]["message"]["content"].strip()
+        else:
+            logger.warning(f"HF API returned {resp.status_code}: {resp.text[:200]}")
+    except Exception as e:
+        logger.error(f"HF API error: {e}")
+    return ""
+
+def generate_company_sentence(company: str) -> str:
+    if company in _company_sentence_cache:
+        return _company_sentence_cache[company]
+    prompt = (
+        f"Write one sentence (under 20 words) about {company} that is specific and engineering-focused. "
+        f"Mention the company name. Reference engineering, technology, scale, or product impact. "
+        f'Avoid generic phrases like "great company". Output only the sentence.'
+    )
+    result = _hf_generate(prompt)
+    if result:
+        _company_sentence_cache[company] = result
+    return result
+
+def generate_opening_line(company: str) -> str:
+    prompt = (
+        f"Write one short opening line (max 20 words) for a cold email to a recruiter at {company}. "
+        f"I am a backend engineer interested in scalable systems and AI. "
+        f"Reference {company}'s engineering scale or backend challenges. Natural, professional tone. Output only the sentence."
+    )
+    return _hf_generate(prompt)
+
+def generate_subject_lines(company: str) -> list:
+    prompt = (
+        f"Generate exactly 5 short email subject lines for a Summer 2026 Backend Intern application at {company}. "
+        f"Rules: max 6 words each, professional, curiosity-driven. "
+        f"Output only the 5 lines, one per line, no numbering, no extra text."
+    )
+    raw = _hf_generate(prompt, max_tokens=120)
+    if raw:
+        lines = [l.strip().lstrip("0123456789.-*) ") for l in raw.split("\n") if l.strip()]
+        lines = [l for l in lines if 0 < len(l) < 80][:5]
+        if len(lines) >= 3:
+            return lines
+    # Fallback subjects
+    return [
+        f"Summer 2026 Backend Intern",
+        f"Backend Intern — {company}",
+        f"Quick Question About Internships",
+        f"Engineer Interested in {company}",
+        f"Internship Opportunity Inquiry",
+    ]
 
 def build_email(recruiter, template_doc=None):
     # Retrieve env variables
@@ -398,12 +540,27 @@ def build_email(recruiter, template_doc=None):
     name = recruiter.get("name") or "there"
     company = recruiter.get("company") or "your team"
 
+    # --- AI Personalization (skip for generic domains like gmail.com) ---
+    company_sentence = ""
+    opening_line = ""
+    recruiter_email = recruiter.get("email", "")
+    
+    if not is_generic_email(recruiter_email) and company != "your team":
+        try:
+            company_sentence = generate_company_sentence(company)
+            opening_line = generate_opening_line(company)
+        except Exception as e:
+            logger.error(f"Error generating AI personalization: {e}")
+    else:
+        logger.info(f"Skipping AI personalization for generic domain: {recruiter_email}")
+
     # --- 1. Format the Subject with Company Name ---
     try:
         subject = subject_template.format(company=company)
     except Exception:
         subject = subject_template
 
+    # --- 3. Tracking Setup ---
     tracking_base = os.getenv("TRACKING_BASE_URL", "").rstrip("/")
     pixel_img = ""
     if tracking_base:
@@ -436,14 +593,18 @@ def build_email(recruiter, template_doc=None):
         html_body = html_template.format(
             name=name,
             company=company,
+            company_sentence=company_sentence,
+            opening_line=opening_line,
             resume_url=resume_url,
             resume_link=resume_html
         )
     except KeyError as e:
         logger.error(f"Template formatting error: Missing key {e}")
+        # Fallback replacement
         html_body = html_template.replace("{resume_link}", resume_html).replace("{name}", name).replace("{company}", company)
+        html_body = html_body.replace("{company_sentence}", company_sentence).replace("{opening_line}", opening_line)
 
-    # Inject Mailto Buttons
+    # Inject Mailto Buttons and Tracking Pixel
     html_body += mailto_html
     html_body += pixel_img
 
@@ -492,15 +653,25 @@ def send_one_email(req: SendOneRequest = SendOneRequest()):
     try:
         recruiter = recruiters_col.find_one({"status": "new"})
         if not recruiter:
-            return {"ok": False, "msg": "empty"} # Minimal response
+            return {"ok": False, "msg": "empty"} 
             
         template_doc = None
         template_id = req.templateId if req else None
+        company = recruiter.get("company", "your team")
         
+        # 1. Subject Line A/B Testing & AI Suggestions (skip for generic domains)
+        ai_subjects = []
+        recruiter_email = recruiter.get("email", "")
+        if not is_generic_email(recruiter_email) and company != "your team":
+            try:
+                ai_subjects = generate_subject_lines(company)
+            except Exception as e:
+                logger.error(f"Error generating AI subject lines: {e}")
+
         if template_id:
             template_doc = templates_col.find_one({"_id": ObjectId(template_id)})
         else:
-            # Round-robin selection for initial templates
+            # Selection logic
             initial_templates = list(templates_col.find({"type": "initial"}).sort("createdAt", 1))
             if initial_templates:
                 total_sent = recruiters_col.count_documents({
@@ -509,13 +680,24 @@ def send_one_email(req: SendOneRequest = SendOneRequest()):
                 })
                 template_doc = initial_templates[total_sent % len(initial_templates)]
                 template_id = str(template_doc["_id"])
-            
-        # build_email now returns a dict, not an EmailMessage object
+
+        # 2. Build and Customize Subject
         email_data = build_email(recruiter, template_doc)
+        
+        # Override subject with AI variant if available (Rotation logic)
+        if ai_subjects:
+            total_sent_company = recruiters_col.count_documents({"company": company, "status": "sent"})
+            chosen_subject = ai_subjects[total_sent_company % len(ai_subjects)]
+            email_data["Subject"] = chosen_subject
+
         success, error_msg = send_email(email_data)
 
         if success:
-            update_fields = {"status": "sent", "sentAt": datetime.utcnow()}
+            update_fields = {
+                "status": "sent", 
+                "sentAt": datetime.utcnow(),
+                "subjectUsed": email_data["Subject"]
+            }
             if template_doc:
                 update_fields["templateUsed"] = str(template_doc["_id"])
                 update_fields["templateName"] = template_doc.get("name")
@@ -524,7 +706,7 @@ def send_one_email(req: SendOneRequest = SendOneRequest()):
                 {"_id": recruiter["_id"]},
                 {"$set": update_fields}
             )
-            return {"ok":True}
+            return {"ok":True, "subject": email_data["Subject"]}
         else:
             recruiters_col.update_one(
                 {"_id": recruiter["_id"]},
@@ -607,18 +789,18 @@ def build_followup_email(recruiter, stage):
         if clicked:
             subject_template = "Glad you saw my resume | Kavya @ {company}"
             html_template = """<p>Hi {name},</p>
-            <p>I noticed you took a look at my resume recently—thanks for checking it out! 
-            I'm really excited about the work {company} is doing and would love to discuss how my background in building high-traffic systems could be a fit for your Summer '26 internship roles.</p>
+            <p>I noticed you took a look at my resume earlier — happy to provide more details if helpful.</p>
+            <p>I'm really excited about the work {company} is doing and would love to discuss how my background in building high-traffic systems could be a fit for your Summer '26 internship roles.</p>
             <p>Do you have 10 minutes for a quick chat later this week?</p>"""
         elif opened:
             subject_template = "Quick question about {company} internship"
             html_template = """<p>Hi {name},</p>
-            <p>I'm following up on my previous email. I noticed you opened it, and I wanted to share a specific highlight: 
-            I recently led a team of 5 to build a system handling <b>10k daily traffic</b>, which I think would be relevant to the scale {company} operates at.</p>
+            <p>Just checking in in case my previous email got buried. Would love to connect if you're considering Summer '26 interns.</p>
             <p>I've attached my {resume_link} again for convenience. Would you be open to a brief chat?</p>"""
         else:
-            subject_template = os.getenv("FOLLOWUP_SUBJECT", "Following up | Summer '26 Intern @{company}")
-            html_template = os.getenv("FOLLOWUP_TEMPLATE_HTML")
+            # Scenario 3: Not opened - Resend with new subject line
+            subject_template = "Quick question about internships"
+            html_template = os.getenv("EMAIL_TEMPLATE_HTML", "<p>Hi {name},</p><p>I'm follow up on my internship application at {company}. I've attached my {resume_link} for your review.</p>")
     else:
         # Stage 2 (Breakup)
         subject_template = os.getenv("BREAKUP_SUBJECT", "Wrapping up | Summer '26 Intern @{company}")
@@ -693,10 +875,26 @@ def send_followup_if_due():
             "replied": False,
             "$or": [
                 {
+                    # Scenario 2: Resume clicked but no reply (24-48 hours)
+                    "clicked": True,
+                    "followupStage": {"$in": [0, None]},
+                    "sentAt": {"$lte": now - timedelta(hours=36)}
+                },
+                {
+                    # Scenario 1: Opened but no reply (3 days)
+                    "opened": True,
+                    "clicked": False,
+                    "followupStage": {"$in": [0, None]},
+                    "sentAt": {"$lte": now - timedelta(days=3)}
+                },
+                {
+                    # Scenario 3: Not opened (Resend after 4 days)
+                    "opened": False,
                     "followupStage": {"$in": [0, None]},
                     "sentAt": {"$lte": now - timedelta(days=4)}
                 },
                 {
+                    # Stage 2 breakup (6 days after last followup)
                     "followupStage": 1,
                     "followupAt": {"$lte": now - timedelta(days=6)}
                 }
