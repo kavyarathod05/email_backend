@@ -1,6 +1,7 @@
 """
 Recruiter management routes: add, list, update, CSV/text import.
 """
+
 import csv
 import re
 from datetime import datetime
@@ -10,6 +11,7 @@ from config import recruiters_col, logger
 from models import CSVImportRequest
 
 router = APIRouter(prefix="/recruiters", tags=["recruiters"])
+
 
 def extract_first_name(email_addr: str) -> str:
     """
@@ -28,10 +30,11 @@ def extract_first_name(email_addr: str) -> str:
         first_token = tokens[0]
         # Edge case: no separators, take first 4-6 chars
         if len(tokens) == 1 and len(first_token) > 7:
-             return first_token[:5].capitalize()
+            return first_token[:5].capitalize()
         return first_token.capitalize()
 
     return "there"
+
 
 def normalize_company(company_name: str) -> str:
     """
@@ -56,7 +59,7 @@ def add_recruiter(data: dict):
         name = data.get("name", "")
         if not name:
             name = extract_first_name(email_addr)
-        
+
         company = normalize_company(data.get("company", ""))
 
         recruiter = {
@@ -126,6 +129,7 @@ def update_status(email: str, data: dict):
 
 # --------------- CSV / Text Import ---------------
 
+
 def _build_recruiter_from_row(norm_row: dict) -> dict:
     """Build a recruiter document from a normalised CSV row."""
     # Lead Enrichment
@@ -133,7 +137,7 @@ def _build_recruiter_from_row(norm_row: dict) -> dict:
     name = norm_row.get("name", "")
     if not name:
         name = extract_first_name(email_addr)
-    
+
     company = normalize_company(norm_row.get("company", ""))
 
     return {
@@ -225,9 +229,7 @@ async def import_text(data: CSVImportRequest):
             email_addr = email_addr.lower()
             norm_row["email"] = email_addr
             if recruiters_col.find_one({"email": email_addr}):
-                logger.info(
-                    f"Row {rows_seen} skipped: duplicate email '{email_addr}'"
-                )
+                logger.info(f"Row {rows_seen} skipped: duplicate email '{email_addr}'")
                 skipped += 1
                 continue
 
