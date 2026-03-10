@@ -1,6 +1,7 @@
 """
 Template CRUD routes.
 """
+
 from datetime import datetime
 from bson import ObjectId
 from fastapi import APIRouter, HTTPException

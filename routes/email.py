@@ -1,6 +1,7 @@
 """
 Email action routes: send-one, test-email, check-replies, send-followup.
 """
+
 from datetime import datetime
 from bson import ObjectId
 from fastapi import APIRouter
@@ -24,7 +25,9 @@ def send_one_email(req: SendOneRequest = SendOneRequest()):
             logger.warning("No recruiters found with status 'new'")
             return {"ok": False, "msg": "empty"}
 
-        logger.info(f"Starting email process for {recruiter['email']} ({recruiter.get('company')})")
+        logger.info(
+            f"Starting email process for {recruiter['email']} ({recruiter.get('company')})"
+        )
 
         template_doc = None
         template_id = req.templateId if req else None
@@ -63,7 +66,9 @@ def send_one_email(req: SendOneRequest = SendOneRequest()):
                 {"company": company, "status": "sent"}
             )
             email_data["Subject"] = ai_subjects[sent_to_company % len(ai_subjects)]
-            logger.info(f"AI Subject Rotation: '{email_data['Subject']}' (Option {sent_to_company % len(ai_subjects) + 1} of {len(ai_subjects)})")
+            logger.info(
+                f"AI Subject Rotation: '{email_data['Subject']}' (Option {sent_to_company % len(ai_subjects) + 1} of {len(ai_subjects)})"
+            )
 
         success, error_msg = send_email(email_data)
 
@@ -102,7 +107,9 @@ def test_email_endpoint(data: TestEmailRequest):
     """
     try:
         req_data = data.dict()
-        logger.info(f"Test email request received for {req_data['email']} ({req_data['company']})")
+        logger.info(
+            f"Test email request received for {req_data['email']} ({req_data['company']})"
+        )
         recruiter = {
             "_id": "test_id_123",
             "email": req_data["email"],
@@ -137,16 +144,22 @@ def test_email_endpoint(data: TestEmailRequest):
                 )
                 email_data["Subject"] = ai_subjects[sent_to_company % len(ai_subjects)]
         elif template_type == "followup1":
-            email_data = build_followup_email(recruiter, stage=1, template_doc=template_doc)
+            email_data = build_followup_email(
+                recruiter, stage=1, template_doc=template_doc
+            )
         elif template_type == "breakup":
-            email_data = build_followup_email(recruiter, stage=2, template_doc=template_doc)
+            email_data = build_followup_email(
+                recruiter, stage=2, template_doc=template_doc
+            )
         else:
             return {"status": "error", "detail": "Invalid template type"}
 
         success, error_msg = send_email(email_data)
 
         if success:
-            logger.info(f"Test email ({template_type}) successfully sent to {recruiter['email']}")
+            logger.info(
+                f"Test email ({template_type}) successfully sent to {recruiter['email']}"
+            )
             return {
                 "status": "success",
                 "message": f"Sent {template_type} email to {recruiter['email']}",
