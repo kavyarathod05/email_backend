@@ -78,30 +78,7 @@ def _build_resume_link(resume_url: str) -> str:
     )
 
 
-def _build_mailto_buttons(company: str):
-    """Build the one-click quick-reply mailto buttons HTML block."""
 
-    def _quote_mailto(subj, body_text):
-        qs = urllib.parse.quote(subj)
-        qb = urllib.parse.quote(body_text)
-        return f"mailto:rathodkavya2005@gmail.com?subject={qs}&body={qb}"
-
-    yes_link = _quote_mailto(
-        f"Re: Internship @ {company}",
-        f"Hi Kavya,\n\nI saw your application for {company}. Let's chat. When are you free?",
-    )
-    no_link = _quote_mailto(
-        f"Contact for Internship @ {company}",
-        "Hi Kavya,\n\nI'm not the best person to speak with. You should reach out to [Name/Email] instead.",
-    )
-
-    return f"""
-    <div style="margin-top: 25px; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
-        <p style="margin-top: 0; color: #64748b; font-size: 14px;">One-click quick reply:</p>
-        <a href="{yes_link}" style="display: inline-block; padding: 10px 18px; background: #22c55e; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; margin-right: 10px;">Yes, let's chat</a>
-        <a href="{no_link}" style="display: inline-block; padding: 10px 18px; background: #94a3b8; color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">Not the right person</a>
-    </div>
-    """
 
 
 def _resolve_template(
@@ -222,7 +199,7 @@ def build_email(recruiter: dict, template_doc: dict | None = None) -> dict:
         proof_line,
     )
 
-    html_body += _build_mailto_buttons(company)
+
     html_body += pixel_html
 
     return {
@@ -400,7 +377,7 @@ def build_followup_email(
         proof_line,
     )
 
-    html_body += _build_mailto_buttons(company)
+
     html_body += pixel_html
 
     result = {

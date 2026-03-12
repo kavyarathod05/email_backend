@@ -105,7 +105,6 @@ The system follows strict timing rules to avoid spamming while staying persisten
 Handles all template resolution for every email stage:
 - Supports DB templates (round-robin per stage) with `.env` fallback
 - Injects open-tracking pixel and click-tracking wrapper automatically
-- Appends one-click mailto Quick Reply buttons to every email
 
 ### Tracking Logic
 - **`{resume_link}`**: Generates a pre-styled HTML `<a>` tag: `<a href="...">Resume</a>`.

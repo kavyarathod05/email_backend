@@ -1,4 +1,4 @@
-﻿import os
+import os
 import sys
 from datetime import datetime, timezone
 
@@ -20,18 +20,18 @@ def test_engagement_features():
         "opened": False
     }
 
-    # 1. Test Initial Email with CTA Buttons
-    print("--- Testing Initial Email (CTA Buttons) ---")
+    # 1. Test Initial Email
+    print("--- Testing Initial Email ---")
     os.environ["EMAIL_TEMPLATE_HTML"] = "<p>Hi {name}, I'm interested in {company}. Are you open to a quick chat?</p>"
     os.environ["EMAIL_SUBJECT"] = "Internship @ {company}"
     
     email_data = build_email(recruiter)
     html = email_data["HTMLPart"]
     
-    if "mailto:rathodkavya2005@gmail.com" in html:
-        print("Γ£à Mailto buttons working")
+    if "Hi Alex" in html:
+        print("Γ£à Initial email rendering working")
     else:
-        print("Γ¥î Mailto buttons FAILED")
+        print("Γ¥î Initial email rendering FAILED")
 
     # 2. Test Behavioral Follow-up (Only Opened)
     print("\n--- Testing Follow-up (Opened, Not Clicked) ---")
