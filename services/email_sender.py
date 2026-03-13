@@ -7,6 +7,34 @@ import requests
 from config import logger
 
 
+
+def is_blacklisted(email: str) -> bool:
+    """
+    Check if the email is in the Google Sheet blacklist via the GAS bridge.
+    """
+    script_url = os.getenv("GOOGLE_SCRIPT_URL")
+    if not script_url:
+        logger.error("GOOGLE_SCRIPT_URL not found in environment")
+        return False
+
+    payload = {
+        "action": "check_blacklist",
+        "email": email
+    }
+
+    try:
+        response = requests.post(script_url, json=payload, timeout=10)
+        if response.status_code == 200:
+            result = response.json()
+            if result.get("success"):
+                return result.get("blacklisted", False)
+        logger.error(f"Blacklist check failed: {response.status_code} - {response.text}")
+        return False
+    except Exception as e:
+        logger.error(f"Error checking blacklist: {e}")
+        return False
+
+
 def send_email(email_data: dict) -> tuple[bool, str | None]:
     """
     POST the email payload to the Google Apps Script bridge.

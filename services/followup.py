@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, timezone
 
 from config import recruiters_col, logger
 from services.email_builder import build_followup_email
-from services.email_sender import send_email
+from services.email_sender import send_email, is_blacklisted
 
 
 def send_followup_if_due() -> dict:
@@ -55,6 +55,14 @@ def send_followup_if_due() -> dict:
         if not recruiter:
             logger.info("No follow-ups due at this time.")
             return {"status": "no followups due"}
+
+        # 0. Blacklist check
+        if is_blacklisted(recruiter["email"]):
+            logger.warning(f"Skipping follow-up for {recruiter['email']} - Blacklisted")
+            recruiters_col.update_one(
+                {"_id": recruiter["_id"]}, {"$set": {"status": "blacklisted"}}
+            )
+            return {"status": "skipped", "email": recruiter["email"], "reason": "blacklisted"}
 
         logger.info(f"Found due follow-up for: {recruiter['email']}")
 

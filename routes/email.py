@@ -8,8 +8,8 @@ from fastapi import APIRouter
 
 from config import recruiters_col, templates_col, logger
 from models import TestEmailRequest, SendOneRequest
-from services.email_builder import build_email, build_followup_email, is_generic_email
-from services.email_sender import send_email
+from services.email_builder import build_email, build_followup_email
+from services.email_sender import send_email, is_blacklisted
 from services.reply_checker import check_replies
 from services.followup import send_followup_if_due
 from services.ai_service import generate_subject_lines
@@ -24,6 +24,14 @@ def send_one_email(req: SendOneRequest = SendOneRequest()):
         if not recruiter:
             logger.warning("No recruiters found with status 'new'")
             return {"ok": False, "msg": "empty"}
+
+        # 0. Blacklist check
+        if is_blacklisted(recruiter["email"]):
+            logger.warning(f"Skipping {recruiter['email']} - Blacklisted")
+            recruiters_col.update_one(
+                {"_id": recruiter["_id"]}, {"$set": {"status": "blacklisted"}}
+            )
+            return {"ok": False, "msg": "blacklisted"}
 
         logger.info(
             f"Starting email process for {recruiter['email']} ({recruiter.get('company')})"
@@ -128,7 +136,6 @@ def test_email_endpoint(data: TestEmailRequest):
         # 1. AI Subject Line Generation (skip for generic domains)
         ai_subjects = []
         company = req_data.get("company", "your team")
-        email_addr = req_data.get("email", "")
         if company != "your team":
             try:
                 ai_subjects = generate_subject_lines(company)
