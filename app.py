@@ -9,16 +9,16 @@ import uvicorn
 
 from config import create_app
 
-# Create the configured FastAPI app (MongoDB + CORS already set up)
-app = create_app()
-
-# Register all route modules
 from routes.health import router as health_router
 from routes.templates import router as templates_router
 from routes.recruiters import router as recruiters_router
 from routes.tracking import router as tracking_router
 from routes.email import router as email_router
 from routes.dashboard import router as dashboard_router
+from routes.auth import router as auth_router
+
+# Create the configured FastAPI app (MongoDB + CORS already set up)
+app = create_app()
 
 app.include_router(health_router)
 app.include_router(templates_router)
@@ -26,6 +26,7 @@ app.include_router(recruiters_router)
 app.include_router(tracking_router)
 app.include_router(email_router)
 app.include_router(dashboard_router)
+app.include_router(auth_router)
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 10000))

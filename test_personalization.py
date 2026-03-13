@@ -1,4 +1,4 @@
-﻿"""Standalone tests for the Personalization Engine functions."""
+"""Standalone tests for the Personalization Engine functions."""
 
 import re
 import os
@@ -30,7 +30,7 @@ def normalize_company(company_name: str) -> str:
     return company_name.strip().title()
 
 
-HF_API_KEY = os.getenv("HF_API_KEY", "")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 SYSTEM_PROMPT = """
 You are writing highly effective cold emails for engineering internship outreach.
 
@@ -38,47 +38,48 @@ Your emails must follow these principles:
 1. Personalization – reference something specific about the company or engineering challenges.
 2. Short and readable – optimized for mobile reading.
 3. Human tone – natural and conversational, never corporate or sales-like.
-4. Show relevance – connect the sender's backend engineering interest with the company.
+4. Show relevance – connect the sender's software engineering interest with the company.
 5. Avoid generic phrases like: "I hope you're doing well", "great company", "exciting opportunity".
 6. Each email should feel like it was written individually.
-7. Sentences must be short and clear.
-8. The goal is to start a conversation, not ask for a job directly.
-9. Avoid AI-like patterns and overly structured sentences. Vary sentence length naturally. Use conversational language.
+7. Sentences must be extremely short and clear.
+8. The goal is to start a conversation, not to ask for a job directly.
+9. Avoid AI-like patterns and overly structured sentences. Use conversational language.
 
 Output must always look like a real human wrote it.
 """
 
-HF_API_KEY = os.getenv("HF_API_KEY", "")
-HF_MODEL = "Qwen/Qwen2.5-Coder-32B-Instruct"
-HF_API_URL = "https://router.huggingface.co/v1/chat/completions"
+GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
 
 
-def _hf_generate(prompt: str, max_tokens: int = 60) -> str:
-    if not HF_API_KEY:
-        return "[NO HF_API_KEY SET]"
+def _gemini_generate(prompt: str, max_tokens: int = 60) -> str:
+    if not GEMINI_API_KEY:
+        return "[NO GEMINI_API_KEY SET]"
     try:
-        resp = requests.post(
-            HF_API_URL,
-            headers={
-                "Authorization": f"Bearer {HF_API_KEY}",
-                "Content-Type": "application/json",
+        payload = {
+            "system_instruction": {
+                "parts": [{"text": SYSTEM_PROMPT}]
             },
-            json={
-                "model": HF_MODEL,
-                "messages": [
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt},
-                ],
-                "max_tokens": max_tokens,
+            "contents": [
+                {
+                    "parts": [{"text": prompt}]
+                }
+            ],
+            "generationConfig": {
+                "maxOutputTokens": max_tokens,
                 "temperature": 0.7,
-            },
+            }
+        }
+        resp = requests.post(
+            GEMINI_API_URL,
+            headers={"Content-Type": "application/json"},
+            json=payload,
             timeout=20,
         )
         if resp.status_code == 200:
             data = resp.json()
-            return (
-                data["choices"][0]["message"]["content"].strip().strip('"').strip("'")
-            )
+            if "candidates" in data and len(data["candidates"]) > 0:
+                return data["candidates"][0]["content"]["parts"][0]["text"].strip().strip('"').strip("'")
+            return "[NO CONTENT RETURNED]"
         else:
             return f"[HTTP {resp.status_code}]: {resp.text[:200]}"
     except Exception as e:
@@ -130,64 +131,72 @@ for raw, expected in company_tests:
 print(f"  >> {'ALL PASSED' if all_pass else 'SOME FAILED'}\n")
 
 print("=" * 55)
-print("TEST 3: V2 Company Sentence")
+print("TEST 3: V2 Company Sentence (Gemini)")
 print("=" * 55)
 prompt = (
-    f"You are writing the first personalized sentence of a cold email.\n\n"
-    f"Company: Shopify\n\n"
-    f"Write ONE thoughtful sentence showing you understand the company's engineering or product.\n\n"
-    f"Rules: 10 to 16 words. Return ONLY the sentence."
+    "You are writing a VERY short, highly specific personalized sentence for a cold email to Shopify.\n\n"
+    "Rules:\n"
+    "- Maximum 10 words.\n"
+    "- MUST be deeply specific to Shopify's actual product or core problem.\n"
+    "- Output ONLY the clean sentence."
 )
-result = _hf_generate(prompt)
+result = _gemini_generate(prompt)
 print(f"  Response: {result}")
-is_ok = not result.startswith("[") and len(result.split()) > 5
+is_ok = not result.startswith("[") and len(result.split()) > 3
 print(f"  >> {'PASS' if is_ok else 'ISSUE'}\n")
 
 print("=" * 55)
-print("TEST 4: V2 Opening Line")
+print("TEST 4: V2 Opening Line (Gemini)")
 print("=" * 55)
 prompt2 = (
-    f"You are writing the opening line of a cold email to a recruiter at Shopify.\n\n"
-    f"Context: backend engineering student interested in scalable systems.\n"
-    f"Rules: 10 to 15 words. Sound curious and genuine. Return ONLY the sentence."
+    "You are writing the opening line of a cold email to an engineer at Shopify.\n\n"
+    "Rules:\n"
+    "- Maximum 12 words.\n"
+    "- Mention Shopify and reference a real, very specific engineering challenge.\n"
+    "- Output ONLY the sentence."
 )
-result2 = _hf_generate(prompt2)
+result2 = _gemini_generate(prompt2)
 print(f"  Response: {result2}")
-is_ok2 = not result2.startswith("[") and len(result2.split()) > 5
+is_ok2 = not result2.startswith("[") and len(result2.split()) > 3
 print(f"  >> {'PASS' if is_ok2 else 'ISSUE'}\n")
 
 print("=" * 55)
-print("TEST 5: Research Line")
+print("TEST 5: Research Line (Gemini)")
 print("=" * 55)
 prompt_res = (
-    f"Write one short sentence showing genuine curiosity about Shopify tech.\n\n"
-    f"Rules: 10 to 15 words. No marketing tone. Return ONLY the sentence."
+    "Write one VERY short question highlighting a specific technical observation about Shopify.\n\n"
+    "- Rules: Maximum 10 words. Must be deeply specific to Shopify.\n"
+    "- Return ONLY the sentence."
 )
-result_res = _hf_generate(prompt_res)
+result_res = _gemini_generate(prompt_res)
 print(f"  Response: {result_res}")
-is_ok_res = not result_res.startswith("[") and len(result_res.split()) > 5
+is_ok_res = not result_res.startswith("[") and len(result_res.split()) > 3
 print(f"  >> {'PASS' if is_ok_res else 'ISSUE'}\n")
 
 print("=" * 55)
-print("TEST 6: Proof Line")
+print("TEST 6: Proof Line (Gemini)")
 print("=" * 55)
 prompt_proof = (
-    "Write one sentence showing proof of work from a backend engineering student.\n"
-    "Rules: 12 to 18 words. Return ONLY the sentence."
+    "Write one sentence showing proof of work from a software engineering student.\n"
+    "Rules: 10 to 15 words. Return ONLY the sentence."
 )
-result_proof = _hf_generate(prompt_proof)
+result_proof = _gemini_generate(prompt_proof)
 print(f"  Response: {result_proof}")
 is_ok_proof = not result_proof.startswith("[") and len(result_proof.split()) > 5
 print(f"  >> {'PASS' if is_ok_proof else 'ISSUE'}\n")
 
 print("=" * 55)
-print("TEST 7: V2 Subject Lines")
+print("TEST 7: V2 Subject Lines (Gemini)")
 print("=" * 55)
 prompt3 = (
-    "Generate 6 cold email subject lines for Shopify backend internship.\n"
-    "Rules: 1 to 4 words ONLY. Natural human tone. Output only the lines."
+    "Generate 6 cold email subject lines for reaching out to Shopify.\n\n"
+    "Rules:\n"
+    "- 2 to 5 words max\n"
+    "- Extremely catchy and intriguing\n"
+    "- No numbering or bullets.\n"
+    "Output ONLY the lines."
 )
-result3 = _hf_generate(prompt3, max_tokens=120)
+result3 = _gemini_generate(prompt3, max_tokens=150)
 print(f"  Response:\n{result3}")
 is_ok3 = not result3.startswith("[") and len(result3.split("\n")) >= 3
 print(f"  >> {'PASS' if is_ok3 else 'ISSUE'}")

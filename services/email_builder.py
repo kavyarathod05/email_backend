@@ -12,11 +12,8 @@ import urllib.parse
 
 from config import logger, templates_col
 from services.ai_service import (
-    generate_company_sentence,
-    generate_opening_line,
-    generate_subject_lines,
-    generate_research_line,
-    generate_proof_line,
+    generate_personalized_content,
+    generate_subject_lines,  # Still used for rotation
 )
 
 # Generic/personal email domains — skip AI personalization for these
@@ -35,6 +32,7 @@ GENERIC_DOMAINS = {
     "yandex.com",
     "gmx.com",
     "rediffmail.com",
+    "sum.com",
 }
 
 
@@ -87,9 +85,7 @@ def _resolve_template(
     name: str,
     company: str,
     resume_link_html: str,
-    company_sentence: str = "",
     opening_line: str = "",
-    research_line: str = "",
     proof_line: str = "",
 ):
     """
@@ -99,9 +95,7 @@ def _resolve_template(
       {name}             — recruiter name
       {company}          — recruiter company
       {resume_link}      — bold, clickable <a> tag with click-tracking
-      {company_sentence} — AI-generated company description
       {opening_line}     — AI-generated opening line
-      {research_line}    — AI-generated research line
       {proof_line}       — AI-generated proof of work line
     """
     try:
@@ -114,10 +108,9 @@ def _resolve_template(
             name=name,
             company=company,
             resume_link=resume_link_html,
-            company_sentence=company_sentence,
             opening_line=opening_line,
-            research_line=research_line,
             proof_line=proof_line,
+            research_line="", # Fallback for old templates
         )
     except Exception as e:
         logger.warning(
@@ -128,10 +121,9 @@ def _resolve_template(
             "{name}": name,
             "{company}": company,
             "{resume_link}": resume_link_html,
-            "{company_sentence}": company_sentence,
             "{opening_line}": opening_line,
-            "{research_line}": research_line,
             "{proof_line}": proof_line,
+            "{research_line}": "", # Fallback for old templates
         }
         for placeholder, value in replacements.items():
             html_body = html_body.replace(placeholder, value)
@@ -164,21 +156,28 @@ def build_email(recruiter: dict, template_doc: dict | None = None) -> dict:
     resume_link_html = _build_resume_link(resume_url)
 
     # AI Personalization
-    company_sentence = ""
     opening_line = ""
-    research_line = ""
     proof_line = ""
     if company and company != "your team":
         try:
             logger.info(
                 f"Triggering AI personalization for {recruiter['email']} ({company})"
             )
-            company_sentence = generate_company_sentence(company)
-            opening_line = generate_opening_line(company)
-            research_line = generate_research_line(company)
-            proof_line = generate_proof_line()
+            ai_content = generate_personalized_content(company)
+            opening_line = ai_content.get("opening_line", "")
+            proof_line = ai_content.get("proof_line", "")
+            
+            # --- Subject Line Rotation for Initial Email ---
+            ai_subjects = ai_content.get("subject_lines", [])
+            if ai_subjects:
+                from config import recruiters_col
+                sent_to_company = recruiters_col.count_documents(
+                    {"company": company, "status": "sent"}
+                )
+                subject_template = ai_subjects[sent_to_company % len(ai_subjects)]
+
             logger.info(
-                f"AI Personalization applied: {company_sentence[:20]}... | {opening_line[:20]}..."
+                f"AI Personalization applied: {opening_line[:40]}..."
             )
         except Exception as e:
             logger.error(f"Error generating AI personalization: {e}")
@@ -193,12 +192,9 @@ def build_email(recruiter: dict, template_doc: dict | None = None) -> dict:
         name,
         company,
         resume_link_html,
-        company_sentence,
         opening_line,
-        research_line,
         proof_line,
     )
-
 
     html_body += pixel_html
 
@@ -334,19 +330,16 @@ def build_followup_email(
     resume_link_html = _build_resume_link(resume_url)
 
     # --- AI Personalization ---
-    company_sentence = ""
     opening_line = ""
-    research_line = ""
     proof_line = ""
     if company and company != "your team" and stage == 1:
         try:
             logger.info(
                 f"Triggering AI personalization for followup: {recruiter['email']} ({company})"
             )
-            company_sentence = generate_company_sentence(company)
-            opening_line = generate_opening_line(company)
-            research_line = generate_research_line(company)
-            proof_line = generate_proof_line()
+            ai_content = generate_personalized_content(company)
+            opening_line = ai_content.get("opening_line", "")
+            proof_line = ai_content.get("proof_line", "")
             logger.info("AI Followup Personalization applied.")
         except Exception as e:
             logger.error(f"Error generating AI personalization for followup: {e}")
@@ -371,9 +364,7 @@ def build_followup_email(
         name,
         company,
         resume_link_html,
-        company_sentence,
         opening_line,
-        research_line,
         proof_line,
     )
 
