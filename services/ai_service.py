@@ -43,8 +43,7 @@ Example:
 """
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
-
+GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key={GEMINI_API_KEY}"
 # --- In-memory company sentence cache (reduces API calls) ---
 _company_sentence_cache: dict = {}
 
@@ -87,7 +86,7 @@ def generate_personalized_content(company: str) -> dict:
                     "parts": [{"text": SYSTEM_PROMPT}]
                 },
                 "generationConfig": {
-                    "maxOutputTokens": 2048,
+                    "maxOutputTokens": 400,
                     "temperature": 0.0,
                     "response_mime_type": "application/json",
                     "response_schema": {
@@ -183,7 +182,7 @@ def generate_personalized_content(company: str) -> dict:
                         # One last ditch effort: if it's truncated at an array, try closing it
                         continue
             elif resp.status_code == 429:
-                delay = base_delay * (2 ** attempt)
+                delay = base_delay * (2 ** attempt) + (0.5 * attempt)
                 logger.warning(f"❌ Error 429: Quota Exceeded. Retrying in {delay}s... (Attempt {attempt + 1}/{attempts})")
                 time.sleep(delay)
                 continue

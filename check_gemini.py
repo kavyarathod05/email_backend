@@ -11,7 +11,7 @@ if not api_key:
     exit(1)
 
 # The standard REST endpoint for Gemini
-url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key={api_key}"
 
 payload = {
     "contents": [{
