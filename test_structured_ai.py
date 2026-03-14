@@ -75,7 +75,7 @@ def test_json_parse_error_retry():
     mock_resp_broken.json.return_value = {
         "candidates": [{
             "content": {
-                "parts": [{"text": '{"opening_line": "Truncated...'}]
+                "parts": [{"text": '{"opening_line": "Irreparable" [ { ## BAD JSON ##'}]
             }
         }]
     }

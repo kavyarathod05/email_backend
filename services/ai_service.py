@@ -43,7 +43,7 @@ Example:
 """
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key={GEMINI_API_KEY}"
+GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key={GEMINI_API_KEY}"
 # --- In-memory company sentence cache (reduces API calls) ---
 _company_sentence_cache: dict = {}
 
@@ -71,8 +71,10 @@ def generate_personalized_content(company: str) -> dict:
         logger.warning("GEMINI_API_KEY not set. Skipping AI generation.")
         return {}
 
-    attempts = 3
-    base_delay = 2  # seconds
+    attempts = 6
+    base_delay = 5  # Initial delay of 5s for 429
+    
+    import random
 
     for attempt in range(attempts):
         try:
@@ -182,8 +184,9 @@ def generate_personalized_content(company: str) -> dict:
                         # One last ditch effort: if it's truncated at an array, try closing it
                         continue
             elif resp.status_code == 429:
-                delay = base_delay * (2 ** attempt) + (0.5 * attempt)
-                logger.warning(f"❌ Error 429: Quota Exceeded. Retrying in {delay}s... (Attempt {attempt + 1}/{attempts})")
+                # Better backoff with jitter: 2^attempt * base_delay + jitter
+                delay = (base_delay * (2**attempt)) + (random.random() * 2)
+                logger.warning(f"❌ Error 429: Quota Exceeded. Retrying in {delay:.1f}s... (Attempt {attempt + 1}/{attempts})")
                 time.sleep(delay)
                 continue
             elif resp.status_code == 400:
