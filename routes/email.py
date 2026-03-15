@@ -3,6 +3,7 @@ Email action routes: send-one, test-email, check-replies, send-followup.
 """
 
 from datetime import datetime
+import re
 from bson import ObjectId
 from fastapi import APIRouter
 
@@ -31,6 +32,14 @@ def send_one_email(req: SendOneRequest = SendOneRequest()):
                 {"_id": recruiter["_id"]}, {"$set": {"status": "blacklisted"}}
             )
             return {"ok": False, "msg": "blacklisted"}
+
+        # 0.5. Verification check
+        if recruiter.get("is_fake"):
+            logger.warning(f"Skipping {recruiter['email']} - Marked as Fake/Invalid")
+            recruiters_col.update_one(
+                {"_id": recruiter["_id"]}, {"$set": {"status": "skipped_fake"}}
+            )
+            return {"ok": False, "msg": "fake"}
 
         logger.info(
             f"Starting email process for {recruiter['email']} ({recruiter.get('company')})"
@@ -112,6 +121,14 @@ def test_email_endpoint(data: TestEmailRequest):
         template_doc = None
         if template_id:
             template_doc = templates_col.find_one({"_id": ObjectId(template_id)})
+
+        # Verification check for test email
+        if not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', req_data["email"]):
+             return {"status": "error", "detail": "Invalid email syntax"}
+        
+        domain = req_data["email"].split('@')[1].lower()
+        if "mailinator" in domain or "tempmail" in domain:
+            return {"status": "error", "detail": "Test emails to disposable domains are blocked"}
 
         if template_type == "initial":
             email_data = build_email(recruiter, template_doc)

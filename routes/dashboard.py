@@ -77,6 +77,8 @@ def dashboard_stats():
             "followups": recruiters_col.count_documents({"followupSent": True}),
             "opened": recruiters_col.count_documents({"opened": True}),
             "clicked": recruiters_col.count_documents({"clicked": True}),
+            "fake": recruiters_col.count_documents({"is_fake": True}),
+            "risky": recruiters_col.count_documents({"is_risky": True}),
         }
     except Exception as e:
         logger.error(f"Stats error: {e}")
@@ -97,5 +99,5 @@ def dashboard_recruiters(status: str = None):
                     r[key] = value.isoformat() + "Z"
             data.append(r)
         return data
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=500, detail="Database connection error")

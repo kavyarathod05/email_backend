@@ -16,6 +16,7 @@ from routes.tracking import router as tracking_router
 from routes.email import router as email_router
 from routes.dashboard import router as dashboard_router
 from routes.auth import router as auth_router
+from routes.webhook import router as webhook_router
 
 # Create the configured FastAPI app (MongoDB + CORS already set up)
 app = create_app()
@@ -27,6 +28,7 @@ app.include_router(tracking_router)
 app.include_router(email_router)
 app.include_router(dashboard_router)
 app.include_router(auth_router)
+app.include_router(webhook_router)
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 10000))
