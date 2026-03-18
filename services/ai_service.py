@@ -5,7 +5,6 @@ AI Personalization Service: handles LLM completions via Gemini API.
 import os
 import requests
 import json
-import time
 
 from config import logger
 
@@ -71,134 +70,117 @@ def generate_personalized_content(company: str) -> dict:
         logger.warning("GEMINI_API_KEY not set. Skipping AI generation.")
         return {}
 
-    attempts = 6
-    base_delay = 5  # Initial delay of 5s for 429
-    
-    import random
-
-    for attempt in range(attempts):
-        try:
-            payload = {
-                "contents": [
-                    {
-                        "parts": [{"text": prompt}]
-                    }
-                ],
-                "system_instruction": {
-                    "parts": [{"text": SYSTEM_PROMPT}]
+    try:
+        payload = {
+            "contents": [
+                {
+                    "parts": [{"text": prompt}]
+                }
+            ],
+            "system_instruction": {
+                "parts": [{"text": SYSTEM_PROMPT}]
+            },
+            "generationConfig": {
+                "maxOutputTokens": 400,
+                "temperature": 0.0,
+                "response_mime_type": "application/json",
+                "response_schema": {
+                    "type": "object",
+                    "properties": {
+                        "opening_line": {"type": "string"},
+                        "proof_line": {"type": "string"},
+                        "subject_lines": {
+                            "type": "array",
+                            "items": {"type": "string"}
+                        }
+                    },
+                    "required": ["opening_line", "proof_line", "subject_lines"]
+                }
+            },
+            "safetySettings": [
+                {
+                    "category": "HARM_CATEGORY_HARASSMENT",
+                    "threshold": "BLOCK_NONE"
                 },
-                "generationConfig": {
-                    "maxOutputTokens": 400,
-                    "temperature": 0.0,
-                    "response_mime_type": "application/json",
-                    "response_schema": {
-                        "type": "object",
-                        "properties": {
-                            "opening_line": {"type": "string"},
-                            "proof_line": {"type": "string"},
-                            "subject_lines": {
-                                "type": "array",
-                                "items": {"type": "string"}
-                            }
-                        },
-                        "required": ["opening_line", "proof_line", "subject_lines"]
-                    }
+                {
+                    "category": "HARM_CATEGORY_HATE_SPEECH",
+                    "threshold": "BLOCK_NONE"
                 },
-                "safetySettings": [
-                    {
-                        "category": "HARM_CATEGORY_HARASSMENT",
-                        "threshold": "BLOCK_NONE"
-                    },
-                    {
-                        "category": "HARM_CATEGORY_HATE_SPEECH",
-                        "threshold": "BLOCK_NONE"
-                    },
-                    {
-                        "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                        "threshold": "BLOCK_NONE"
-                    },
-                    {
-                        "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-                        "threshold": "BLOCK_NONE"
-                    }
-                ]
-            }
-            resp = requests.post(
-                GEMINI_API_URL,
-                headers={"Content-Type": "application/json"},
-                json=payload,
-                timeout=25,
-            )
-            
-            if resp.status_code == 200:
-                data = resp.json()
-                if "candidates" in data and len(data["candidates"]) > 0:
-                    candidate = data["candidates"][0]
-                    finish_reason = candidate.get("finishReason")
-                    
-                    # Join all text parts
-                    raw_text = "".join([p.get("text", "") for p in candidate.get("content", {}).get("parts", []) if "text" in p])
-                    
-                    if not raw_text.strip():
-                        logger.warning(f"⚠️ Empty AI response for {company}. Reason: {finish_reason}")
-                        continue
+                {
+                    "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                    "threshold": "BLOCK_NONE"
+                },
+                {
+                    "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+                    "threshold": "BLOCK_NONE"
+                }
+            ]
+        }
+        resp = requests.post(
+            GEMINI_API_URL,
+            headers={"Content-Type": "application/json"},
+            json=payload,
+            timeout=20,
+        )
 
-                    # 1. Clean markdown
-                    clean_json = raw_text.strip()
-                    if "```json" in clean_json:
-                        clean_json = clean_json.split("```json")[-1].split("```")[0].strip()
-                    elif "```" in clean_json:
-                        clean_json = clean_json.split("```")[-1].split("```")[0].strip()
+        if resp.status_code == 200:
+            data = resp.json()
+            if "candidates" in data and len(data["candidates"]) > 0:
+                candidate = data["candidates"][0]
+                finish_reason = candidate.get("finishReason")
 
-                    # 2. Extract first legitimate-looking object
-                    start = clean_json.find("{")
-                    if start != -1:
-                        # Find the matching closing brace, or just the last one if truncated
-                        end = clean_json.rfind("}")
-                        if end == -1 or end < start:
-                            # TRUNCATED JSON REPAIR
-                            logger.warning(f"🔧 Attempting repair on truncated JSON for {company}...")
-                            # Basic repair: remove trailing comma, close quotes, brackets, then the object
-                            repaired = clean_json[start:].strip()
-                            if repaired.endswith(","):
-                                repaired = repaired[:-1].strip()
-                            if repaired.count('"') % 2 != 0:
-                                repaired += '"'
-                            if repaired.count('[') > repaired.count(']'):
-                                repaired += ']'
-                            if repaired.count('{') > repaired.count('}'):
-                                repaired += '}'
-                            clean_json = repaired
-                        else:
-                            clean_json = clean_json[start : end + 1]
+                # Join all text parts
+                raw_text = "".join([p.get("text", "") for p in candidate.get("content", {}).get("parts", []) if "text" in p])
 
-                    try:
-                        result = json.loads(clean_json)
-                        logger.info(f"✅ Success! AI Personalization for {company} (Reason: {finish_reason})")
-                        _company_sentence_cache[company] = result
-                        return result
-                    except json.JSONDecodeError:
-                        # Log meaningful diagnostics
-                        logger.error(f"❌ JSON Parse Error for {company}. Reason: {finish_reason}")
-                        logger.error(f"PROCESSED JSON: {clean_json[:500]}...")
-                        # One last ditch effort: if it's truncated at an array, try closing it
-                        continue
-            elif resp.status_code == 429:
-                # Better backoff with jitter: 2^attempt * base_delay + jitter
-                delay = (base_delay * (2**attempt)) + (random.random() * 2)
-                logger.warning(f"❌ Error 429: Quota Exceeded. Retrying in {delay:.1f}s... (Attempt {attempt + 1}/{attempts})")
-                time.sleep(delay)
-                continue
-            elif resp.status_code == 400:
-                logger.error(f"❌ Error 400: Bad Request. Check payload. Response: {resp.text}")
-                break
-            else:
-                logger.warning(f"❌ API Error {resp.status_code}: {resp.text[:200]}")
-                break
-                
-        except Exception as e:
-            logger.error(f"❌ A network or system error occurred during AI generation: {e}")
-            break
+                if not raw_text.strip():
+                    logger.warning(f"⚠️ Empty AI response for {company}. Reason: {finish_reason}")
+                    return {}
+
+                # 1. Clean markdown
+                clean_json = raw_text.strip()
+                if "```json" in clean_json:
+                    clean_json = clean_json.split("```json")[-1].split("```")[0].strip()
+                elif "```" in clean_json:
+                    clean_json = clean_json.split("```")[-1].split("```")[0].strip()
+
+                # 2. Extract first legitimate-looking object
+                start = clean_json.find("{")
+                if start != -1:
+                    end = clean_json.rfind("}")
+                    if end == -1 or end < start:
+                        # TRUNCATED JSON REPAIR
+                        logger.warning(f"🔧 Attempting repair on truncated JSON for {company}...")
+                        repaired = clean_json[start:].strip()
+                        if repaired.endswith(","):
+                            repaired = repaired[:-1].strip()
+                        if repaired.count('"') % 2 != 0:
+                            repaired += '"'
+                        if repaired.count('[') > repaired.count(']'):
+                            repaired += ']'
+                        if repaired.count('{') > repaired.count('}'):
+                            repaired += '}'
+                        clean_json = repaired
+                    else:
+                        clean_json = clean_json[start : end + 1]
+
+                try:
+                    result = json.loads(clean_json)
+                    logger.info(f"✅ Success! AI Personalization for {company} (Reason: {finish_reason})")
+                    _company_sentence_cache[company] = result
+                    return result
+                except json.JSONDecodeError:
+                    logger.error(f"❌ JSON Parse Error for {company}. Reason: {finish_reason}")
+                    logger.error(f"PROCESSED JSON: {clean_json[:500]}...")
+                    return {}
+        elif resp.status_code == 429:
+            logger.warning(f"❌ Error 429: Quota Exceeded for {company}. Skipping AI personalization.")
+        elif resp.status_code == 400:
+            logger.error(f"❌ Error 400: Bad Request for {company}. Response: {resp.text}")
+        else:
+            logger.warning(f"❌ API Error {resp.status_code} for {company}: {resp.text[:200]}")
+
+    except Exception as e:
+        logger.error(f"❌ A network or system error occurred during AI generation: {e}")
 
     return {}
 
