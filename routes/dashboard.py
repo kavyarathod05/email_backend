@@ -79,6 +79,7 @@ def dashboard_stats():
             "clicked": recruiters_col.count_documents({"clicked": True}),
             "fake": recruiters_col.count_documents({"is_fake": True}),
             "risky": recruiters_col.count_documents({"is_risky": True}),
+            "top_tier": recruiters_col.count_documents({"companyType": "top_tier"}),
         }
     except Exception as e:
         logger.error(f"Stats error: {e}")

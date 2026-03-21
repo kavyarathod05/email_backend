@@ -158,7 +158,7 @@ def build_email(recruiter: dict, template_doc: dict | None = None) -> dict:
     # AI Personalization
     opening_line = ""
     proof_line = ""
-    if company and company != "your team":
+    if company and company != "your team" and recruiter.get("companyType") == "top_tier":
         try:
             logger.info(
                 f"Triggering AI personalization for {recruiter['email']} ({company})"
@@ -332,7 +332,7 @@ def build_followup_email(
     # --- AI Personalization ---
     opening_line = ""
     proof_line = ""
-    if company and company != "your team" and stage == 1:
+    if company and company != "your team" and stage == 1 and recruiter.get("companyType") == "top_tier":
         try:
             logger.info(
                 f"Triggering AI personalization for followup: {recruiter['email']} ({company})"

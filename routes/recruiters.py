@@ -45,6 +45,17 @@ def normalize_company(company_name: str) -> str:
     return company_name.strip().title()
 
 
+def get_top_tier_companies() -> set:
+    """
+    Loads the set of top tier companies from the configuration file.
+    """
+    try:
+        with open("top_tier_companies.txt", "r", encoding="utf-8") as f:
+            return {line.strip().title() for line in f if line.strip()}
+    except FileNotFoundError:
+        return set()
+
+
 @router.post("")
 def add_recruiter(data: dict):
     try:
@@ -61,11 +72,14 @@ def add_recruiter(data: dict):
             name = extract_first_name(email_addr)
 
         company = normalize_company(data.get("company", ""))
+        top_tier_companies = get_top_tier_companies()
+        company_type = "top_tier" if company in top_tier_companies else "startup"
 
         recruiter = {
             "email": email_addr,
             "name": name,
             "company": company,
+            "companyType": company_type,
             "status": "new",
             "sentAt": None,
             "replied": False,
@@ -139,11 +153,14 @@ def _build_recruiter_from_row(norm_row: dict) -> dict:
         name = extract_first_name(email_addr)
 
     company = normalize_company(norm_row.get("company", ""))
+    top_tier_companies = get_top_tier_companies()
+    company_type = "top_tier" if company in top_tier_companies else "startup"
 
     return {
         "email": email_addr,
         "name": name,
         "company": company,
+        "companyType": company_type,
         "status": "new",
         "sentAt": None,
         "replied": False,
