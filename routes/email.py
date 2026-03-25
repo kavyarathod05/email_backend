@@ -10,7 +10,7 @@ from fastapi import APIRouter
 from config import recruiters_col, templates_col, logger
 from models import TestEmailRequest, SendOneRequest
 from services.email_builder import build_email, build_followup_email
-from services.email_sender import send_email, is_blacklisted
+from services.email_sender import send_email
 from services.reply_checker import check_replies
 from services.followup import send_followup_if_due
 
@@ -20,18 +20,27 @@ router = APIRouter(tags=["email"])
 @router.post("/send-one")
 def send_one_email(req: SendOneRequest = SendOneRequest()):
     try:
-        recruiter = recruiters_col.find_one({"status": "new"})
+        # Determine attempt count to space out top_tier emails
+        total_attempts = recruiters_col.count_documents({"status": {"$ne": "new"}})
+        is_top_tier_turn = (total_attempts % 3 == 0)
+        
+        if is_top_tier_turn:
+            recruiter = recruiters_col.find_one({"status": "new", "companyType": "top_tier"})
+            if not recruiter:
+                recruiter = recruiters_col.find_one({"status": "new", "companyType": "startup"})
+        else:
+            recruiter = recruiters_col.find_one({"status": "new", "companyType": "startup"})
+            if not recruiter:
+                recruiter = recruiters_col.find_one({"status": "new", "companyType": "top_tier"})
+                if recruiter:
+                    # No startups to buffer, so add artificial delay to protect API limits
+                    import time
+                    time.sleep(5)
+
         if not recruiter:
             logger.warning("No recruiters found with status 'new'")
             return {"ok": False, "msg": "empty"}
 
-        # 0. Blacklist check
-        if is_blacklisted(recruiter["email"]):
-            logger.warning(f"Skipping {recruiter['email']} - Blacklisted")
-            recruiters_col.update_one(
-                {"_id": recruiter["_id"]}, {"$set": {"status": "blacklisted"}}
-            )
-            return {"ok": False, "msg": "blacklisted"}
 
         # 0.5. Verification check
         if recruiter.get("is_fake"):
@@ -67,7 +76,7 @@ def send_one_email(req: SendOneRequest = SendOneRequest()):
 
         email_data = build_email(recruiter, template_doc)
 
-        success, error_msg = send_email(email_data)
+        success, error_msg, message_id = send_email(email_data)
 
         if success:
             update_fields = {
@@ -75,6 +84,8 @@ def send_one_email(req: SendOneRequest = SendOneRequest()):
                 "sentAt": datetime.utcnow(),
                 "subjectUsed": email_data["Subject"],
             }
+            if message_id:
+                update_fields["messageId"] = message_id
             if template_doc:
                 update_fields["templateUsed"] = str(template_doc["_id"])
                 update_fields["templateName"] = template_doc.get("name")
@@ -91,7 +102,12 @@ def send_one_email(req: SendOneRequest = SendOneRequest()):
             return {"ok": False, "err": error_msg}
     except Exception as e:
         logger.error(f"Error in send_one_email: {e}")
-        return {"ok": False, "err": "fail"}
+        if 'recruiter' in locals() and recruiter and "_id" in recruiter:
+            recruiters_col.update_one(
+                {"_id": recruiter["_id"]},
+                {"$set": {"status": "error", "errorDetail": str(e)}},
+            )
+        return {"ok": False, "err": str(e)}
 
 
 @router.post("/test-email")
@@ -107,11 +123,19 @@ def test_email_endpoint(data: TestEmailRequest):
         logger.info(
             f"Test email request received for {req_data['email']} ({req_data['company']})"
         )
+        from routes.recruiters import get_top_tier_companies, normalize_company
+        
+        company = normalize_company(req_data["company"])
+        top_tier_companies = get_top_tier_companies()
+        company_type = "top_tier" if company in top_tier_companies else "startup"
+
         recruiter = {
             "_id": "test_id_123",
             "email": req_data["email"],
             "name": req_data["name"],
-            "company": req_data["company"],
+            "company": company,
+            "companyType": company_type,
+            "messageId": req_data.get("inReplyTo"),
         }
 
         template_type = req_data.get("templateType", "initial")
@@ -143,7 +167,7 @@ def test_email_endpoint(data: TestEmailRequest):
         else:
             return {"status": "error", "detail": "Invalid template type"}
 
-        success, error_msg = send_email(email_data)
+        success, error_msg, message_id = send_email(email_data)
 
         if success:
             logger.info(
@@ -152,6 +176,7 @@ def test_email_endpoint(data: TestEmailRequest):
             return {
                 "status": "success",
                 "message": f"Sent {template_type} email to {recruiter['email']}",
+                "messageId": message_id,
             }
         else:
             return {"status": "error", "detail": error_msg}

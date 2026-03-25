@@ -35,10 +35,10 @@ def is_blacklisted(email: str) -> bool:
         return False
 
 
-def send_email(email_data: dict) -> tuple[bool, str | None]:
+def send_email(email_data: dict) -> tuple[bool, str | None, str | None]:
     """
     POST the email payload to the Google Apps Script bridge.
-    Returns (success: bool, error_message: str | None).
+    Returns (success: bool, error_message: str | None, message_id: str | None).
     """
     script_url = os.getenv("GOOGLE_SCRIPT_URL")
 
@@ -47,25 +47,35 @@ def send_email(email_data: dict) -> tuple[bool, str | None]:
         "subject": email_data["Subject"],
         "htmlBody": email_data["HTMLPart"],
     }
+    if email_data.get("inReplyTo"):
+        payload["inReplyTo"] = email_data["inReplyTo"]
 
     try:
         response = requests.post(script_url, json=payload, timeout=10)
 
         if response.status_code == 200:
-            if "Success" in response.text:
-                logger.info(
-                    f"Email SENT to {email_data['To']} | Subject: '{email_data['Subject']}'"
-                )
-                return True, None
-            else:
-                error_msg = f"Google Bridge returned 200 but failed: {response.text}"
+            try:
+                resp_json = response.json()
+            except Exception:
+                error_msg = f"Google Bridge returned 200 but invalid JSON: {response.text}"
                 logger.error(error_msg)
-                return False, error_msg
+                return False, error_msg, None
+
+            if resp_json.get("Success") is True:
+                message_id = resp_json.get("messageId")
+                logger.info(
+                    f"Email SENT to {email_data['To']} | Subject: '{email_data['Subject']}' | Bridge Response: {resp_json}"
+                )
+                return True, None, message_id
+            else:
+                error_msg = f"Google Bridge returned 200 but reported failure: {resp_json}"
+                logger.error(error_msg)
+                return False, error_msg, None
         else:
             error_msg = f"Google Bridge Error: {response.status_code} - {response.text}"
             logger.error(error_msg)
-            return False, error_msg
+            return False, error_msg, None
     except Exception as e:
         error_msg = f"Failed to connect to Google Bridge: {e}"
         logger.error(error_msg)
-        return False, error_msg
+        return False, error_msg, None

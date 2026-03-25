@@ -15,6 +15,7 @@ class TestEmailRequest(BaseModel):
     company: str = "Test Company"
     templateType: str = "initial"
     templateId: Optional[str] = None
+    inReplyTo: Optional[str] = None
 
 
 class TemplateBase(BaseModel):

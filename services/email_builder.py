@@ -167,6 +167,9 @@ def build_email(recruiter: dict, template_doc: dict | None = None) -> dict:
             opening_line = ai_content.get("opening_line", "")
             proof_line = ai_content.get("proof_line", "")
             
+            if not opening_line or not proof_line:
+                raise ValueError("Strict AI personalization failed for Top Tier company")
+            
             # --- Subject Line Rotation for Initial Email ---
             ai_subjects = ai_content.get("subject_lines", [])
             if ai_subjects:
@@ -181,6 +184,7 @@ def build_email(recruiter: dict, template_doc: dict | None = None) -> dict:
             )
         except Exception as e:
             logger.error(f"Error generating AI personalization: {e}")
+            raise e
     else:
         logger.info(
             f"Skipping AI personalization due to missing company: {recruiter['email']}"
@@ -340,9 +344,12 @@ def build_followup_email(
             ai_content = generate_personalized_content(company)
             opening_line = ai_content.get("opening_line", "")
             proof_line = ai_content.get("proof_line", "")
+            if not opening_line or not proof_line:
+                raise ValueError("Strict AI personalization failed for Top Tier company followup")
             logger.info("AI Followup Personalization applied.")
         except Exception as e:
             logger.error(f"Error generating AI personalization for followup: {e}")
+            raise e
 
     # --- Subject Line Rotation for Cold Followups (Scenario 3) ---
     if stage == 1 and not recruiter.get("opened") and company != "your team":
@@ -379,5 +386,9 @@ def build_followup_email(
     if template_used_id:
         result["templateUsed"] = template_used_id
         result["templateName"] = template_used_name
+    
+    if recruiter.get("messageId"):
+        result["inReplyTo"] = recruiter.get("messageId")
 
     return result
+

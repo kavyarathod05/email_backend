@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, timezone
 
 from config import recruiters_col, logger
 from services.email_builder import build_followup_email
-from services.email_sender import send_email, is_blacklisted
+from services.email_sender import send_email
 
 
 def send_followup_if_due() -> dict:
@@ -56,13 +56,6 @@ def send_followup_if_due() -> dict:
             logger.info("No follow-ups due at this time.")
             return {"status": "no followups due"}
 
-        # 0. Blacklist check
-        if is_blacklisted(recruiter["email"]):
-            logger.warning(f"Skipping follow-up for {recruiter['email']} - Blacklisted")
-            recruiters_col.update_one(
-                {"_id": recruiter["_id"]}, {"$set": {"status": "blacklisted"}}
-            )
-            return {"status": "skipped", "email": recruiter["email"], "reason": "blacklisted"}
 
         logger.info(f"Found due follow-up for: {recruiter['email']}")
 
@@ -81,7 +74,7 @@ def send_followup_if_due() -> dict:
             )
             return {"status": "error", "detail": error_msg}
 
-        success, error_msg = send_email(email_data)
+        success, error_msg, message_id = send_email(email_data)
 
         if success:
             update_fields = {
@@ -89,6 +82,8 @@ def send_followup_if_due() -> dict:
                 "followupAt": now,
                 "followupStage": next_stage,
             }
+            if message_id:
+                update_fields["messageId"] = message_id
             if email_data.get("templateUsed"):
                 update_fields["templateUsed"] = email_data["templateUsed"]
                 update_fields["templateName"] = email_data["templateName"]
@@ -114,4 +109,9 @@ def send_followup_if_due() -> dict:
 
     except Exception as e:
         logger.error(f"Follow-up Process Error: {e}")
+        if 'recruiter' in locals() and recruiter and "_id" in recruiter:
+            recruiters_col.update_one(
+                {"_id": recruiter["_id"]},
+                {"$set": {"status": "error", "errorDetail": str(e)}},
+            )
         return {"status": "error", "detail": str(e)}
