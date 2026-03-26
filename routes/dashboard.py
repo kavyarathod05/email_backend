@@ -86,6 +86,64 @@ def dashboard_stats():
         raise HTTPException(status_code=500, detail="Database connection error")
 
 
+@router.get("/daily-report")
+def dashboard_daily_report():
+    try:
+        pipeline = [
+            {"$addFields": {
+                "reportDate": {"$ifNull": ["$sentAt", {"$ifNull": ["$updatedAt", "$createdAt"]}]}
+            }},
+            {"$match": {"reportDate": {"$ne": None}}},
+            {
+                "$group": {
+                    "_id": {
+                        "$dateToString": {"format": "%Y-%m-%d", "date": "$reportDate"}
+                    },
+                    "sent": {"$sum": {"$cond": [{"$in": ["$status", ["sent", "replied"]]}, 1, 0]}},
+                    "errors": {"$sum": {"$cond": [{"$eq": ["$status", "error"]}, 1, 0]}},
+                    "fake": {"$sum": {"$cond": [{"$eq": ["$is_fake", True]}, 1, 0]}},
+                    "top_tier": {"$sum": {
+                        "$cond": [
+                            {"$and": [
+                                {"$in": ["$status", ["sent", "replied"]]},
+                                {"$in": ["$companyType", ["Top Tier", "top_tier", "topTier"]]}
+                            ]}, 1, 0
+                        ]
+                    }},
+                    "startup": {"$sum": {
+                        "$cond": [
+                            {"$and": [
+                                {"$in": ["$status", ["sent", "replied"]]},
+                                {"$in": ["$companyType", ["Startup", "startup"]]}
+                            ]}, 1, 0
+                        ]
+                    }},
+                }
+            },
+            {"$sort": {"_id": -1}},
+        ]
+        
+        results = list(recruiters_col.aggregate(pipeline))
+        
+        formatted = []
+        for r in results:
+            if not r["_id"]:
+                continue
+            formatted.append({
+                "date": r["_id"],
+                "sent": r.get("sent", 0),
+                "errors": r.get("errors", 0),
+                "fake": r.get("fake", 0),
+                "topTier": r.get("top_tier", 0),
+                "startup": r.get("startup", 0)
+            })
+            
+        return formatted
+    except Exception as e:
+        logger.error(f"Daily report error: {e}")
+        raise HTTPException(status_code=500, detail="Daily report error")
+
+
 @router.get("/recruiters")
 def dashboard_recruiters(status: str = None):
     try:
