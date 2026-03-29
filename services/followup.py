@@ -70,7 +70,7 @@ def send_followup_if_due() -> dict:
             logger.error(f"ABORTING: {error_msg} for {recruiter['email']}")
             recruiters_col.update_one(
                 {"_id": recruiter["_id"]},
-                {"$set": {"status": "error", "errorDetail": error_msg}},
+                {"$set": {"status": "error", "errorDetail": error_msg, "errorAt": datetime.now(timezone.utc)}},
             )
             return {"status": "error", "detail": error_msg}
 
@@ -103,7 +103,7 @@ def send_followup_if_due() -> dict:
         else:
             recruiters_col.update_one(
                 {"_id": recruiter["_id"]},
-                {"$set": {"status": "error", "errorDetail": error_msg}},
+                {"$set": {"status": "error", "errorDetail": error_msg, "errorAt": datetime.now(timezone.utc)}},
             )
             return {"status": "error", "detail": error_msg}
 
@@ -112,6 +112,6 @@ def send_followup_if_due() -> dict:
         if 'recruiter' in locals() and recruiter and "_id" in recruiter:
             recruiters_col.update_one(
                 {"_id": recruiter["_id"]},
-                {"$set": {"status": "error", "errorDetail": str(e)}},
+                {"$set": {"status": "error", "errorDetail": str(e), "errorAt": datetime.now(timezone.utc)}},
             )
         return {"status": "error", "detail": str(e)}

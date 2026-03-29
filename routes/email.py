@@ -13,6 +13,7 @@ from services.email_builder import build_email, build_followup_email
 from services.email_sender import send_email
 from services.reply_checker import check_replies
 from services.followup import send_followup_if_due
+from services.retry_engine import retry_failed_emails
 
 router = APIRouter(tags=["email"])
 
@@ -20,6 +21,8 @@ router = APIRouter(tags=["email"])
 @router.post("/send-one")
 def send_one_email(req: SendOneRequest = SendOneRequest()):
     try:
+        # Automatic retry for older failures
+        retry_failed_emails()
         # Determine attempt count to space out top_tier emails
         total_attempts = recruiters_col.count_documents({"status": {"$ne": "new"}})
         is_top_tier_turn = (total_attempts % 3 == 0)
@@ -46,7 +49,7 @@ def send_one_email(req: SendOneRequest = SendOneRequest()):
         if recruiter.get("is_fake"):
             logger.warning(f"Skipping {recruiter['email']} - Marked as Fake/Invalid")
             recruiters_col.update_one(
-                {"_id": recruiter["_id"]}, {"$set": {"status": "skipped_fake"}}
+                {"_id": recruiter["_id"]}, {"$set": {"status": "skipped_fake", "fakeAt": datetime.utcnow()}}
             )
             return {"ok": False, "msg": "fake"}
 
@@ -97,7 +100,7 @@ def send_one_email(req: SendOneRequest = SendOneRequest()):
         else:
             recruiters_col.update_one(
                 {"_id": recruiter["_id"]},
-                {"$set": {"status": "error", "errorDetail": error_msg}},
+                {"$set": {"status": "error", "errorDetail": error_msg, "errorAt": datetime.utcnow()}},
             )
             return {"ok": False, "err": error_msg}
     except Exception as e:
@@ -105,7 +108,7 @@ def send_one_email(req: SendOneRequest = SendOneRequest()):
         if 'recruiter' in locals() and recruiter and "_id" in recruiter:
             recruiters_col.update_one(
                 {"_id": recruiter["_id"]},
-                {"$set": {"status": "error", "errorDetail": str(e)}},
+                {"$set": {"status": "error", "errorDetail": str(e), "errorAt": datetime.utcnow()}},
             )
         return {"ok": False, "err": str(e)}
 
