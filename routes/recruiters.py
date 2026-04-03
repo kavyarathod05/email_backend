@@ -211,6 +211,17 @@ async def import_csv(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail="CSV processing failed")
 
 
+
+@router.delete("/fake")
+def delete_fake_recruiters():
+    try:
+        result = recruiters_col.delete_many({"is_fake": True})
+        return {"message": f"Deleted {result.deleted_count} fake recruiters", "deleted_count": result.deleted_count}
+    except Exception as e:
+        logger.error(f"Error deleting fake recruiters: {e}")
+        raise HTTPException(status_code=500, detail="Deletion failed")
+
+
 @router.post("/import-text")
 async def import_text(data: CSVImportRequest):
     if not data.csvText:
