@@ -88,8 +88,12 @@ def send_followup_if_due() -> dict:
                 update_fields["templateUsed"] = email_data["templateUsed"]
                 update_fields["templateName"] = email_data["templateName"]
 
+            update_op = {"$set": update_fields}
+            if email_data.get("inReplyTo"):
+                update_op["$addToSet"] = {"tags": "same thread"}
+
             recruiters_col.update_one(
-                {"_id": recruiter["_id"]}, {"$set": update_fields}
+                {"_id": recruiter["_id"]}, update_op
             )
 
             logger.info(

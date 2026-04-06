@@ -93,8 +93,12 @@ def send_one_email(req: SendOneRequest = SendOneRequest()):
                 update_fields["templateUsed"] = str(template_doc["_id"])
                 update_fields["templateName"] = template_doc.get("name")
 
+            update_op = {"$set": update_fields}
+            if email_data.get("inReplyTo"):
+                update_op["$addToSet"] = {"tags": "same thread"}
+
             recruiters_col.update_one(
-                {"_id": recruiter["_id"]}, {"$set": update_fields}
+                {"_id": recruiter["_id"]}, update_op
             )
             return {"ok": True}
         else:
