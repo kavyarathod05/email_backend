@@ -1,11 +1,11 @@
 """
 Email delivery via Google Apps Script Bridge.
 """
+
 import os
 import requests
 
 from config import logger
-
 
 
 def is_blacklisted(email: str) -> bool:
@@ -17,10 +17,7 @@ def is_blacklisted(email: str) -> bool:
         logger.error("GOOGLE_SCRIPT_URL not found in environment")
         return False
 
-    payload = {
-        "action": "check_blacklist",
-        "email": email
-    }
+    payload = {"action": "check_blacklist", "email": email}
 
     try:
         response = requests.post(script_url, json=payload, timeout=10)
@@ -28,7 +25,9 @@ def is_blacklisted(email: str) -> bool:
             result = response.json()
             if result.get("success"):
                 return result.get("blacklisted", False)
-        logger.error(f"Blacklist check failed: {response.status_code} - {response.text}")
+        logger.error(
+            f"Blacklist check failed: {response.status_code} - {response.text}"
+        )
         return False
     except Exception as e:
         logger.error(f"Error checking blacklist: {e}")
@@ -57,7 +56,9 @@ def send_email(email_data: dict) -> tuple[bool, str | None, str | None]:
             try:
                 resp_json = response.json()
             except Exception:
-                error_msg = f"Google Bridge returned 200 but invalid JSON: {response.text}"
+                error_msg = (
+                    f"Google Bridge returned 200 but invalid JSON: {response.text}"
+                )
                 logger.error(error_msg)
                 return False, error_msg, None
 
@@ -68,7 +69,9 @@ def send_email(email_data: dict) -> tuple[bool, str | None, str | None]:
                 )
                 return True, None, message_id
             else:
-                error_msg = f"Google Bridge returned 200 but reported failure: {resp_json}"
+                error_msg = (
+                    f"Google Bridge returned 200 but reported failure: {resp_json}"
+                )
                 logger.error(error_msg)
                 return False, error_msg, None
         else:

@@ -201,4 +201,7 @@ def check_replies_api():
 
 @router.post("/send-followup")
 def send_followup_api():
+    # 1. Clear any old errors first so they can be picked up again
+    retry_failed_emails()
+    # 2. Proceed with follow-up logic
     return send_followup_if_due()

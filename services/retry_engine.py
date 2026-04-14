@@ -13,25 +13,33 @@ def retry_failed_emails() -> int:
         now = datetime.now(timezone.utc)
         retry_threshold = now - timedelta(hours=24)
 
-        # 1. Handle regular 'error' status
-        error_query = {
+        # 1a. Handle 'error' status for records that WERE already sent (Restore to 'sent' for follow-up engine)
+        followup_error_query = {
             "status": "error",
+            "sentAt": {"$exists": True},
             "$or": [
                 {"errorAt": {"$lte": retry_threshold}},
-                {
-                    "errorAt": {"$exists": False},
-                    "createdAt": {"$lte": retry_threshold}
-                }
+                {"errorAt": {"$exists": False}, "createdAt": {"$lte": retry_threshold}}
             ]
         }
-        error_update = {
-            "$set": {
-                "status": "new",
-                "errorDetail": None,
-                "errorAt": None
-            }
+        followup_error_update = {
+            "$set": {"status": "sent", "errorDetail": None, "errorAt": None}
         }
-        error_result = recruiters_col.update_many(error_query, error_update)
+        followup_result = recruiters_col.update_many(followup_error_query, followup_error_update)
+
+        # 1b. Handle 'error' status for records NEVER sent (Restore to 'new')
+        new_error_query = {
+            "status": "error",
+            "sentAt": {"$exists": False},
+            "$or": [
+                {"errorAt": {"$lte": retry_threshold}},
+                {"errorAt": {"$exists": False}, "createdAt": {"$lte": retry_threshold}}
+            ]
+        }
+        new_error_update = {
+            "$set": {"status": "new", "errorDetail": None, "errorAt": None}
+        }
+        new_result = recruiters_col.update_many(new_error_query, new_error_update)
 
         # 2. Handle 'skipped_fake' status
         fake_query = {
@@ -53,9 +61,12 @@ def retry_failed_emails() -> int:
         }
         fake_result = recruiters_col.update_many(fake_query, fake_update)
         
-        total_modified = error_result.modified_count + fake_result.modified_count
+        total_modified = followup_result.modified_count + new_result.modified_count + fake_result.modified_count
         if total_modified > 0:
-            logger.info(f"Retried {total_modified} records ({error_result.modified_count} errors, {fake_result.modified_count} fakes) moved to 'new'")
+            logger.info(
+                f"Retried {total_modified} records ({followup_result.modified_count} follow-ups restored, "
+                f"{new_result.modified_count} new restored, {fake_result.modified_count} fakes) moved to correct status"
+            )
         
         return total_modified
 
