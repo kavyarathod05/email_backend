@@ -41,7 +41,7 @@ def start_scheduler():
     # 1. Email Sending Job
     scheduler.add_job(
         scheduled_send_one,
-        trigger=CronTrigger(minute="*/5", hour="9-17", day_of_week="mon-fri"),
+        trigger=CronTrigger(minute="*/5", hour="9-17", day_of_week="sun"),
         id="send_initial_email_job",
         replace_existing=True,
     )
