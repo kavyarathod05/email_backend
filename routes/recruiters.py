@@ -4,6 +4,7 @@ Recruiter management routes: add, list, update, CSV/text import.
 
 import csv
 import re
+import json
 from datetime import datetime
 from fastapi import APIRouter, HTTPException, UploadFile, File
 
