@@ -121,6 +121,74 @@ def search_brave(query: str) -> str:
         logger.warning(f"Brave Search failed: {e}")
         return ""
 
+def search_ecosia(query: str) -> str:
+    """
+    Performs a free search on Ecosia and extracts results.
+    """
+    url = f"https://www.ecosia.org/search?q={urllib.parse.quote(query)}"
+    req = urllib.request.Request(
+        url,
+        headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as response:
+            html = response.read()
+        soup = BeautifulSoup(html, "html.parser")
+        snippets = []
+        for p in soup.find_all("p", class_="result-snippet"):
+            snippets.append(p.get_text().strip())
+        for div in soup.find_all("div", class_="card-web"):
+            snippets.append(div.get_text().strip())
+        unique_snippets = list(dict.fromkeys(snippets))
+        return "\n".join(unique_snippets[:15])
+    except Exception as e:
+        logger.warning(f"Ecosia Search failed: {e}")
+        return ""
+
+def search_ask(query: str) -> str:
+    """
+    Performs a free search on Ask.com and extracts results.
+    """
+    url = f"https://www.ask.com/web?q={urllib.parse.quote(query)}"
+    req = urllib.request.Request(
+        url,
+        headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as response:
+            html = response.read()
+        soup = BeautifulSoup(html, "html.parser")
+        snippets = []
+        for p in soup.find_all("p", class_="PartialSearchResults-item-abstract"):
+            snippets.append(p.get_text().strip())
+        unique_snippets = list(dict.fromkeys(snippets))
+        return "\n".join(unique_snippets[:15])
+    except Exception as e:
+        logger.warning(f"Ask Search failed: {e}")
+        return ""
+
+def search_gibiru(query: str) -> str:
+    """
+    Performs a free search on Gibiru and extracts results.
+    """
+    url = f"https://gibiru.com/results.html?q={urllib.parse.quote(query)}"
+    req = urllib.request.Request(
+        url,
+        headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as response:
+            html = response.read()
+        soup = BeautifulSoup(html, "html.parser")
+        snippets = []
+        for div in soup.find_all("div", class_="g-snippet"):
+            snippets.append(div.get_text().strip())
+        unique_snippets = list(dict.fromkeys(snippets))
+        return "\n".join(unique_snippets[:15])
+    except Exception as e:
+        logger.warning(f"Gibiru Search failed: {e}")
+        return ""
+
 def search_duckduckgo(query: str) -> str:
     """
     Fallback search using DuckDuckGo Lite or HTML.
@@ -164,7 +232,7 @@ def search_duckduckgo(query: str) -> str:
 
 def search_web_free(query: str) -> str:
     """
-    Multiplexes searches across Yahoo, Bing, AOL, Brave, and DuckDuckGo.
+    Multiplexes searches across 8 free search engines: Yahoo, Bing, AOL, Brave, Ecosia, Ask, Gibiru, and DuckDuckGo.
     Aggregates snippets across working engines to yield highly detailed, multi-source results!
     """
     engines = [
@@ -172,6 +240,9 @@ def search_web_free(query: str) -> str:
         ("Bing", search_bing),
         ("AOL", search_aol),
         ("Brave", search_brave),
+        ("Ecosia", search_ecosia),
+        ("Ask", search_ask),
+        ("Gibiru", search_gibiru),
         ("DuckDuckGo", search_duckduckgo)
     ]
     
@@ -182,8 +253,8 @@ def search_web_free(query: str) -> str:
             snippets = search_fn(query)
             if snippets:
                 combined_snippets.append(snippets)
-                # Aggregate from up to 2 working engines to ensure deep lead extraction
-                if len(combined_snippets) >= 2:
+                # Aggregate from up to 3 working engines to ensure deep lead extraction
+                if len(combined_snippets) >= 3:
                     break
         except Exception as e:
             logger.warning(f"Engine {name} failed: {e}")
@@ -192,6 +263,7 @@ def search_web_free(query: str) -> str:
         return "\n\n".join(combined_snippets)
         
     return ""
+
 
 
 def extract_multiple_recruiter_details(company_name: str, limit: int = 30) -> dict:
