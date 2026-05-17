@@ -1,5 +1,5 @@
 """
-Lead Finder Service: uses free search scraping and Gemini to find multiple recruiter details,
+Lead Finder Service: uses free search scraping (Yahoo + DuckDuckGo fallback) and Gemini to find multiple recruiter details,
 guesses their corporate emails, and verifies them via SMTP MX handshakes (detecting catch-alls).
 Supports configurable email counts.
 """
@@ -15,11 +15,37 @@ import dns.resolver
 from config import logger, recruiters_col
 from services.ai_service import _gemini_generate
 
+def search_yahoo(query: str) -> str:
+    """
+    Performs a free search on Yahoo Search and returns concatenated search result snippets.
+    Extremely reliable, fast, and does not present bot blocks/captchas.
+    """
+    url = f"https://search.yahoo.com/search?p={urllib.parse.quote(query)}"
+    req = urllib.request.Request(
+        url,
+        headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as response:
+            html = response.read()
+        soup = BeautifulSoup(html, "html.parser")
+        snippets = []
+        for div in soup.find_all("div", class_="compText"):
+            snippets.append(div.get_text().strip())
+        for p in soup.find_all("p", class_="lh-16"):
+            snippets.append(p.get_text().strip())
+        
+        # Clean up double lists
+        unique_snippets = list(dict.fromkeys(snippets))
+        return "\n".join(unique_snippets[:15])
+    except Exception as e:
+        logger.warning(f"Yahoo Search failed: {e}")
+        return ""
+
 def search_duckduckgo(query: str) -> str:
     """
-    Performs a free search on DuckDuckGo HTML and falls back to DuckDuckGo Lite if blocked.
+    Fallback search using DuckDuckGo Lite or HTML.
     """
-    # 1. Try HTML version first
     url = f"https://html.duckduckgo.com/html/?q={urllib.parse.quote(query)}"
     req = urllib.request.Request(
         url,
@@ -35,10 +61,10 @@ def search_duckduckgo(query: str) -> str:
         
         if snippets:
             return "\n".join(snippets[:15])
-    except Exception as e:
-        logger.warning(f"DuckDuckGo HTML search failed: {e}. Trying Lite fallback...")
+    except Exception:
+        pass
 
-    # 2. Fallback to DDG Lite POST request (extremely robust and lightweight)
+    # Lite Fallback
     lite_url = "https://lite.duckduckgo.com/lite/"
     data = urllib.parse.urlencode({"q": query}).encode("utf-8")
     req_lite = urllib.request.Request(
@@ -51,21 +77,28 @@ def search_duckduckgo(query: str) -> str:
             html = response.read()
         soup = BeautifulSoup(html, "html.parser")
         snippets = []
-        
-        # In DDG Lite, snippets are inside <td> elements with class "result-snippet"
         for result in soup.find_all("td", class_="result-snippet"):
             snippets.append(result.get_text().strip())
-            
-        if snippets:
-            return "\n".join(snippets[:15])
-    except Exception as e:
-        logger.error(f"DuckDuckGo Lite search fallback also failed: {e}")
+        return "\n".join(snippets[:15])
+    except Exception:
+        return ""
+
+def search_web_free(query: str) -> str:
+    """
+    Combines Yahoo and DuckDuckGo search engines for absolute search resilience.
+    """
+    # Yahoo first (safest and completely unblocked)
+    snippets = search_yahoo(query)
+    if snippets:
+        return snippets
         
-    return ""
+    # DuckDuckGo fallback
+    logger.info(f"Primary search failed. Triggering DuckDuckGo fallback for: {query}")
+    return search_duckduckgo(query)
 
 def extract_multiple_recruiter_details(company_name: str, limit: int = 30) -> dict:
     """
-    Uses DuckDuckGo multiplexed queries and Gemini to extract up to N unique recruiters and the corporate domain.
+    Uses web scraping and Gemini to extract up to N unique recruiters and the corporate domain.
     """
     logger.info(f"AI Lead Agent: Harvesting up to {limit} recruiters at {company_name}")
     
@@ -79,7 +112,7 @@ def extract_multiple_recruiter_details(company_name: str, limit: int = 30) -> di
     
     all_snippets = []
     for q in queries:
-        snippets = search_duckduckgo(q)
+        snippets = search_web_free(q)
         if snippets:
             all_snippets.append(snippets)
             
@@ -87,7 +120,7 @@ def extract_multiple_recruiter_details(company_name: str, limit: int = 30) -> di
     if not all_snippets:
         logger.warning("All strict searches returned empty. Trying simplified keyword query...")
         simple_q = f'linkedin.com recruiter "{company_name}"'
-        snippets = search_duckduckgo(simple_q)
+        snippets = search_web_free(simple_q)
         if snippets:
             all_snippets.append(snippets)
             
