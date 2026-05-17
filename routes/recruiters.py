@@ -277,11 +277,12 @@ from services.lead_finder import run_lead_generation_agent
 def agent_find_recruiter(data: dict):
     company = data.get("company")
     company_type = data.get("companyType", "startup")
+    limit = int(data.get("limit", 30))
     if not company:
         raise HTTPException(status_code=400, detail="Company name is required")
         
     try:
-        result = run_lead_generation_agent(company, company_type)
+        result = run_lead_generation_agent(company, company_type, limit)
         if not result.get("success"):
             raise HTTPException(status_code=404, detail=result.get("error", "Failed to locate recruiter"))
         return result

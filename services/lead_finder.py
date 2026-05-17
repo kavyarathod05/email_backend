@@ -1,6 +1,7 @@
 """
-Lead Finder Service: uses free search scraping and Gemini to find recruiter details,
+Lead Finder Service: uses free search scraping and Gemini to find multiple recruiter details,
 guesses their corporate emails, and verifies them via SMTP MX handshakes (detecting catch-alls).
+Supports configurable email counts.
 """
 import socket
 import smtplib
@@ -31,43 +32,54 @@ def search_duckduckgo(query: str) -> str:
         for result in soup.find_all("a", class_="result__snippet"):
             snippets.append(result.get_text().strip())
         
-        return "\n".join(snippets[:10])
+        return "\n".join(snippets[:15])
     except Exception as e:
         logger.error(f"DuckDuckGo search failed: {e}")
         return ""
 
-def extract_recruiter_details(company_name: str) -> dict:
+def extract_multiple_recruiter_details(company_name: str, limit: int = 30) -> dict:
     """
-    Uses DuckDuckGo and Gemini to find a recruiter's name and domain for a company.
+    Uses DuckDuckGo multiplexed queries and Gemini to extract up to N unique recruiters and the corporate domain.
     """
-    logger.info(f"AI Lead Agent: Searching for recruiters at {company_name}")
+    logger.info(f"AI Lead Agent: Harvesting up to {limit} recruiters at {company_name}")
     
-    # 1. Search DDG
-    query = f'site:linkedin.com/in "Technical Recruiter" OR "Talent Acquisition" "{company_name}"'
-    snippets = search_duckduckgo(query)
+    # Multiplex queries to get 30+ distinct profiles
+    queries = [
+        f'site:linkedin.com/in "Technical Recruiter" "{company_name}"',
+        f'site:linkedin.com/in "Talent Acquisition" "{company_name}"',
+        f'site:linkedin.com/in "Engineering Recruiter" "{company_name}"',
+        f'site:linkedin.com/in "HR Manager" "{company_name}"'
+    ]
     
-    if not snippets:
+    all_snippets = []
+    for q in queries:
+        snippets = search_duckduckgo(q)
+        if snippets:
+            all_snippets.append(snippets)
+            
+    combined_snippets = "\n---\n".join(all_snippets)
+    if not combined_snippets:
         logger.warning(f"No search results found for {company_name}")
         return {}
 
-    # 2. Query Gemini
     prompt = f"""
-Based on these LinkedIn search snippets for recruiters at the company '{company_name}', extract a recruiter's name and the company's domain.
+Based on these LinkedIn search snippets for employees at the company '{company_name}', extract a list of unique recruiters and the company's domain.
 
 Search Snippets:
-{snippets}
+{combined_snippets}
 
+Limit the response to a maximum of {limit} unique recruiters.
 Strictly return a JSON object with these keys:
-- "firstName": Clean first name of the recruiter (e.g. John). If not found, guess a highly probable name or use "Recruiter".
-- "lastName": Clean last name of the recruiter (e.g. Doe). If not found, use "".
-- "domain": The corporate email domain of the company (e.g. stripe.com or companyname.com).
+- "recruiters": A list of objects, each containing:
+    - "firstName": Clean first name of the recruiter.
+    - "lastName": Clean last name of the recruiter (empty string if not found).
+- "domain": The corporate email domain of the company (e.g. stripe.com).
 - "company": Properly formatted company name.
 
-Do not add any explanations, just return the raw JSON object.
+Do not add any markdown explanation, just return the raw JSON object.
 """
-    raw_response = _gemini_generate(prompt, max_tokens=150)
+    raw_response = _gemini_generate(prompt, max_tokens=1000)
     
-    # Extract JSON safely
     try:
         clean_json = raw_response.strip()
         if "```json" in clean_json:
@@ -81,10 +93,10 @@ Do not add any explanations, just return the raw JSON object.
             clean_json = clean_json[start : end + 1]
             
         details = json.loads(clean_json)
-        logger.info(f"AI Lead Agent: Extracted details: {details}")
+        logger.info(f"AI Lead Agent: Extracted domain: {details.get('domain')} and {len(details.get('recruiters', []))} recruiter names.")
         return details
     except Exception as e:
-        logger.error(f"Failed to parse Gemini recruiter extraction: {e}. Raw response: {raw_response}")
+        logger.error(f"Failed to parse Gemini recruiter extraction: {e}. Raw response: {raw_response[:500]}...")
         return {}
 
 def generate_email_permutations(first: str, last: str, domain: str) -> list:
@@ -97,8 +109,6 @@ def generate_email_permutations(first: str, last: str, domain: str) -> list:
         return []
         
     guesses = []
-    
-    # Standard patterns
     guesses.append(f"{first}@{domain}")
     if last:
         guesses.append(f"{first}.{last}@{domain}")
@@ -108,17 +118,13 @@ def generate_email_permutations(first: str, last: str, domain: str) -> list:
         guesses.append(f"{first}{last}@{domain}")
         guesses.append(f"{first}_{last}@{domain}")
     
-    # Remove duplicates
     return list(dict.fromkeys(guesses))
 
 def verify_email_smtp(email_addr: str) -> bool:
     """
     Connects to the domain's MX server to verify if the email address exists.
-    Includes catch-all detection for reliable checks.
     """
     domain = email_addr.split("@")[1]
-    
-    # 1. Resolve MX record
     try:
         mx_records = dns.resolver.resolve(domain, "MX")
         mx_host = str(sorted(mx_records, key=lambda r: r.preference)[0].exchange).rstrip(".")
@@ -126,92 +132,95 @@ def verify_email_smtp(email_addr: str) -> bool:
         logger.warning(f"SMTP Verification: No MX record for {domain}: {e}")
         return False
         
-    # 2. Check for catch-all (does a fake email also work?)
     catchall_test_email = f"gibberish_check_12345@{domain}"
     
     def check_recipient(recipient: str) -> bool:
         try:
-            # We connect via port 25 (standard SMTP mail exchange port)
             server = smtplib.SMTP(mx_host, 25, timeout=5)
             server.helo()
             server.mail("outreach_check@gmail.com")
             code, message = server.rcpt(recipient)
             server.quit()
-            # 250 means recipient exists
             return code == 250
         except Exception:
             return False
 
-    # First, test if the server is a Catch-All
     is_catch_all = check_recipient(catchall_test_email)
     if is_catch_all:
-        logger.warning(f"SMTP Verification: {domain} is a Catch-All server. Skipping SMTP checks (unsafe).")
-        # If it's a catch-all, we fallback to first.last or first as a default guess
+        logger.warning(f"SMTP Verification: {domain} is a Catch-All server. Skipping SMTP checks.")
         return False
         
-    # Standard check for the actual email
     return check_recipient(email_addr)
 
-def run_lead_generation_agent(company_name: str, company_type: str = "startup") -> dict:
+def run_lead_generation_agent(company_name: str, company_type: str = "startup", limit: int = 30) -> dict:
     """
     Runs the full lead generation flow:
-    Finds recruiter -> Guesses emails -> Verifies -> Saves to DB
+    Finds recruiters -> Guesses emails -> Verifies -> Saves to DB
     """
-    details = extract_recruiter_details(company_name)
-    if not details or "domain" not in details or not details.get("firstName"):
-        return {"success": False, "error": "Could not locate recruiter or domain details."}
+    details = extract_multiple_recruiter_details(company_name, limit)
+    if not details or "domain" not in details or not details.get("recruiters"):
+        return {"success": False, "error": "Could not harvest recruiters or domain details."}
         
-    first = details["firstName"]
-    last = details.get("lastName", "")
     domain = details["domain"]
     real_company = details.get("company", company_name)
+    recruiters_list = details["recruiters"]
     
-    guesses = generate_email_permutations(first, last, domain)
-    verified_email = None
+    added_leads = []
+    skipped_count = 0
     
-    logger.info(f"AI Lead Agent: Permuted {len(guesses)} emails for {first} {last} @ {domain}")
+    logger.info(f"AI Lead Agent: Processing email generation for {len(recruiters_list)} candidates...")
     
-    # Try verifying each email guess
-    for guess in guesses:
-        logger.info(f"AI Lead Agent: Checking {guess}...")
-        if verify_email_smtp(guess):
-            verified_email = guess
-            logger.info(f"AI Lead Agent: SUCCESS! Verified email: {verified_email}")
+    for rec in recruiters_list:
+        if len(added_leads) >= limit:
             break
             
-    # Fallback to standard first.last@company.com if SMTP failed/catchall blocked it
-    if not verified_email and guesses:
-        verified_email = guesses[1] if len(guesses) > 1 else guesses[0]
-        logger.info(f"AI Lead Agent: Fallback to default guess: {verified_email}")
-        
-    # Save the new recruiter into your database
-    if verified_email:
-        # Check if already exists
-        if recruiters_col.find_one({"email": verified_email}):
-            return {"success": False, "error": f"Recruiter {verified_email} already exists in database."}
+        first = rec.get("firstName", "")
+        last = rec.get("lastName", "")
+        if not first:
+            continue
             
-        from datetime import datetime
-        new_recruiter = {
-            "email": verified_email,
-            "name": f"{first} {last}".strip(),
-            "company": real_company,
-            "companyType": company_type,
-            "status": "new",
-            "sentAt": None,
-            "replied": False,
-            "followupSent": False,
-            "followupStage": 0,
-            "opened": False,
-            "clicked": False,
-            "createdAt": datetime.utcnow()
-        }
-        recruiters_col.insert_one(new_recruiter)
-        return {
-            "success": True,
-            "email": verified_email,
-            "name": new_recruiter["name"],
-            "company": real_company,
-            "companyType": company_type
-        }
+        guesses = generate_email_permutations(first, last, domain)
+        verified_email = None
         
-    return {"success": False, "error": "Failed to determine email address."}
+        # SMTP verification
+        for guess in guesses:
+            if verify_email_smtp(guess):
+                verified_email = guess
+                break
+                
+        # Default fallback
+        if not verified_email and guesses:
+            verified_email = guesses[1] if len(guesses) > 1 else guesses[0]
+            
+        if verified_email:
+            # Check for duplicates in DB
+            if recruiters_col.find_one({"email": verified_email}):
+                skipped_count += 1
+                continue
+                
+            from datetime import datetime
+            new_rec = {
+                "email": verified_email,
+                "name": f"{first} {last}".strip(),
+                "company": real_company,
+                "companyType": company_type,
+                "status": "new",
+                "sentAt": None,
+                "replied": False,
+                "followupSent": False,
+                "followupStage": 0,
+                "opened": False,
+                "clicked": False,
+                "createdAt": datetime.utcnow()
+            }
+            recruiters_col.insert_one(new_rec)
+            added_leads.append({"name": new_rec["name"], "email": verified_email})
+            logger.info(f"AI Lead Agent: SUCCESSFULLY added recruiter {new_rec['name']} ({verified_email})")
+
+    return {
+        "success": True,
+        "company": real_company,
+        "count_added": len(added_leads),
+        "skipped": skipped_count,
+        "leads": added_leads
+    }
