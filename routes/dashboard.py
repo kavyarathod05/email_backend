@@ -198,3 +198,14 @@ def dashboard_queue():
     except Exception as e:
         logger.error(f"Queue error: {e}")
         raise HTTPException(status_code=500, detail="Database connection error")
+
+
+from config import LOG_BUFFER
+
+@router.get("/logs")
+def get_system_logs():
+    """
+    Returns the last 300 logs stored in the in-memory buffer.
+    """
+    return list(LOG_BUFFER)
+

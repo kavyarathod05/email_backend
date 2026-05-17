@@ -9,8 +9,23 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # --------------- Logging ---------------
+import collections
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("email_automation")
+
+LOG_BUFFER = collections.deque(maxlen=300)
+
+class InMemoryLogHandler(logging.Handler):
+    def emit(self, record):
+        try:
+            msg = self.format(record)
+            LOG_BUFFER.append(msg)
+        except Exception:
+            self.handleError(record)
+
+in_memory_handler = InMemoryLogHandler()
+in_memory_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+logger.addHandler(in_memory_handler)
 
 # --------------- Environment ---------------
 load_dotenv()
