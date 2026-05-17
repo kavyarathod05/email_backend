@@ -39,7 +39,7 @@ def search_yahoo(query: str) -> str:
         unique_snippets = list(dict.fromkeys(snippets))
         return "\n".join(unique_snippets[:15])
     except Exception as e:
-        logger.warning(f"Yahoo Search failed: {e}")
+        logger.debug(f"Yahoo Search failed: {e}")
         return ""
 
 def search_bing(query: str) -> str:
@@ -68,7 +68,7 @@ def search_bing(query: str) -> str:
         unique_snippets = list(dict.fromkeys(snippets))
         return "\n".join(unique_snippets[:15])
     except Exception as e:
-        logger.warning(f"Bing Search failed: {e}")
+        logger.debug(f"Bing Search failed: {e}")
         return ""
 
 def search_aol(query: str) -> str:
@@ -93,7 +93,7 @@ def search_aol(query: str) -> str:
         unique_snippets = list(dict.fromkeys(snippets))
         return "\n".join(unique_snippets[:15])
     except Exception as e:
-        logger.warning(f"AOL Search failed: {e}")
+        logger.debug(f"AOL Search failed: {e}")
         return ""
 
 def search_brave(query: str) -> str:
@@ -118,7 +118,7 @@ def search_brave(query: str) -> str:
         unique_snippets = list(dict.fromkeys(snippets))
         return "\n".join(unique_snippets[:15])
     except Exception as e:
-        logger.warning(f"Brave Search failed: {e}")
+        logger.debug(f"Brave Search failed: {e}")
         return ""
 
 def search_ecosia(query: str) -> str:
@@ -142,7 +142,7 @@ def search_ecosia(query: str) -> str:
         unique_snippets = list(dict.fromkeys(snippets))
         return "\n".join(unique_snippets[:15])
     except Exception as e:
-        logger.warning(f"Ecosia Search failed: {e}")
+        logger.debug(f"Ecosia Search failed: {e}")
         return ""
 
 def search_ask(query: str) -> str:
@@ -164,7 +164,7 @@ def search_ask(query: str) -> str:
         unique_snippets = list(dict.fromkeys(snippets))
         return "\n".join(unique_snippets[:15])
     except Exception as e:
-        logger.warning(f"Ask Search failed: {e}")
+        logger.debug(f"Ask Search failed: {e}")
         return ""
 
 def search_gibiru(query: str) -> str:
@@ -186,7 +186,7 @@ def search_gibiru(query: str) -> str:
         unique_snippets = list(dict.fromkeys(snippets))
         return "\n".join(unique_snippets[:15])
     except Exception as e:
-        logger.warning(f"Gibiru Search failed: {e}")
+        logger.debug(f"Gibiru Search failed: {e}")
         return ""
 
 def search_duckduckgo(query: str) -> str:
