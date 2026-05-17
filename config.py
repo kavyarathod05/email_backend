@@ -26,6 +26,7 @@ class InMemoryLogHandler(logging.Handler):
 in_memory_handler = InMemoryLogHandler()
 in_memory_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
 logger.addHandler(in_memory_handler)
+logging.getLogger("apscheduler").addHandler(in_memory_handler)
 
 # --------------- Environment ---------------
 load_dotenv()
