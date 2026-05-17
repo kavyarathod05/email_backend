@@ -17,8 +17,9 @@ from services.ai_service import _gemini_generate
 
 def search_duckduckgo(query: str) -> str:
     """
-    Performs a free search on DuckDuckGo HTML and returns concatenated search result snippets.
+    Performs a free search on DuckDuckGo HTML and falls back to DuckDuckGo Lite if blocked.
     """
+    # 1. Try HTML version first
     url = f"https://html.duckduckgo.com/html/?q={urllib.parse.quote(query)}"
     req = urllib.request.Request(
         url,
@@ -32,10 +33,35 @@ def search_duckduckgo(query: str) -> str:
         for result in soup.find_all("a", class_="result__snippet"):
             snippets.append(result.get_text().strip())
         
-        return "\n".join(snippets[:15])
+        if snippets:
+            return "\n".join(snippets[:15])
     except Exception as e:
-        logger.error(f"DuckDuckGo search failed: {e}")
-        return ""
+        logger.warning(f"DuckDuckGo HTML search failed: {e}. Trying Lite fallback...")
+
+    # 2. Fallback to DDG Lite POST request (extremely robust and lightweight)
+    lite_url = "https://lite.duckduckgo.com/lite/"
+    data = urllib.parse.urlencode({"q": query}).encode("utf-8")
+    req_lite = urllib.request.Request(
+        lite_url,
+        data=data,
+        headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+    )
+    try:
+        with urllib.request.urlopen(req_lite, timeout=10) as response:
+            html = response.read()
+        soup = BeautifulSoup(html, "html.parser")
+        snippets = []
+        
+        # In DDG Lite, snippets are inside <td> elements with class "result-snippet"
+        for result in soup.find_all("td", class_="result-snippet"):
+            snippets.append(result.get_text().strip())
+            
+        if snippets:
+            return "\n".join(snippets[:15])
+    except Exception as e:
+        logger.error(f"DuckDuckGo Lite search fallback also failed: {e}")
+        
+    return ""
 
 def extract_multiple_recruiter_details(company_name: str, limit: int = 30) -> dict:
     """
@@ -54,6 +80,14 @@ def extract_multiple_recruiter_details(company_name: str, limit: int = 30) -> di
     all_snippets = []
     for q in queries:
         snippets = search_duckduckgo(q)
+        if snippets:
+            all_snippets.append(snippets)
+            
+    # Simple query fallback if the strict queries fail
+    if not all_snippets:
+        logger.warning("All strict searches returned empty. Trying simplified keyword query...")
+        simple_q = f'linkedin.com recruiter "{company_name}"'
+        snippets = search_duckduckgo(simple_q)
         if snippets:
             all_snippets.append(snippets)
             
