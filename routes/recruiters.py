@@ -317,4 +317,71 @@ def agent_find_stream(company: str, companyType: str = "startup", limit: int = 3
             
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 
+@router.get("/batch-harvest/stream")
+def batch_harvest_stream(limit: int = 4):
+    """
+    SSE stream to run a batch harvest of 5 new companies from the top-tier list, yielding live logs.
+    """
+    def event_generator():
+        try:
+            import os
+            import services.lead_finder as lf
+            lf.IS_SMTP_PORT_25_OPEN = False
+            
+            company_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "top_tier_companies.txt")
+            if not os.path.exists(company_file):
+                yield f"data: {json.dumps({'type': 'error', 'message': 'Companies list file (top_tier_companies.txt) not found!'})}\n\n"
+                return
+                
+            with open(company_file, "r", encoding="utf-8") as f:
+                raw_companies = [line.strip() for line in f if line.strip()]
+                
+            seen = set()
+            companies = []
+            for c in raw_companies:
+                c_lower = c.lower()
+                if c_lower not in seen:
+                    seen.add(c_lower)
+                    companies.append(c)
+                    
+            existing_companies = set(c.lower() for c in recruiters_col.distinct("company"))
+            pending_companies = [c for c in companies if c.lower() not in existing_companies]
+            
+            if not pending_companies:
+                yield f"data: {json.dumps({'type': 'log', 'message': '🏁 All companies in the top-tier list are already harvested!'})}\n\n"
+                yield f"data: {json.dumps({'type': 'complete', 'data': {'count_added': 0}})}\n\n"
+                return
+                
+            batch = pending_companies[:5]
+            batch_names_str = ", ".join(batch)
+            yield f"data: {json.dumps({'type': 'log', 'message': f'🚀 Starting Batch Harvest for 5 companies: {batch_names_str}'})}\n\n"
+            
+            total_added = 0
+            for idx, company in enumerate(batch):
+                yield f"data: {json.dumps({'type': 'log', 'message': f'🏢 [{idx+1}/5] Scraping recruiter leads for {company}...'})}\n\n"
+                
+                generator = run_lead_generation_agent(company, company_type="top_tier", limit=limit)
+                for step in generator:
+                    if step["type"] == "log":
+                        yield f"data: {json.dumps(step)}\n\n"
+                    elif step["type"] == "error":
+                        yield f"data: {json.dumps(step)}\n\n"
+                    elif step["type"] == "complete":
+                        total_added += step["data"]["count_added"]
+                        yield f"data: {json.dumps({'type': 'log', 'message': f'✅ Successfully imported recruiters for {company}.'})}\n\n"
+                
+                if idx < len(batch) - 1:
+                    yield f"data: {json.dumps({'type': 'log', 'message': '⏳ Sleeping 10s to space out search queries naturally...'})}\n\n"
+                    import time
+                    time.sleep(10)
+                    
+            yield f"data: {json.dumps({'type': 'complete', 'data': {'success': True, 'count_added': total_added}})}\n\n"
+            
+        except Exception as e:
+            logger.error(f"Batch harvest error: {e}")
+            yield f"data: {json.dumps({'type': 'error', 'message': f'Batch Error: {str(e)}'})}\n\n"
+            
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+
 
