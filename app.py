@@ -30,6 +30,16 @@ app.include_router(dashboard_router)
 app.include_router(auth_router)
 app.include_router(webhook_router)
 
+from services.scheduler import start_scheduler, stop_scheduler
+
+@app.on_event("startup")
+def startup_event():
+    start_scheduler()
+
+@app.on_event("shutdown")
+def shutdown_event():
+    stop_scheduler()
+
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 10000))
     uvicorn.run(app, host="0.0.0.0", port=port)
