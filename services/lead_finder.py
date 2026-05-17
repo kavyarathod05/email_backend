@@ -187,10 +187,41 @@ def generate_email_permutations(first: str, last: str, domain: str) -> list:
     
     return list(dict.fromkeys(guesses))
 
+IS_SMTP_PORT_25_OPEN = None
+
+def check_smtp_port_25() -> bool:
+    """
+    Checks if outbound port 25 is open by attempting to connect to a highly available MX server.
+    Caches the result so it only runs once per server lifecycle.
+    """
+    global IS_SMTP_PORT_25_OPEN
+    if IS_SMTP_PORT_25_OPEN is not None:
+        return IS_SMTP_PORT_25_OPEN
+        
+    try:
+        # Create a socket and try to connect to Google's public MX mail exchange
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(2.0)
+        sock.connect(("gmail-smtp-in.l.google.com", 25))
+        sock.close()
+        IS_SMTP_PORT_25_OPEN = True
+        logger.info("SMTP Checker: Outbound Port 25 is OPEN. SMTP handshake checks enabled.")
+    except Exception as e:
+        IS_SMTP_PORT_25_OPEN = False
+        logger.warning(
+            "SMTP Checker: Outbound Port 25 is BLOCKED (common for consumer ISPs and Cloud VPS). "
+            f"Handshake verifications disabled to prevent timeout delays. Fallback heuristics enabled. Details: {e}"
+        )
+    return IS_SMTP_PORT_25_OPEN
+
 def verify_email_smtp(email_addr: str) -> bool:
     """
     Connects to the domain's MX server to verify if the email address exists.
+    Skips if Port 25 is blocked.
     """
+    if not check_smtp_port_25():
+        return False
+        
     domain = email_addr.split("@")[1]
     try:
         mx_records = dns.resolver.resolve(domain, "MX")
@@ -203,7 +234,7 @@ def verify_email_smtp(email_addr: str) -> bool:
     
     def check_recipient(recipient: str) -> bool:
         try:
-            server = smtplib.SMTP(mx_host, 25, timeout=5)
+            server = smtplib.SMTP(mx_host, 25, timeout=4)
             server.helo()
             server.mail("outreach_check@gmail.com")
             code, message = server.rcpt(recipient)
@@ -219,11 +250,19 @@ def verify_email_smtp(email_addr: str) -> bool:
         
     return check_recipient(email_addr)
 
+
 def run_lead_generation_agent(company_name: str, company_type: str = "startup", limit: int = 30):
     """
     Runs the full lead generation flow yielding progressive logs and status updates.
     """
     yield {"type": "log", "message": f"🤖 Starting Lead Finder Agent for '{company_name}'..."}
+    
+    port_open = check_smtp_port_25()
+    if not port_open:
+        yield {"type": "log", "message": "⚠️ Port 25 (SMTP) is BLOCKED by your ISP/Cloud Provider. Handshake checks bypassed to avoid 5s timeouts."}
+    else:
+        yield {"type": "log", "message": "✅ Port 25 (SMTP) is OPEN. Active handshake checks enabled."}
+        
     yield {"type": "log", "message": "🔍 Scraping web search engines for recruiters..."}
     
     details = extract_multiple_recruiter_details(company_name, limit)
