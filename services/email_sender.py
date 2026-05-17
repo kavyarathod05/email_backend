@@ -5,8 +5,49 @@ Email delivery using scalable SMTP and fallback to API.
 import os
 import smtplib
 import email.utils
+import requests
 from email.message import EmailMessage
 from config import logger
+
+def _send_via_google_script(email_data: dict) -> tuple[bool, str | None, str | None]:
+    """
+    Sends email using the Google Apps Script Bridge.
+    This is highly reliable and bypasses network port blocks (e.g. 587/465) in production.
+    """
+    google_script_url = os.getenv("GOOGLE_SCRIPT_URL")
+    if not google_script_url:
+        return False, "Google Apps Script URL not configured in environment.", None
+
+    payload = {
+        "to": email_data["To"],
+        "subject": email_data["Subject"],
+        "htmlBody": email_data["HTMLPart"],
+    }
+    
+    # Pass inReplyTo if this is a follow-up/breakup email in a thread
+    if email_data.get("inReplyTo"):
+        payload["inReplyTo"] = email_data["inReplyTo"]
+
+    try:
+        logger.info(f"Google Script Bridge: Attempting to send to {email_data['To']}...")
+        resp = requests.post(google_script_url, json=payload, timeout=20)
+        
+        if resp.status_code != 200:
+            return False, f"Google Script returned HTTP {resp.status_code}: {resp.text}", None
+            
+        result = resp.json()
+        if result.get("Success"):
+            message_id = result.get("messageId")
+            logger.info(f"Google Script Bridge: Email SENT to {email_data['To']} | Message ID: {message_id}")
+            return True, None, message_id
+        else:
+            err = result.get("error", "Unknown script error")
+            return False, f"Google Script Error: {err}", None
+            
+    except Exception as e:
+        error_msg = f"Google Script Bridge Exception: {e}"
+        logger.error(error_msg)
+        return False, error_msg, None
 
 def _send_via_smtp(email_data: dict) -> tuple[bool, str | None, str | None]:
     """
@@ -68,6 +109,20 @@ def _send_via_smtp(email_data: dict) -> tuple[bool, str | None, str | None]:
 def send_email(email_data: dict) -> tuple[bool, str | None, str | None]:
     """
     Sends email using the configured scalable provider.
+    Tries Google Apps Script Bridge first (if configured) for high deliverability,
+    and falls back to standard SMTP if it is not configured or fails.
     Returns (success: bool, error_message: str | None, message_id: str | None).
     """
+    google_script_url = os.getenv("GOOGLE_SCRIPT_URL")
+    
+    if google_script_url:
+        success, error_msg, message_id = _send_via_google_script(email_data)
+        if success:
+            return True, None, message_id
+        
+        # Log the warning and fall back to SMTP
+        logger.warning(
+            f"Google Script Bridge failed: {error_msg}. Falling back to standard SMTP..."
+        )
+        
     return _send_via_smtp(email_data)
