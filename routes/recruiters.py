@@ -269,3 +269,25 @@ async def import_text(data: CSVImportRequest):
     except Exception as e:
         logger.error(f"CSV Text Import Error: {e}")
         raise HTTPException(status_code=500, detail="CSV processing failed")
+
+
+from services.lead_finder import run_lead_generation_agent
+
+@router.post("/agent-find")
+def agent_find_recruiter(data: dict):
+    company = data.get("company")
+    company_type = data.get("companyType", "startup")
+    if not company:
+        raise HTTPException(status_code=400, detail="Company name is required")
+        
+    try:
+        result = run_lead_generation_agent(company, company_type)
+        if not result.get("success"):
+            raise HTTPException(status_code=404, detail=result.get("error", "Failed to locate recruiter"))
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Agent Lead Generation failed: {e}")
+        raise HTTPException(status_code=500, detail="Lead generation failed")
+
