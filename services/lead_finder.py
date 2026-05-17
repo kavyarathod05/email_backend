@@ -219,23 +219,27 @@ def verify_email_smtp(email_addr: str) -> bool:
         
     return check_recipient(email_addr)
 
-def run_lead_generation_agent(company_name: str, company_type: str = "startup", limit: int = 30) -> dict:
+def run_lead_generation_agent(company_name: str, company_type: str = "startup", limit: int = 30):
     """
-    Runs the full lead generation flow:
-    Finds recruiters -> Guesses emails -> Verifies -> Saves to DB
+    Runs the full lead generation flow yielding progressive logs and status updates.
     """
+    yield {"type": "log", "message": f"🤖 Starting Lead Finder Agent for '{company_name}'..."}
+    yield {"type": "log", "message": "🔍 Scraping web search engines for recruiters..."}
+    
     details = extract_multiple_recruiter_details(company_name, limit)
     if not details or "domain" not in details or not details.get("recruiters"):
-        return {"success": False, "error": "Could not harvest recruiters or domain details."}
+        yield {"type": "error", "message": "❌ Could not locate recruiters or domain details."}
+        return
         
     domain = details["domain"]
     real_company = details.get("company", company_name)
     recruiters_list = details["recruiters"]
     
+    yield {"type": "log", "message": f"🌐 Extracted domain: {domain}"}
+    yield {"type": "log", "message": f"✨ Extracted {len(recruiters_list)} recruiters from snippets."}
+    
     added_leads = []
     skipped_count = 0
-    
-    logger.info(f"AI Lead Agent: Processing email generation for {len(recruiters_list)} candidates...")
     
     for rec in recruiters_list:
         if len(added_leads) >= limit:
@@ -246,29 +250,36 @@ def run_lead_generation_agent(company_name: str, company_type: str = "startup", 
         if not first:
             continue
             
+        name = f"{first} {last}".strip()
+        yield {"type": "log", "message": f"👤 Checking Recruiter: {name}"}
+        
         guesses = generate_email_permutations(first, last, domain)
         verified_email = None
         
         # SMTP verification
         for guess in guesses:
+            yield {"type": "log", "message": f"   ✉️ Testing SMTP handshake: {guess}..."}
             if verify_email_smtp(guess):
                 verified_email = guess
+                yield {"type": "log", "message": f"   ✅ SMTP verified! Found active email: {verified_email}"}
                 break
                 
         # Default fallback
         if not verified_email and guesses:
             verified_email = guesses[1] if len(guesses) > 1 else guesses[0]
+            yield {"type": "log", "message": f"   ⚠️ SMTP check inactive. Falling back to guess: {verified_email}"}
             
         if verified_email:
             # Check for duplicates in DB
             if recruiters_col.find_one({"email": verified_email}):
                 skipped_count += 1
+                yield {"type": "log", "message": f"   ⏭️ Skipped duplicate recruiter: {verified_email}"}
                 continue
                 
             from datetime import datetime
             new_rec = {
                 "email": verified_email,
-                "name": f"{first} {last}".strip(),
+                "name": name,
                 "company": real_company,
                 "companyType": company_type,
                 "status": "new",
@@ -281,13 +292,17 @@ def run_lead_generation_agent(company_name: str, company_type: str = "startup", 
                 "createdAt": datetime.utcnow()
             }
             recruiters_col.insert_one(new_rec)
-            added_leads.append({"name": new_rec["name"], "email": verified_email})
-            logger.info(f"AI Lead Agent: SUCCESSFULLY added recruiter {new_rec['name']} ({verified_email})")
+            added_leads.append({"name": name, "email": verified_email})
+            yield {"type": "log", "message": f"   💾 Saved {name} ({verified_email}) into database!"}
 
-    return {
-        "success": True,
-        "company": real_company,
-        "count_added": len(added_leads),
-        "skipped": skipped_count,
-        "leads": added_leads
+    yield {
+        "type": "complete",
+        "data": {
+            "success": True,
+            "company": real_company,
+            "count_added": len(added_leads),
+            "skipped": skipped_count,
+            "leads": added_leads
+        }
     }
+

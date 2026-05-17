@@ -272,6 +272,7 @@ async def import_text(data: CSVImportRequest):
 
 
 from services.lead_finder import run_lead_generation_agent
+from fastapi.responses import StreamingResponse
 
 @router.post("/agent-find")
 def agent_find_recruiter(data: dict):
@@ -282,13 +283,37 @@ def agent_find_recruiter(data: dict):
         raise HTTPException(status_code=400, detail="Company name is required")
         
     try:
-        result = run_lead_generation_agent(company, company_type, limit)
-        if not result.get("success"):
-            raise HTTPException(status_code=404, detail=result.get("error", "Failed to locate recruiter"))
+        generator = run_lead_generation_agent(company, company_type, limit)
+        result = None
+        for step in generator:
+            if step["type"] == "complete":
+                result = step["data"]
+            elif step["type"] == "error":
+                raise HTTPException(status_code=404, detail=step["message"])
+                
+        if not result:
+            raise HTTPException(status_code=500, detail="Agent failed to complete")
         return result
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Agent Lead Generation failed: {e}")
         raise HTTPException(status_code=500, detail="Lead generation failed")
+
+@router.get("/agent-find/stream")
+def agent_find_stream(company: str, companyType: str = "startup", limit: int = 30):
+    """
+    Server-Sent Events (SSE) endpoint to stream live logs of the AI Lead Agent to the frontend.
+    """
+    def event_generator():
+        try:
+            generator = run_lead_generation_agent(company, companyType, limit)
+            for step in generator:
+                yield f"data: {json.dumps(step)}\n\n"
+        except Exception as e:
+            logger.error(f"Error in agent stream: {e}")
+            yield f"data: {json.dumps({'type': 'error', 'message': f'System Error: {str(e)}'})}\n\n"
+            
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
+
 
