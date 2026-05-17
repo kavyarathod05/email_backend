@@ -42,6 +42,85 @@ def search_yahoo(query: str) -> str:
         logger.warning(f"Yahoo Search failed: {e}")
         return ""
 
+def search_bing(query: str) -> str:
+    """
+    Performs a free search on Bing and returns concatenated result snippets.
+    Very reliable fallback with great LinkedIn indexing.
+    """
+    url = f"https://www.bing.com/search?q={urllib.parse.quote(query)}"
+    req = urllib.request.Request(
+        url,
+        headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as response:
+            html = response.read()
+        soup = BeautifulSoup(html, "html.parser")
+        snippets = []
+        for p in soup.find_all(class_="b_caption"):
+            text = p.get_text().strip()
+            if text:
+                snippets.append(text)
+        for li in soup.find_all("li", class_="b_algo"):
+            p_desc = li.find("p")
+            if p_desc:
+                snippets.append(p_desc.get_text().strip())
+        unique_snippets = list(dict.fromkeys(snippets))
+        return "\n".join(unique_snippets[:15])
+    except Exception as e:
+        logger.warning(f"Bing Search failed: {e}")
+        return ""
+
+def search_aol(query: str) -> str:
+    """
+    Performs a free search on AOL Search (powered by Yahoo structure).
+    Very fast, very clean.
+    """
+    url = f"https://search.aol.com/aol/search?q={urllib.parse.quote(query)}"
+    req = urllib.request.Request(
+        url,
+        headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as response:
+            html = response.read()
+        soup = BeautifulSoup(html, "html.parser")
+        snippets = []
+        for div in soup.find_all("div", class_="compText"):
+            snippets.append(div.get_text().strip())
+        for p in soup.find_all("p", class_="lh-16"):
+            snippets.append(p.get_text().strip())
+        unique_snippets = list(dict.fromkeys(snippets))
+        return "\n".join(unique_snippets[:15])
+    except Exception as e:
+        logger.warning(f"AOL Search failed: {e}")
+        return ""
+
+def search_brave(query: str) -> str:
+    """
+    Performs a free search on Brave Search and extracts snippets.
+    Privacy first search engine with highly permissive bot access.
+    """
+    url = f"https://search.brave.com/search?q={urllib.parse.quote(query)}"
+    req = urllib.request.Request(
+        url,
+        headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as response:
+            html = response.read()
+        soup = BeautifulSoup(html, "html.parser")
+        snippets = []
+        for p in soup.find_all("p", class_="snippet-description"):
+            snippets.append(p.get_text().strip())
+        for div in soup.find_all("div", class_="snippet"):
+            snippets.append(div.get_text().strip())
+        unique_snippets = list(dict.fromkeys(snippets))
+        return "\n".join(unique_snippets[:15])
+    except Exception as e:
+        logger.warning(f"Brave Search failed: {e}")
+        return ""
+
 def search_duckduckgo(query: str) -> str:
     """
     Fallback search using DuckDuckGo Lite or HTML.
@@ -85,16 +164,35 @@ def search_duckduckgo(query: str) -> str:
 
 def search_web_free(query: str) -> str:
     """
-    Combines Yahoo and DuckDuckGo search engines for absolute search resilience.
+    Multiplexes searches across Yahoo, Bing, AOL, Brave, and DuckDuckGo.
+    Aggregates snippets across working engines to yield highly detailed, multi-source results!
     """
-    # Yahoo first (safest and completely unblocked)
-    snippets = search_yahoo(query)
-    if snippets:
-        return snippets
+    engines = [
+        ("Yahoo", search_yahoo),
+        ("Bing", search_bing),
+        ("AOL", search_aol),
+        ("Brave", search_brave),
+        ("DuckDuckGo", search_duckduckgo)
+    ]
+    
+    combined_snippets = []
+    
+    for name, search_fn in engines:
+        try:
+            snippets = search_fn(query)
+            if snippets:
+                combined_snippets.append(snippets)
+                # Aggregate from up to 2 working engines to ensure deep lead extraction
+                if len(combined_snippets) >= 2:
+                    break
+        except Exception as e:
+            logger.warning(f"Engine {name} failed: {e}")
+            
+    if combined_snippets:
+        return "\n\n".join(combined_snippets)
         
-    # DuckDuckGo fallback
-    logger.info(f"Primary search failed. Triggering DuckDuckGo fallback for: {query}")
-    return search_duckduckgo(query)
+    return ""
+
 
 def extract_multiple_recruiter_details(company_name: str, limit: int = 30) -> dict:
     """
@@ -104,10 +202,69 @@ def extract_multiple_recruiter_details(company_name: str, limit: int = 30) -> di
     
     # Multiplex queries to get 30+ distinct profiles
     queries = [
+        # Core recruiter titles
         f'site:linkedin.com/in "Technical Recruiter" "{company_name}"',
-        f'site:linkedin.com/in "Talent Acquisition" "{company_name}"',
+        f'site:linkedin.com/in "Tech Recruiter" "{company_name}"',
         f'site:linkedin.com/in "Engineering Recruiter" "{company_name}"',
-        f'site:linkedin.com/in "HR Manager" "{company_name}"'
+        f'site:linkedin.com/in "IT Recruiter" "{company_name}"',
+        f'site:linkedin.com/in "Technical Talent Acquisition" "{company_name}"',
+        f'site:linkedin.com/in "Talent Acquisition Specialist" "{company_name}"',
+        f'site:linkedin.com/in "Talent Acquisition Partner" "{company_name}"',
+        f'site:linkedin.com/in "Talent Acquisition Recruiter" "{company_name}"',
+        f'site:linkedin.com/in "Talent Acquisition Associate" "{company_name}"',
+        f'site:linkedin.com/in "Talent Acquisition Executive" "{company_name}"',
+        f'site:linkedin.com/in "Talent Acquisition Lead" "{company_name}"',
+        f'site:linkedin.com/in "Talent Acquisition Manager" "{company_name}"',
+        f'site:linkedin.com/in "Talent Acquisition Intern" "{company_name}"',
+
+        # HR titles
+        f'site:linkedin.com/in "HR Manager" "{company_name}"',
+        f'site:linkedin.com/in "HR Executive" "{company_name}"',
+        f'site:linkedin.com/in "HR Recruiter" "{company_name}"',
+        f'site:linkedin.com/in "HR Specialist" "{company_name}"',
+        f'site:linkedin.com/in "HR Generalist" "{company_name}"',
+        f'site:linkedin.com/in "Human Resources" "{company_name}"',
+        f'site:linkedin.com/in "Human Resources Manager" "{company_name}"',
+        f'site:linkedin.com/in "Human Resources Business Partner" "{company_name}"',
+        f'site:linkedin.com/in "People Operations" "{company_name}"',
+        f'site:linkedin.com/in "People Ops" "{company_name}"',
+        f'site:linkedin.com/in "People Partner" "{company_name}"',
+        f'site:linkedin.com/in "People Success" "{company_name}"',
+
+        # SWE / university hiring specific
+        f'site:linkedin.com/in "University Recruiter" "{company_name}"',
+        f'site:linkedin.com/in "Campus Recruiter" "{company_name}"',
+        f'site:linkedin.com/in "Early Careers Recruiter" "{company_name}"',
+        f'site:linkedin.com/in "University Relations" "{company_name}"',
+        f'site:linkedin.com/in "Campus Hiring" "{company_name}"',
+        f'site:linkedin.com/in "Graduate Recruiter" "{company_name}"',
+        f'site:linkedin.com/in "Student Programs" "{company_name}"',
+        f'site:linkedin.com/in "Emerging Talent Recruiter" "{company_name}"',
+
+        # Sourcers
+        f'site:linkedin.com/in "Technical Sourcer" "{company_name}"',
+        f'site:linkedin.com/in "Talent Sourcer" "{company_name}"',
+        f'site:linkedin.com/in "Recruitment Sourcer" "{company_name}"',
+        f'site:linkedin.com/in "Sourcing Specialist" "{company_name}"',
+
+        # Leadership
+        f'site:linkedin.com/in "Head of Talent Acquisition" "{company_name}"',
+        f'site:linkedin.com/in "Recruitment Manager" "{company_name}"',
+        f'site:linkedin.com/in "Hiring Manager" "{company_name}"',
+        f'site:linkedin.com/in "Director Talent Acquisition" "{company_name}"',
+        f'site:linkedin.com/in "VP Talent Acquisition" "{company_name}"',
+
+        # Startup-specific/common alternate titles
+        f'site:linkedin.com/in "Founding Recruiter" "{company_name}"',
+        f'site:linkedin.com/in "People Team" "{company_name}"',
+        f'site:linkedin.com/in "Hiring Team" "{company_name}"',
+        f'site:linkedin.com/in "Recruitment Consultant" "{company_name}"',
+        f'site:linkedin.com/in "Staffing Specialist" "{company_name}"',
+
+        # Boolean combined searches (very useful)
+        f'site:linkedin.com/in ("Technical Recruiter" OR "Engineering Recruiter" OR "Technical Sourcer") "{company_name}"',
+        f'site:linkedin.com/in ("Talent Acquisition" OR "HR" OR "People Ops") "{company_name}"',
+        f'site:linkedin.com/in ("Campus Recruiter" OR "University Recruiter" OR "Early Careers Recruiter") "{company_name}"'
     ]
     
     all_snippets = []
