@@ -23,18 +23,34 @@ def scheduled_followup():
     except Exception as e:
         logger.error(f"Internal Scheduler Error (followup): {e}")
 
+def scheduled_batch_harvest():
+    logger.info(f"[{datetime.now()}] Internal Scheduler: Triggering automated Batch Lead Harvest (5 companies, 4 leads)")
+    try:
+        from scripts.harvest_scheduler import run_batch_harvest
+        run_batch_harvest(batch_size=5, leads_per_company=4)
+    except Exception as e:
+        logger.error(f"Internal Scheduler Error (batch_harvest): {e}")
+
 def start_scheduler():
     """
     Start the background scheduler.
     Currently configured to run:
-    - Initial emails: Every 5 minutes
-    - Followups: Every hour at the 15th minute
-    ONLY during Mon-Fri, 9 AM to 5 PM.
+    - Initial emails: Every 5 minutes during business hours
+    - Automated Batch Harvester: Every hour, 24/7 (runs all the time)
     """
+    # 1. Email Sending Job
     scheduler.add_job(
         scheduled_send_one,
         trigger=CronTrigger(minute="*/5", hour="9-17", day_of_week="mon-fri"),
         id="send_initial_email_job",
+        replace_existing=True,
+    )
+    
+    # 2. Automated Batch Lead Harvester (Runs every single hour, 24/7/365)
+    scheduler.add_job(
+        scheduled_batch_harvest,
+        trigger=CronTrigger(minute="0"),
+        id="automated_batch_harvest_job",
         replace_existing=True,
     )
     
@@ -47,7 +63,7 @@ def start_scheduler():
     # )
     
     scheduler.start()
-    logger.info("Internal APScheduler started. Emails will be sent automatically at scheduled times.")
+    logger.info("Internal APScheduler started. Emails and Automated Harvester will run automatically.")
 
 def stop_scheduler():
     scheduler.shutdown()
