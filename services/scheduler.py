@@ -38,12 +38,13 @@ def start_scheduler():
         replace_existing=True,
     )
     
-    scheduler.add_job(
-        scheduled_followup,
-        trigger=CronTrigger(minute="15", hour="9-17", day_of_week="mon-fri"),
-        id="send_followup_email_job",
-        replace_existing=True,
-    )
+    # Temporarily disabled per user request
+    # scheduler.add_job(
+    #     scheduled_followup,
+    #     trigger=CronTrigger(minute="15", hour="9-17", day_of_week="mon-fri"),
+    #     id="send_followup_email_job",
+    #     replace_existing=True,
+    # )
     
     scheduler.start()
     logger.info("Internal APScheduler started. Emails will be sent automatically at scheduled times.")

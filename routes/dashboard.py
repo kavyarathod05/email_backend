@@ -160,3 +160,41 @@ def dashboard_recruiters(status: str = None):
         return data
     except Exception:
         raise HTTPException(status_code=500, detail="Database connection error")
+
+
+@router.get("/queue")
+def dashboard_queue():
+    """
+    Returns the queue of upcoming emails.
+    Shows the next 20 'new' recruiters, and the next 20 pending follow-ups.
+    """
+    try:
+        # Next initial emails
+        initial_queue = list(recruiters_col.find({"status": "new"}).sort("createdAt", 1).limit(20))
+        for r in initial_queue:
+            r["_id"] = str(r["_id"])
+            for key, value in r.items():
+                if hasattr(value, "isoformat"):
+                    r[key] = value.isoformat() + "Z"
+        
+        # Next follow-ups
+        followup_queue = list(recruiters_col.find({
+            "status": "sent",
+            "replied": False,
+            "followupSent": False,
+            "followupStage": {"$in": [0, 1]}
+        }).sort("sentAt", 1).limit(20))
+        
+        for r in followup_queue:
+            r["_id"] = str(r["_id"])
+            for key, value in r.items():
+                if hasattr(value, "isoformat"):
+                    r[key] = value.isoformat() + "Z"
+
+        return {
+            "initial": initial_queue,
+            "followups": followup_queue
+        }
+    except Exception as e:
+        logger.error(f"Queue error: {e}")
+        raise HTTPException(status_code=500, detail="Database connection error")
