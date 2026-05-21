@@ -3,7 +3,7 @@ Dashboard routes: analytics, stats, recruiter list.
 """
 from fastapi import APIRouter, HTTPException
 
-from config import recruiters_col, logger
+from config import recruiters_col, emails_col, logger
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
@@ -208,4 +208,24 @@ def get_system_logs():
     Returns the last 300 logs stored in the in-memory buffer.
     """
     return list(LOG_BUFFER)
+
+
+@router.get("/generated-emails")
+def get_generated_emails():
+    """
+    Returns all generated outreach and test emails sorted by sentAt descending.
+    """
+    try:
+        data = []
+        for e in emails_col.find().sort("sentAt", -1):
+            e["_id"] = str(e["_id"])
+            for key, value in e.items():
+                if hasattr(value, "isoformat"):
+                    e[key] = value.isoformat() + "Z"
+            data.append(e)
+        return data
+    except Exception as e:
+        logger.error(f"Error fetching generated emails: {e}")
+        raise HTTPException(status_code=500, detail="Database connection error")
+
 

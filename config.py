@@ -44,6 +44,7 @@ try:
     client.server_info()
     recruiters_col = db["temp"]
     templates_col = db["templates"]
+    emails_col = db["generated_emails"]
     logger.info("Connected to MongoDB successfully")
 except Exception as e:
     logger.error(f"MongoDB Connection Error: {e}")

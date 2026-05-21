@@ -11,6 +11,7 @@ from config import recruiters_col, templates_col, logger
 from models import TestEmailRequest, SendOneRequest
 from services.email_builder import build_email, build_followup_email
 from services.email_sender import send_email
+from services.email_logger import save_generated_email
 from services.reply_checker import check_replies
 from services.followup import send_followup_if_due
 from services.retry_engine import retry_failed_emails
@@ -81,6 +82,10 @@ def send_one_email(req: SendOneRequest = SendOneRequest()):
 
         success, error_msg, message_id = send_email(email_data)
 
+        # Retrieve template metadata
+        t_id = str(template_doc["_id"]) if template_doc else None
+        t_name = template_doc.get("name") if template_doc else None
+
         if success:
             update_fields = {
                 "status": "sent",
@@ -90,8 +95,8 @@ def send_one_email(req: SendOneRequest = SendOneRequest()):
             if message_id:
                 update_fields["messageId"] = message_id
             if template_doc:
-                update_fields["templateUsed"] = str(template_doc["_id"])
-                update_fields["templateName"] = template_doc.get("name")
+                update_fields["templateUsed"] = t_id
+                update_fields["templateName"] = t_name
 
             update_op = {"$set": update_fields}
             if email_data.get("inReplyTo"):
@@ -100,11 +105,32 @@ def send_one_email(req: SendOneRequest = SendOneRequest()):
             recruiters_col.update_one(
                 {"_id": recruiter["_id"]}, update_op
             )
+            
+            save_generated_email(
+                recruiter=recruiter,
+                subject=email_data["Subject"],
+                body=email_data["HTMLPart"],
+                stage=0, # Initial outreach
+                status="sent",
+                message_id=message_id,
+                template_id=t_id,
+                template_name=t_name
+            )
             return {"ok": True}
         else:
             recruiters_col.update_one(
                 {"_id": recruiter["_id"]},
                 {"$set": {"status": "error", "errorDetail": error_msg, "errorAt": datetime.utcnow()}},
+            )
+            save_generated_email(
+                recruiter=recruiter,
+                subject=email_data["Subject"],
+                body=email_data["HTMLPart"],
+                stage=0,
+                status="error",
+                error_detail=error_msg,
+                template_id=t_id,
+                template_name=t_name
             )
             return {"ok": False, "err": error_msg}
     except Exception as e:
@@ -176,9 +202,23 @@ def test_email_endpoint(data: TestEmailRequest):
 
         success, error_msg, message_id = send_email(email_data)
 
+        # Retrieve template metadata
+        t_id = str(template_doc["_id"]) if template_doc else None
+        t_name = template_doc.get("name") if template_doc else None
+
         if success:
             logger.info(
                 f"Test email ({template_type}) successfully sent to {recruiter['email']}"
+            )
+            save_generated_email(
+                recruiter=recruiter,
+                subject=email_data["Subject"],
+                body=email_data["HTMLPart"],
+                stage=f"test_{template_type}",
+                status="sent",
+                message_id=message_id,
+                template_id=t_id,
+                template_name=t_name
             )
             return {
                 "status": "success",
@@ -186,6 +226,16 @@ def test_email_endpoint(data: TestEmailRequest):
                 "messageId": message_id,
             }
         else:
+            save_generated_email(
+                recruiter=recruiter,
+                subject=email_data["Subject"],
+                body=email_data["HTMLPart"],
+                stage=f"test_{template_type}",
+                status="error",
+                error_detail=error_msg,
+                template_id=t_id,
+                template_name=t_name
+            )
             return {"status": "error", "detail": error_msg}
 
     except Exception as e:

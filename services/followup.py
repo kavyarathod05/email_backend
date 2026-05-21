@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, timezone
 from config import recruiters_col, logger
 from services.email_builder import build_followup_email
 from services.email_sender import send_email
+from services.email_logger import save_generated_email
 
 
 def send_followup_if_due() -> dict:
@@ -76,6 +77,10 @@ def send_followup_if_due() -> dict:
 
         success, error_msg, message_id = send_email(email_data)
 
+        # Retrieve template metadata from email_data
+        t_id = email_data.get("templateUsed")
+        t_name = email_data.get("templateName")
+
         if success:
             update_fields = {
                 "followupSent": True,
@@ -84,9 +89,9 @@ def send_followup_if_due() -> dict:
             }
             if message_id:
                 update_fields["messageId"] = message_id
-            if email_data.get("templateUsed"):
-                update_fields["templateUsed"] = email_data["templateUsed"]
-                update_fields["templateName"] = email_data["templateName"]
+            if t_id:
+                update_fields["templateUsed"] = t_id
+                update_fields["templateName"] = t_name
 
             update_op = {"$set": update_fields}
             if email_data.get("inReplyTo"):
@@ -99,6 +104,17 @@ def send_followup_if_due() -> dict:
             logger.info(
                 f"Follow-up Stage {next_stage} marked as sent for {recruiter['email']}"
             )
+            
+            save_generated_email(
+                recruiter=recruiter,
+                subject=email_data["Subject"],
+                body=email_data["HTMLPart"],
+                stage=next_stage,
+                status="sent",
+                message_id=message_id,
+                template_id=t_id,
+                template_name=t_name
+            )
             return {
                 "status": "followup sent",
                 "email": recruiter["email"],
@@ -108,6 +124,16 @@ def send_followup_if_due() -> dict:
             recruiters_col.update_one(
                 {"_id": recruiter["_id"]},
                 {"$set": {"status": "error", "errorDetail": error_msg, "errorAt": datetime.now(timezone.utc)}},
+            )
+            save_generated_email(
+                recruiter=recruiter,
+                subject=email_data["Subject"],
+                body=email_data["HTMLPart"],
+                stage=next_stage,
+                status="error",
+                error_detail=error_msg,
+                template_id=t_id,
+                template_name=t_name
             )
             return {"status": "error", "detail": error_msg}
 
