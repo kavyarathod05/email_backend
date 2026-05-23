@@ -416,68 +416,13 @@ def generate_email_permutations(first: str, last: str, domain: str) -> list:
     
     return list(dict.fromkeys(guesses))
 
-IS_SMTP_PORT_25_OPEN = None
+IS_SMTP_PORT_25_OPEN = False
 
 def check_smtp_port_25() -> bool:
-    """
-    Checks if outbound port 25 is open by attempting to connect to a highly available MX server.
-    Caches the result so it only runs once per server lifecycle.
-    """
-    global IS_SMTP_PORT_25_OPEN
-    if IS_SMTP_PORT_25_OPEN is not None:
-        return IS_SMTP_PORT_25_OPEN
-        
-    try:
-        # Create a socket and try to connect to Google's public MX mail exchange
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(2.0)
-        sock.connect(("gmail-smtp-in.l.google.com", 25))
-        sock.close()
-        IS_SMTP_PORT_25_OPEN = True
-        logger.info("SMTP Checker: Outbound Port 25 is OPEN. SMTP handshake checks enabled.")
-    except Exception as e:
-        IS_SMTP_PORT_25_OPEN = False
-        logger.warning(
-            "SMTP Checker: Outbound Port 25 is BLOCKED (common for consumer ISPs and Cloud VPS). "
-            f"Handshake verifications disabled to prevent timeout delays. Fallback heuristics enabled. Details: {e}"
-        )
-    return IS_SMTP_PORT_25_OPEN
+    return False
 
 def verify_email_smtp(email_addr: str) -> bool:
-    """
-    Connects to the domain's MX server to verify if the email address exists.
-    Skips if Port 25 is blocked.
-    """
-    if not check_smtp_port_25():
-        return False
-        
-    domain = email_addr.split("@")[1]
-    try:
-        mx_records = dns.resolver.resolve(domain, "MX")
-        mx_host = str(sorted(mx_records, key=lambda r: r.preference)[0].exchange).rstrip(".")
-    except Exception as e:
-        logger.warning(f"SMTP Verification: No MX record for {domain}: {e}")
-        return False
-        
-    catchall_test_email = f"gibberish_check_12345@{domain}"
-    
-    def check_recipient(recipient: str) -> bool:
-        try:
-            server = smtplib.SMTP(mx_host, 25, timeout=4)
-            server.helo()
-            server.mail("outreach_check@gmail.com")
-            code, message = server.rcpt(recipient)
-            server.quit()
-            return code == 250
-        except Exception:
-            return False
-
-    is_catch_all = check_recipient(catchall_test_email)
-    if is_catch_all:
-        logger.warning(f"SMTP Verification: {domain} is a Catch-All server. Skipping SMTP checks.")
-        return False
-        
-    return check_recipient(email_addr)
+    return False
 
 
 def run_lead_generation_agent(company_name: str, company_type: str = "startup", limit: int = 30):
@@ -485,13 +430,6 @@ def run_lead_generation_agent(company_name: str, company_type: str = "startup", 
     Runs the full lead generation flow yielding progressive logs and status updates.
     """
     yield {"type": "log", "message": f"🤖 Starting Lead Finder Agent for '{company_name}'..."}
-    
-    port_open = check_smtp_port_25()
-    if not port_open:
-        yield {"type": "log", "message": "⚠️ Port 25 (SMTP) is BLOCKED by your ISP/Cloud Provider. Handshake checks bypassed to avoid 5s timeouts."}
-    else:
-        yield {"type": "log", "message": "✅ Port 25 (SMTP) is OPEN. Active handshake checks enabled."}
-        
     yield {"type": "log", "message": "🔍 Scraping web search engines for recruiters..."}
     
     details = extract_multiple_recruiter_details(company_name, limit)
@@ -522,20 +460,11 @@ def run_lead_generation_agent(company_name: str, company_type: str = "startup", 
         yield {"type": "log", "message": f"👤 Checking Recruiter: {name}"}
         
         guesses = generate_email_permutations(first, last, domain)
-        verified_email = None
         
-        # SMTP verification
-        for guess in guesses:
-            yield {"type": "log", "message": f"   ✉️ Testing SMTP handshake: {guess}..."}
-            if verify_email_smtp(guess):
-                verified_email = guess
-                yield {"type": "log", "message": f"   ✅ SMTP verified! Found active email: {verified_email}"}
-                break
-                
-        # Default fallback
-        if not verified_email and guesses:
-            verified_email = guesses[1] if len(guesses) > 1 else guesses[0]
-            yield {"type": "log", "message": f"   ⚠️ SMTP check inactive. Falling back to guess: {verified_email}"}
+        # Determine the best corporate email guess directly
+        verified_email = guesses[1] if len(guesses) > 1 else guesses[0] if guesses else None
+        if verified_email:
+            yield {"type": "log", "message": f"   ✉️ Generated email guess: {verified_email}"}
             
         if verified_email:
             # Check for duplicates in DB
