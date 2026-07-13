@@ -83,6 +83,7 @@ class CrawlRunResult(BaseModel):
     jobs_updated: int
     jobs_passed_filter: int
     errors: list[str] = Field(default_factory=list)
+    company_logs: list[dict] = Field(default_factory=list)
 
 
 class SchedulerTickResult(BaseModel):

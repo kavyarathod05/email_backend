@@ -133,8 +133,18 @@ class CompanyRepository:
         if existing is None:
             payload = {**data}
             payload.pop("slug", None)
-            self.insert(payload)
-            return "inserted"
+            try:
+                self.insert(payload)
+                return "inserted"
+            except ConflictError:
+                # Lost race or leftover unique key — treat as update path
+                existing = self.col.find_one({"name_key": nk})
+                if existing is None:
+                    return "skipped"
+            except Exception:
+                existing = self.col.find_one({"name_key": nk})
+                if existing is None:
+                    return "skipped"
 
         updates: dict[str, Any] = {"updated_at": now}
         for field in (
@@ -164,7 +174,6 @@ class CompanyRepository:
             elif new_val != old_val:
                 updates[field] = new_val
 
-        # Prefer display name with spaces if existing is glued
         if " " in data["name"] and " " not in existing.get("name", ""):
             updates["name"] = data["name"]
 

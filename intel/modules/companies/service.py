@@ -146,7 +146,13 @@ class CompanyService:
                 "source": row.get("source", "companies_seed.json"),
                 "engineering_size": "unknown",
             }
-            status = self.repo.upsert_by_name_key(payload)
+            try:
+                status = self.repo.upsert_by_name_key(payload)
+            except Exception as e:
+                logger.warning("Seed skip %s: %s", payload["name"], e)
+                skipped += 1
+                details.append({"name": payload["name"], "status": "error", "error": str(e)})
+                continue
             if status == "inserted":
                 inserted += 1
             elif status == "updated":

@@ -74,6 +74,15 @@ def list_providers() -> dict:
     }
 
 
+@router.get("/crawlers/runs")
+def list_crawl_runs(
+    limit: int = Query(5, ge=1, le=20),
+    svc: CrawlService = Depends(get_crawl_service),
+) -> dict:
+    """Latest crawl runs with per-company logs for the dashboard."""
+    return {"runs": svc.latest_runs(limit=limit)}
+
+
 @router.post("/crawlers/run", response_model=CrawlRunResult)
 async def run_crawlers(
     svc: CrawlService = Depends(get_crawl_service),
