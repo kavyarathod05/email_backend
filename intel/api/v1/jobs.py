@@ -85,9 +85,15 @@ def list_crawl_runs(
 
 @router.post("/crawlers/run", response_model=CrawlRunResult)
 async def run_crawlers(
+    limit: int | None = Query(
+        None,
+        ge=1,
+        le=500,
+        description="Max companies with boards to crawl this run (use batches on free tier)",
+    ),
     svc: CrawlService = Depends(get_crawl_service),
 ) -> CrawlRunResult:
-    return await svc.crawl_all()
+    return await svc.crawl_all(limit=limit)
 
 
 @router.post("/crawlers/verify", response_model=dict)
