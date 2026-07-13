@@ -1,0 +1,3110 @@
+[
+  {
+    "name": "Airbnb",
+    "slug": "airbnb",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "airbnb",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/airbnb/jobs"
+  },
+  {
+    "name": "Amazon",
+    "slug": "amazon",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "amazon",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/amazon/jobs"
+  },
+  {
+    "name": "AMD",
+    "slug": "amd",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "ashby",
+    "source": "top_tier_companies.txt",
+    "board_token": "amd",
+    "board_url": "https://api.ashbyhq.com/posting-api/job-board/amd"
+  },
+  {
+    "name": "Anduril",
+    "slug": "anduril",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "andurilindustries",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/andurilindustries/jobs"
+  },
+  {
+    "name": "Anthropic",
+    "slug": "anthropic",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "ashby",
+    "source": "top_tier_companies.txt",
+    "board_token": "anthropic",
+    "board_url": "https://api.ashbyhq.com/posting-api/job-board/anthropic"
+  },
+  {
+    "name": "Apple",
+    "slug": "apple",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "apple",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/apple/jobs"
+  },
+  {
+    "name": "Atlassian",
+    "slug": "atlassian",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "atlassian",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/atlassian/jobs"
+  },
+  {
+    "name": "Block",
+    "slug": "block",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "block",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/block/jobs"
+  },
+  {
+    "name": "Brex",
+    "slug": "brex",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "brex",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/brex/jobs"
+  },
+  {
+    "name": "ByteDance",
+    "slug": "bytedance",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "bytedance",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/bytedance/jobs"
+  },
+  {
+    "name": "Canva",
+    "slug": "canva",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "canva",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/canva/jobs"
+  },
+  {
+    "name": "Cloudflare",
+    "slug": "cloudflare",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "cloudflare",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/cloudflare/jobs"
+  },
+  {
+    "name": "Coinbase",
+    "slug": "coinbase",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "coinbase",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/coinbase/jobs"
+  },
+  {
+    "name": "Cruise",
+    "slug": "cruise",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "cruise",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/cruise/jobs"
+  },
+  {
+    "name": "Databricks",
+    "slug": "databricks",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "databricks",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/databricks/jobs"
+  },
+  {
+    "name": "DoorDash",
+    "slug": "doordash",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "doordash",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/doordash/jobs"
+  },
+  {
+    "name": "Dropbox",
+    "slug": "dropbox",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "dropbox",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/dropbox/jobs"
+  },
+  {
+    "name": "Figma",
+    "slug": "figma",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "figma",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/figma/jobs"
+  },
+  {
+    "name": "Flipkart",
+    "slug": "flipkart",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "flipkart",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/flipkart/jobs"
+  },
+  {
+    "name": "GitHub",
+    "slug": "github",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "github",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/github/jobs"
+  },
+  {
+    "name": "Google",
+    "slug": "google",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "google",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/google/jobs"
+  },
+  {
+    "name": "Groww",
+    "slug": "groww",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "groww",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/groww/jobs"
+  },
+  {
+    "name": "HashiCorp",
+    "slug": "hashicorp",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "hashicorp",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/hashicorp/jobs"
+  },
+  {
+    "name": "Instacart",
+    "slug": "instacart",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "instacart",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/instacart/jobs"
+  },
+  {
+    "name": "Intel",
+    "slug": "intel",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "intel",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/intel/jobs"
+  },
+  {
+    "name": "LinkedIn",
+    "slug": "linkedin",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "linkedin",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/linkedin/jobs"
+  },
+  {
+    "name": "Lyft",
+    "slug": "lyft",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "lyft",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/lyft/jobs"
+  },
+  {
+    "name": "Meesho",
+    "slug": "meesho",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "meesho",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/meesho/jobs"
+  },
+  {
+    "name": "Meta",
+    "slug": "meta",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "meta",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/meta/jobs"
+  },
+  {
+    "name": "Microsoft",
+    "slug": "microsoft",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "microsoft",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/microsoft/jobs"
+  },
+  {
+    "name": "Netflix",
+    "slug": "netflix",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "netflix",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/netflix/jobs"
+  },
+  {
+    "name": "Notion",
+    "slug": "notion",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "notion",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/notion/jobs"
+  },
+  {
+    "name": "Nvidia",
+    "slug": "nvidia",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "nvidia",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/nvidia/jobs"
+  },
+  {
+    "name": "OpenAI",
+    "slug": "openai",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "ashby",
+    "source": "top_tier_companies.txt",
+    "board_token": "openai",
+    "board_url": "https://api.ashbyhq.com/posting-api/job-board/openai"
+  },
+  {
+    "name": "Oracle",
+    "slug": "oracle",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "oracle",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/oracle/jobs"
+  },
+  {
+    "name": "Palantir",
+    "slug": "palantir",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "palantirtechnologies",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/palantirtechnologies/jobs"
+  },
+  {
+    "name": "PhonePe",
+    "slug": "phonepe",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "phonepe",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/phonepe/jobs"
+  },
+  {
+    "name": "Pinterest",
+    "slug": "pinterest",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "pinterest",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/pinterest/jobs"
+  },
+  {
+    "name": "Plaid",
+    "slug": "plaid",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "plaid",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/plaid/jobs"
+  },
+  {
+    "name": "Ramp",
+    "slug": "ramp",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "ramp",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/ramp/jobs"
+  },
+  {
+    "name": "Razorpay",
+    "slug": "razorpay",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "razorpayhq",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/razorpayhq/jobs"
+  },
+  {
+    "name": "Revolut",
+    "slug": "revolut",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "revolut",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/revolut/jobs"
+  },
+  {
+    "name": "Rippling",
+    "slug": "rippling",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "rippling",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/rippling/jobs"
+  },
+  {
+    "name": "Robinhood",
+    "slug": "robinhood",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "robinhood",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/robinhood/jobs"
+  },
+  {
+    "name": "Roblox",
+    "slug": "roblox",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Scale AI",
+    "slug": "scale-ai",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "scaleai",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/scaleai/jobs"
+  },
+  {
+    "name": "Snap",
+    "slug": "snap",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "snap",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/snap/jobs"
+  },
+  {
+    "name": "Snowflake",
+    "slug": "snowflake",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "snowflake",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/snowflake/jobs"
+  },
+  {
+    "name": "SpaceX",
+    "slug": "spacex",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Square",
+    "slug": "square",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "block",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/block/jobs"
+  },
+  {
+    "name": "Stripe",
+    "slug": "stripe",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "stripe",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/stripe/jobs"
+  },
+  {
+    "name": "Swiggy",
+    "slug": "swiggy",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "swiggy",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/swiggy/jobs"
+  },
+  {
+    "name": "Tesla",
+    "slug": "tesla",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Twitter",
+    "slug": "twitter",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Uber",
+    "slug": "uber",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "uber",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/uber/jobs"
+  },
+  {
+    "name": "Vercel",
+    "slug": "vercel",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "vercel",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/vercel/jobs"
+  },
+  {
+    "name": "Waymo",
+    "slug": "waymo",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "waymo",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/waymo/jobs"
+  },
+  {
+    "name": "X",
+    "slug": "x",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "xAI",
+    "slug": "xai",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Zomato",
+    "slug": "zomato",
+    "priority": 5,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "zomato",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/zomato/jobs"
+  },
+  {
+    "name": "1mg",
+    "slug": "1mg",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "ABB",
+    "slug": "abb",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Accenture",
+    "slug": "accenture",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Acko",
+    "slug": "acko",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "acko",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/acko/jobs"
+  },
+  {
+    "name": "AdityaBirlaGroup",
+    "slug": "adityabirlagroup",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Adobe",
+    "slug": "adobe",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "adobe",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/adobe/jobs"
+  },
+  {
+    "name": "Affirm",
+    "slug": "affirm",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "affirm",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/affirm/jobs"
+  },
+  {
+    "name": "Agoda",
+    "slug": "agoda",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "agoda",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/agoda/jobs"
+  },
+  {
+    "name": "Ajio",
+    "slug": "ajio",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Akamai",
+    "slug": "akamai",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "akamai",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/akamai/jobs"
+  },
+  {
+    "name": "Alphagrep",
+    "slug": "alphagrep",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "alphagrep",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/alphagrep/jobs"
+  },
+  {
+    "name": "Amplitude",
+    "slug": "amplitude",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "ApolloHospitals",
+    "slug": "apollohospitals",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Arcesium",
+    "slug": "arcesium",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "arcesium",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/arcesium/jobs"
+  },
+  {
+    "name": "AxisBank",
+    "slug": "axisbank",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Bain&Company",
+    "slug": "bain-company",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Bank of America",
+    "slug": "bank-of-america",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Barclays",
+    "slug": "barclays",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "BharatPe",
+    "slug": "bharatpe",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "BigBasket",
+    "slug": "bigbasket",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "bigbasket",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/bigbasket/jobs"
+  },
+  {
+    "name": "BillDesk",
+    "slug": "billdesk",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "BlackBuck",
+    "slug": "blackbuck",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "BlackRock",
+    "slug": "blackrock",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Blinkit",
+    "slug": "blinkit",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "blinkit",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/blinkit/jobs"
+  },
+  {
+    "name": "Booking.com",
+    "slug": "booking-com",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "bookingcom",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/bookingcom/jobs"
+  },
+  {
+    "name": "Bosch",
+    "slug": "bosch",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "BostonConsultingGroup",
+    "slug": "bostonconsultinggroup",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Bounce",
+    "slug": "bounce",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Broadcom",
+    "slug": "broadcom",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "broadcom",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/broadcom/jobs"
+  },
+  {
+    "name": "Byju's",
+    "slug": "byju-s",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "byjus",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/byjus/jobs"
+  },
+  {
+    "name": "Capgemini",
+    "slug": "capgemini",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Capital Float",
+    "slug": "capital-float",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "CarDekho",
+    "slug": "cardekho",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Cars24",
+    "slug": "cars24",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "CCAvenue",
+    "slug": "ccavenue",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Check Point",
+    "slug": "check-point",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Chime",
+    "slug": "chime",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "chime",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/chime/jobs"
+  },
+  {
+    "name": "Chingari",
+    "slug": "chingari",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Cisco",
+    "slug": "cisco",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "cisco",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/cisco/jobs"
+  },
+  {
+    "name": "Citadel",
+    "slug": "citadel",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "citadel",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/citadel/jobs"
+  },
+  {
+    "name": "Citi",
+    "slug": "citi",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "ClearTax",
+    "slug": "cleartax",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "cleartax",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/cleartax/jobs"
+  },
+  {
+    "name": "Cleartrip",
+    "slug": "cleartrip",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Cognizant",
+    "slug": "cognizant",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "CoinSwitch",
+    "slug": "coinswitch",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "coinswitch",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/coinswitch/jobs"
+  },
+  {
+    "name": "Coverfox",
+    "slug": "coverfox",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "CRED",
+    "slug": "cred",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "cred",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/cred/jobs"
+  },
+  {
+    "name": "Credit Suisse",
+    "slug": "credit-suisse",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "CrowdStrike",
+    "slug": "crowdstrike",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "crowdstrike",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/crowdstrike/jobs"
+  },
+  {
+    "name": "Cuemath",
+    "slug": "cuemath",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Cult.fit",
+    "slug": "cult-fit",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "curefit",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/curefit/jobs"
+  },
+  {
+    "name": "D.E. Shaw",
+    "slug": "d-e-shaw",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "deshaw",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/deshaw/jobs"
+  },
+  {
+    "name": "Dailyhunt",
+    "slug": "dailyhunt",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Datadog",
+    "slug": "datadog",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "datadog",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/datadog/jobs"
+  },
+  {
+    "name": "Deloitte",
+    "slug": "deloitte",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Deutsche Bank",
+    "slug": "deutsche-bank",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Digit Insurance",
+    "slug": "digit-insurance",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "DigitalOcean",
+    "slug": "digitalocean",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Doubtnut",
+    "slug": "doubtnut",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Dream11",
+    "slug": "dream11",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "dream11",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/dream11/jobs"
+  },
+  {
+    "name": "Drivezy",
+    "slug": "drivezy",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "DrReddys",
+    "slug": "drreddys",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Druva",
+    "slug": "druva",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "DRW",
+    "slug": "drw",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "drwtrading",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/drwtrading/jobs"
+  },
+  {
+    "name": "Ecom Express",
+    "slug": "ecom-express",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Elastic",
+    "slug": "elastic",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "elastic",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/elastic/jobs"
+  },
+  {
+    "name": "ElasticRun",
+    "slug": "elasticrun",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Electronic Arts",
+    "slug": "electronic-arts",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "ea",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/ea/jobs"
+  },
+  {
+    "name": "Emerson",
+    "slug": "emerson",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Eruditus",
+    "slug": "eruditus",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Expedia",
+    "slug": "expedia",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "expedia",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/expedia/jobs"
+  },
+  {
+    "name": "EY",
+    "slug": "ey",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "FarEye",
+    "slug": "fareye",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Fastly",
+    "slug": "fastly",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "FirstCry",
+    "slug": "firstcry",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "FlagRight",
+    "slug": "flagright",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "flagright",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/flagright/jobs"
+  },
+  {
+    "name": "Fortinet",
+    "slug": "fortinet",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "fortinet",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/fortinet/jobs"
+  },
+  {
+    "name": "Freecharge",
+    "slug": "freecharge",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "FreshToHome",
+    "slug": "freshtohome",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Games24x7",
+    "slug": "games24x7",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "GE",
+    "slug": "ge",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "GE Aerospace",
+    "slug": "ge-aerospace",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "geaerospace",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/geaerospace/jobs"
+  },
+  {
+    "name": "GE Healthcare",
+    "slug": "ge-healthcare",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "gehealthcare",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/gehealthcare/jobs"
+  },
+  {
+    "name": "GitLab",
+    "slug": "gitlab",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "gitlab",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/gitlab/jobs"
+  },
+  {
+    "name": "Glance",
+    "slug": "glance",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "GoIbibo",
+    "slug": "goibibo",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Goldman Sachs",
+    "slug": "goldman-sachs",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "goldmansachs",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/goldmansachs/jobs"
+  },
+  {
+    "name": "GreyOrange",
+    "slug": "greyorange",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "HCL",
+    "slug": "hcl",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "HCLTech",
+    "slug": "hcltech",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "hcltech",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/hcltech/jobs"
+  },
+  {
+    "name": "HealthifyMe",
+    "slug": "healthifyme",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "HighRadius",
+    "slug": "highradius",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Honeywell",
+    "slug": "honeywell",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Hudson River Trading",
+    "slug": "hudson-river-trading",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "hudsonrivertrading",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/hudsonrivertrading/jobs"
+  },
+  {
+    "name": "IBM",
+    "slug": "ibm",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "ibm",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/ibm/jobs"
+  },
+  {
+    "name": "Icertis",
+    "slug": "icertis",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "IDFCFirstBank",
+    "slug": "idfcfirstbank",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "IMC Trading",
+    "slug": "imc-trading",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "imc",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/imc/jobs"
+  },
+  {
+    "name": "InCred",
+    "slug": "incred",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "IndusIndBank",
+    "slug": "indusindbank",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Infosys",
+    "slug": "infosys",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "infosys",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/infosys/jobs"
+  },
+  {
+    "name": "InMobi",
+    "slug": "inmobi",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Innovaccer",
+    "slug": "innovaccer",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Inshorts",
+    "slug": "inshorts",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Intuit",
+    "slug": "intuit",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "intuit",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/intuit/jobs"
+  },
+  {
+    "name": "Ixigo",
+    "slug": "ixigo",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Jane Street",
+    "slug": "jane-street",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "janestreet",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/janestreet/jobs"
+  },
+  {
+    "name": "JioMart",
+    "slug": "jiomart",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "JPMorgan Chase",
+    "slug": "jpmorgan-chase",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "jpmorganchase",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/jpmorganchase/jobs"
+  },
+  {
+    "name": "Jump Trading",
+    "slug": "jump-trading",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "jumptrading",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/jumptrading/jobs"
+  },
+  {
+    "name": "Koo",
+    "slug": "koo",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "KotakMahindraBank",
+    "slug": "kotakmahindrabank",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "KPMG",
+    "slug": "kpmg",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Kraken",
+    "slug": "kraken",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "kraken",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/kraken/jobs"
+  },
+  {
+    "name": "Lendingkart",
+    "slug": "lendingkart",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Lenskart",
+    "slug": "lenskart",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "lenskart",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/lenskart/jobs"
+  },
+  {
+    "name": "Licious",
+    "slug": "licious",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Locus",
+    "slug": "locus",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "LTIMindtree",
+    "slug": "ltimindtree",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "MakeMyTrip",
+    "slug": "makemytrip",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "makemytrip",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/makemytrip/jobs"
+  },
+  {
+    "name": "MathWorks",
+    "slug": "mathworks",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "mathworks",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/mathworks/jobs"
+  },
+  {
+    "name": "McKinsey&Company",
+    "slug": "mckinsey-company",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Media.net",
+    "slug": "media-net",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "medianet",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/medianet/jobs"
+  },
+  {
+    "name": "MilkBasket",
+    "slug": "milkbasket",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Mindtickle",
+    "slug": "mindtickle",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Mixpanel",
+    "slug": "mixpanel",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "MobiKwik",
+    "slug": "mobikwik",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Mondelez",
+    "slug": "mondelez",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "MongoDB",
+    "slug": "mongodb",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "mongodb",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/mongodb/jobs"
+  },
+  {
+    "name": "Moonfrog Labs",
+    "slug": "moonfrog-labs",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Morgan Stanley",
+    "slug": "morgan-stanley",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "morganstanley",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/morganstanley/jobs"
+  },
+  {
+    "name": "Motorola",
+    "slug": "motorola",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "MPL",
+    "slug": "mpl",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Myntra",
+    "slug": "myntra",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "myntra",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/myntra/jobs"
+  },
+  {
+    "name": "Nazara Technologies",
+    "slug": "nazara-technologies",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Nestle",
+    "slug": "nestle",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "NetApp",
+    "slug": "netapp",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "NewRelic",
+    "slug": "newrelic",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Nokia",
+    "slug": "nokia",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Nykaa",
+    "slug": "nykaa",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "nykaa",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/nykaa/jobs"
+  },
+  {
+    "name": "Octro",
+    "slug": "octro",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Okta",
+    "slug": "okta",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "okta",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/okta/jobs"
+  },
+  {
+    "name": "OliverWyman",
+    "slug": "oliverwyman",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Optiver",
+    "slug": "optiver",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "optiver",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/optiver/jobs"
+  },
+  {
+    "name": "OYO",
+    "slug": "oyo",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "oyo",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/oyo/jobs"
+  },
+  {
+    "name": "Palo Alto Networks",
+    "slug": "palo-alto-networks",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "paloaltonetworks",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/paloaltonetworks/jobs"
+  },
+  {
+    "name": "Panasonic",
+    "slug": "panasonic",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "PayPal",
+    "slug": "paypal",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "paypal",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/paypal/jobs"
+  },
+  {
+    "name": "Paytm",
+    "slug": "paytm",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "paytm",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/paytm/jobs"
+  },
+  {
+    "name": "PayU",
+    "slug": "payu",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Pepperfry",
+    "slug": "pepperfry",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "PharmEasy",
+    "slug": "pharmeasy",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "pharmeasy",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/pharmeasy/jobs"
+  },
+  {
+    "name": "PhysicsWallah",
+    "slug": "physicswallah",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Pine Labs",
+    "slug": "pine-labs",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "PolicyBazaar",
+    "slug": "policybazaar",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "policybazaar",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/policybazaar/jobs"
+  },
+  {
+    "name": "Portea",
+    "slug": "portea",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Practo",
+    "slug": "practo",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "practo",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/practo/jobs"
+  },
+  {
+    "name": "Pratilipi",
+    "slug": "pratilipi",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Project44",
+    "slug": "project44",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "project44",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/project44/jobs"
+  },
+  {
+    "name": "PwC",
+    "slug": "pwc",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Qualcomm",
+    "slug": "qualcomm",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "qualcomm",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/qualcomm/jobs"
+  },
+  {
+    "name": "Quora",
+    "slug": "quora",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Rapido",
+    "slug": "rapido",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Reddit",
+    "slug": "reddit",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Redis",
+    "slug": "redis",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Reliance",
+    "slug": "reliance",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Rivigo",
+    "slug": "rivigo",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Roposo",
+    "slug": "roposo",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Salesforce",
+    "slug": "salesforce",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "salesforce",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/salesforce/jobs"
+  },
+  {
+    "name": "Samsung",
+    "slug": "samsung",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "SAP",
+    "slug": "sap",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "SchneiderElectric",
+    "slug": "schneiderelectric",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "ServiceNow",
+    "slug": "servicenow",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "servicenow",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/servicenow/jobs"
+  },
+  {
+    "name": "Shadowfax",
+    "slug": "shadowfax",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "ShareChat",
+    "slug": "sharechat",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "ShopClues",
+    "slug": "shopclues",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Shopify",
+    "slug": "shopify",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Siemens",
+    "slug": "siemens",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Simplilearn",
+    "slug": "simplilearn",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Skyscanner",
+    "slug": "skyscanner",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "skyscanner",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/skyscanner/jobs"
+  },
+  {
+    "name": "Slack",
+    "slug": "slack",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "slice",
+    "slug": "slice",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "sliceit",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/sliceit/jobs"
+  },
+  {
+    "name": "Snapdeal",
+    "slug": "snapdeal",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Snowplow",
+    "slug": "snowplow",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "SoFi",
+    "slug": "sofi",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "sofi",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/sofi/jobs"
+  },
+  {
+    "name": "Sony",
+    "slug": "sony",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Spinny",
+    "slug": "spinny",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Splunk",
+    "slug": "splunk",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "splunk",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/splunk/jobs"
+  },
+  {
+    "name": "Spotify",
+    "slug": "spotify",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "spotify",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/spotify/jobs"
+  },
+  {
+    "name": "SunPharma",
+    "slug": "sunpharma",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Supr Daily",
+    "slug": "supr-daily",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Tata Cliq",
+    "slug": "tata-cliq",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "TataGroup",
+    "slug": "tatagroup",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "TCS",
+    "slug": "tcs",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "tcs",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/tcs/jobs"
+  },
+  {
+    "name": "Tech Mahindra",
+    "slug": "tech-mahindra",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "techmahindra",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/techmahindra/jobs"
+  },
+  {
+    "name": "Tesco",
+    "slug": "tesco",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "tesco",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/tesco/jobs"
+  },
+  {
+    "name": "Toppr",
+    "slug": "toppr",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Tower Research",
+    "slug": "tower-research",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "tower-research-capital",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/tower-research-capital/jobs"
+  },
+  {
+    "name": "Trell",
+    "slug": "trell",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "TripAdvisor",
+    "slug": "tripadvisor",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "tripadvisor",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/tripadvisor/jobs"
+  },
+  {
+    "name": "Turtlemint",
+    "slug": "turtlemint",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Twilio",
+    "slug": "twilio",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "twilio",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/twilio/jobs"
+  },
+  {
+    "name": "Two Sigma",
+    "slug": "two-sigma",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "twosigma",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/twosigma/jobs"
+  },
+  {
+    "name": "Ubisoft",
+    "slug": "ubisoft",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "ubisoft",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/ubisoft/jobs"
+  },
+  {
+    "name": "UBS",
+    "slug": "ubs",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Unacademy",
+    "slug": "unacademy",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "unacademy",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/unacademy/jobs"
+  },
+  {
+    "name": "UpGrad",
+    "slug": "upgrad",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "upgrad",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/upgrad/jobs"
+  },
+  {
+    "name": "Upstox",
+    "slug": "upstox",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Urban Company",
+    "slug": "urban-company",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "urbancompany",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/urbancompany/jobs"
+  },
+  {
+    "name": "Urban Ladder",
+    "slug": "urban-ladder",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Vedantu",
+    "slug": "vedantu",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Visa",
+    "slug": "visa",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "visa",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/visa/jobs"
+  },
+  {
+    "name": "VMware",
+    "slug": "vmware",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "vmware",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/vmware/jobs"
+  },
+  {
+    "name": "Vogo",
+    "slug": "vogo",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Vokal",
+    "slug": "vokal",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Wells Fargo",
+    "slug": "wells-fargo",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Wipro",
+    "slug": "wipro",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "wipro",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/wipro/jobs"
+  },
+  {
+    "name": "Workday",
+    "slug": "workday",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "workday",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/workday/jobs"
+  },
+  {
+    "name": "WorldQuant",
+    "slug": "worldquant",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "worldquant",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/worldquant/jobs"
+  },
+  {
+    "name": "Xpressbees",
+    "slug": "xpressbees",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Yatra",
+    "slug": "yatra",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Yulu",
+    "slug": "yulu",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Zenoti",
+    "slug": "zenoti",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Zepto",
+    "slug": "zepto",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "user_list_2026-07",
+    "board_token": "zepto",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/zepto/jobs"
+  },
+  {
+    "name": "Zerodha",
+    "slug": "zerodha",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "lever",
+    "source": "top_tier_companies.txt",
+    "board_token": "zerodha",
+    "board_url": "https://api.lever.co/v0/postings/zerodha"
+  },
+  {
+    "name": "ZestMoney",
+    "slug": "zestmoney",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Zoom",
+    "slug": "zoom",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Zoomcar",
+    "slug": "zoomcar",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Zscaler",
+    "slug": "zscaler",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "zscaler",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/zscaler/jobs"
+  },
+  {
+    "name": "Zynga",
+    "slug": "zynga",
+    "priority": 4,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "user_list_2026-07"
+  },
+  {
+    "name": "Alibaba",
+    "slug": "alibaba",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "AppliedMaterials",
+    "slug": "appliedmaterials",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "ASML",
+    "slug": "asml",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "AutomationAnywhere",
+    "slug": "automationanywhere",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Baidu",
+    "slug": "baidu",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "BlueOrigin",
+    "slug": "blueorigin",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "BrowserStack",
+    "slug": "browserstack",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "browserstack",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/browserstack/jobs"
+  },
+  {
+    "name": "Chargebee",
+    "slug": "chargebee",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "chargebee",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/chargebee/jobs"
+  },
+  {
+    "name": "Cipla",
+    "slug": "cipla",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Clevertap",
+    "slug": "clevertap",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "CocaCola",
+    "slug": "cocacola",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Cohesity",
+    "slug": "cohesity",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Delhivery",
+    "slug": "delhivery",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "delhivery",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/delhivery/jobs"
+  },
+  {
+    "name": "Discord",
+    "slug": "discord",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "discord",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/discord/jobs"
+  },
+  {
+    "name": "Dunzo",
+    "slug": "dunzo",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Epic Games",
+    "slug": "epic-games",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "epicgames",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/epicgames/jobs"
+  },
+  {
+    "name": "Fortis",
+    "slug": "fortis",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Freshworks",
+    "slug": "freshworks",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "freshworks",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/freshworks/jobs"
+  },
+  {
+    "name": "Gojek",
+    "slug": "gojek",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Grab",
+    "slug": "grab",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "HDFC",
+    "slug": "hdfc",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "HSBC",
+    "slug": "hsbc",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "HUL",
+    "slug": "hul",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "ICICI",
+    "slug": "icici",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "IntelFoundry",
+    "slug": "intelfoundry",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "InVision",
+    "slug": "invision",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "ITC",
+    "slug": "itc",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "JDcom",
+    "slug": "jdcom",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "LamResearch",
+    "slug": "lamresearch",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "MistralAI",
+    "slug": "mistralai",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "ashby",
+    "source": "top_tier_companies.txt",
+    "board_token": "mistralai",
+    "board_url": "https://api.ashbyhq.com/posting-api/job-board/mistralai"
+  },
+  {
+    "name": "MoEngage",
+    "slug": "moengage",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Nutanix",
+    "slug": "nutanix",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "nutanix",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/nutanix/jobs"
+  },
+  {
+    "name": "Ola",
+    "slug": "ola",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "olacabs",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/olacabs/jobs"
+  },
+  {
+    "name": "OlaElectric",
+    "slug": "olaelectric",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "PalantirFoundry",
+    "slug": "palantirfoundry",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "PepsiCo",
+    "slug": "pepsico",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "PerplexityAI",
+    "slug": "perplexityai",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "ashby",
+    "source": "top_tier_companies.txt",
+    "board_token": "perplexity-ai",
+    "board_url": "https://api.ashbyhq.com/posting-api/job-board/perplexity-ai"
+  },
+  {
+    "name": "Porter",
+    "slug": "porter",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Postman",
+    "slug": "postman",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "postman",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/postman/jobs"
+  },
+  {
+    "name": "PureStorage",
+    "slug": "purestorage",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Rubrik",
+    "slug": "rubrik",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "ScaleAIIndia",
+    "slug": "scaleaiindia",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "SeaGroup",
+    "slug": "seagroup",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Shopee",
+    "slug": "shopee",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Snapchat",
+    "slug": "snapchat",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "snapinc",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/snapinc/jobs"
+  },
+  {
+    "name": "StabilityAI",
+    "slug": "stabilityai",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "StandardChartered",
+    "slug": "standardchartered",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "StripeIndia",
+    "slug": "stripeindia",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Tencent",
+    "slug": "tencent",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "TikTok",
+    "slug": "tiktok",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "tiktok",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/tiktok/jobs"
+  },
+  {
+    "name": "Tokopedia",
+    "slug": "tokopedia",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Traveloka",
+    "slug": "traveloka",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "TSMC",
+    "slug": "tsmc",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Udaan",
+    "slug": "udaan",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "UiPath",
+    "slug": "uipath",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Unity",
+    "slug": "unity",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "unity3d",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/unity3d/jobs"
+  },
+  {
+    "name": "WebEngage",
+    "slug": "webengage",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "unknown",
+    "source": "top_tier_companies.txt"
+  },
+  {
+    "name": "Wise",
+    "slug": "wise",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "transferwise",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/transferwise/jobs"
+  },
+  {
+    "name": "Zoho",
+    "slug": "zoho",
+    "priority": 3,
+    "active": true,
+    "ats_provider": "greenhouse",
+    "source": "top_tier_companies.txt",
+    "board_token": "zoho",
+    "board_url": "https://boards-api.greenhouse.io/v1/boards/zoho/jobs"
+  }
+]

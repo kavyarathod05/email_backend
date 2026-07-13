@@ -54,7 +54,10 @@ except Exception as e:
 # --------------- App Factory ---------------
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
-    application = FastAPI(title="Email Outreach Automation")
+    application = FastAPI(
+        title="Email Outreach + Internship Intelligence",
+        description="Outreach automation and internship link discovery on one service.",
+    )
 
     frontend_origin = os.getenv("FRONTEND_ORIGIN", "").rstrip("/")
     origins = [
