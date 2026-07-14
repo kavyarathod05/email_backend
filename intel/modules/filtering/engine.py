@@ -1,4 +1,4 @@
-"""Smart filters: India OR Remote + season/grad year tags."""
+"""Smart filters: India OR Remote only (strict) + season/grad year tags."""
 
 from __future__ import annotations
 
@@ -8,12 +8,41 @@ from dataclasses import dataclass, field
 from intel.core.models.job import GradYearEligibility, SeasonTag
 
 INDIA_RE = re.compile(
-    r"\b(india|bengaluru|bangalore|hyderabad|pune|mumbai|chennai|delhi|"
-    r"gurgaon|gurugram|noida|kolkata|ahmedabad|remote[\s-]?india|"
-    r"in[\s-]?remote)\b",
+    r"\b("
+    r"india|indian|"
+    r"bengaluru|bangalore|hyderabad|pune|mumbai|chennai|delhi|new\s*delhi|"
+    r"gurgaon|gurugram|noida|kolkata|ahmedabad|jaipur|chandigarh|kochi|"
+    r"trivandrum|thiruvananthapuram|coimbatore|indore|bhopal|lucknow|"
+    r"remote[\s\-]*(in\s*)?india|india[\s\-]*remote|in[\s\-]?remote"
+    r")\b",
     re.I,
 )
-REMOTE_RE = re.compile(r"\b(remote|work\s*from\s*home|wfh|distributed)\b", re.I)
+REMOTE_RE = re.compile(
+    r"\b(remote|work\s*from\s*home|wfh|distributed|anywhere|work\s*from\s*anywhere)\b",
+    re.I,
+)
+
+# Explicit non-India geo — reject unless India also clearly present
+FOREIGN_GEO_RE = re.compile(
+    r"\b("
+    r"united\s*states|\bUSA\b|\bU\.S\.A\.?\b|\bUS\b|"
+    r"united\s*kingdom|\bUK\b|\bU\.K\.?\b|"
+    r"canada|australia|germany|france|netherlands|singapore|japan|"
+    r"ireland|switzerland|sweden|norway|denmark|finland|poland|"
+    r"brazil|mexico|spain|italy|portugal|israel|uae|dubai|"
+    r"hong\s*kong|south\s*korea|korea|philippines|indonesia|vietnam|"
+    r"new\s*zealand|south\s*africa|"
+    # Common US / EU city hubs (job boards)
+    r"new\s*york|nyc|san\s*francisco|sf\s*bay|bay\s*area|seattle|"
+    r"austin|boston|chicago|los\s*angeles|atlanta|denver|dallas|"
+    r"london|manchester|berlin|munich|amsterdam|paris|toronto|"
+    r"vancouver|sydney|melbourne|dublin|zurich|tel\s*aviv|"
+    r"remote[\s\-]*(us|usa|uk|u\.k\.|canada|europe|eu|emea|americas)|"
+    r"(us|usa|uk|canada|europe)[\s\-]*remote|"
+    r"based\s*in\s*(us|usa|uk|canada|europe|london|nyc|seattle)"
+    r")\b",
+    re.I,
+)
 
 # Summer 2027 / 2027 internship
 SUMMER_2027_RE = re.compile(
@@ -56,36 +85,60 @@ def apply_filters(
     description: str | None,
     is_remote_hint: bool | None,
 ) -> FilterResult:
-    blob = f"{title}\n{location_text or ''}\n{(description or '')[:8000]}"
+    loc = (location_text or "").strip()
+    # Prefer explicit location field for geo; peek title + short description too
+    geo_blob = f"{title}\n{loc}\n{(description or '')[:2000]}"
+    season_blob = f"{title}\n{loc}\n{(description or '')[:8000]}"
     reasons: list[str] = []
 
-    is_india = bool(INDIA_RE.search(blob))
-    is_remote = bool(is_remote_hint) if is_remote_hint is not None else bool(
-        REMOTE_RE.search(blob)
-    )
-    if REMOTE_RE.search(blob):
+    is_india = bool(INDIA_RE.search(geo_blob))
+    is_remote = bool(is_remote_hint) if is_remote_hint is not None else False
+    if REMOTE_RE.search(geo_blob):
         is_remote = True
 
-    # Geo: keep if India OR Remote OR location unknown
-    location_unknown = not (location_text and location_text.strip()) and not is_india and not is_remote
-    if is_india or is_remote or location_unknown:
+    has_foreign = bool(FOREIGN_GEO_RE.search(geo_blob))
+    # Pure remote OK; remote locked to another country (without India) is not
+    remote_foreign_only = (
+        is_remote
+        and has_foreign
+        and not is_india
+        and re.search(
+            r"remote[\s\-]*(us|usa|uk|u\.k\.|canada|europe|eu|emea|americas)|"
+            r"(us|usa|uk|canada|europe)[\s\-]*remote|"
+            r"based\s*in\s*(us|usa|uk|canada|europe)",
+            geo_blob,
+            re.I,
+        )
+    )
+
+    # Strict: must be India OR (allowed) Remote — never unknown / other countries
+    if is_india and not remote_foreign_only:
         geo_ok = True
-        if location_unknown:
-            reasons.append("location_unknown_kept")
-        elif is_india:
-            reasons.append("india")
+        reasons.append("india")
         if is_remote:
             reasons.append("remote")
+    elif is_remote and not has_foreign and not remote_foreign_only:
+        # Global / unspecified remote — keep
+        geo_ok = True
+        reasons.append("remote")
+    elif is_remote and is_india:
+        geo_ok = True
+        reasons.append("india")
+        reasons.append("remote")
     else:
-        # Has a location but neither India nor remote (e.g. US-only)
         geo_ok = False
-        reasons.append("geo_not_india_or_remote")
+        if has_foreign and not is_india:
+            reasons.append("geo_foreign_rejected")
+        elif not loc and not is_india and not is_remote:
+            reasons.append("geo_unknown_rejected")
+        else:
+            reasons.append("geo_not_india_or_remote")
 
     # Season
-    if SUMMER_2027_RE.search(blob):
+    if SUMMER_2027_RE.search(season_blob):
         season = SeasonTag.summer_2027
         reasons.append("season_summer_2027")
-    elif OTHER_SEASON_RE.search(blob) and not SUMMER_2027_RE.search(blob):
+    elif OTHER_SEASON_RE.search(season_blob) and not SUMMER_2027_RE.search(season_blob):
         season = SeasonTag.other
         reasons.append("season_other_rejected")
         return FilterResult(
@@ -101,10 +154,10 @@ def apply_filters(
         reasons.append("season_unknown_kept")
 
     # Grad year
-    if GRAD_2028_RE.search(blob):
+    if GRAD_2028_RE.search(season_blob):
         grad = GradYearEligibility.y2028
         reasons.append("grad_2028")
-    elif GRAD_OTHER_RE.search(blob) and not GRAD_2028_RE.search(blob):
+    elif GRAD_OTHER_RE.search(season_blob) and not GRAD_2028_RE.search(season_blob):
         grad = GradYearEligibility.other
         reasons.append("grad_other_rejected")
         return FilterResult(
@@ -119,8 +172,7 @@ def apply_filters(
         grad = GradYearEligibility.unknown
         reasons.append("grad_unknown_kept")
 
-    passed = geo_ok
-    if not passed:
+    if not geo_ok:
         return FilterResult(
             passed=False,
             is_india=is_india or None,
@@ -132,8 +184,8 @@ def apply_filters(
 
     return FilterResult(
         passed=True,
-        is_india=is_india if is_india else (None if location_unknown else False),
-        is_remote=is_remote if is_remote else None,
+        is_india=True if is_india else False,
+        is_remote=True if is_remote else False,
         grad_year=grad,
         season=season,
         reasons=reasons,

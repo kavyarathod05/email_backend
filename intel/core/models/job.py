@@ -61,10 +61,14 @@ class JobOut(BaseModel):
     filter_pass: bool = False
     filter_reasons: list[str] = Field(default_factory=list)
     role_family: str | None = None
+    posted_at: datetime | None = None
     first_seen_at: datetime
     last_seen_at: datetime
     closed_at: datetime | None = None
     source: str | None = None
+    tracked: bool = False
+    tracked_at: datetime | None = None
+    application_note: str | None = None
 
 
 class JobListResponse(BaseModel):

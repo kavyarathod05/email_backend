@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from bson import ObjectId
-from pymongo import ASCENDING, DESCENDING, ReturnDocument
+from pymongo import DESCENDING, ReturnDocument
 from pymongo.collection import Collection
 
 from intel.adapters.mongo import get_db
@@ -68,10 +68,14 @@ def _serialize(doc: dict[str, Any]) -> dict[str, Any]:
         "filter_pass": doc.get("filter_pass", False),
         "filter_reasons": doc.get("filter_reasons", []),
         "role_family": doc.get("role_family"),
+        "posted_at": doc.get("posted_at"),
         "first_seen_at": doc["first_seen_at"],
         "last_seen_at": doc["last_seen_at"],
         "closed_at": doc.get("closed_at"),
         "source": doc.get("source"),
+        "tracked": bool(doc.get("tracked")),
+        "tracked_at": doc.get("tracked_at"),
+        "application_note": doc.get("application_note"),
     }
 
 
@@ -117,8 +121,41 @@ class JobRepository:
             "company_name": data.get("company_name"),
             "company_id": data.get("company_id"),
         }
+        if data.get("posted_at"):
+            updates["posted_at"] = data["posted_at"]
         self.col.update_one({"_id": existing["_id"]}, {"$set": updates})
         return "updated"
+
+    def get_by_id(self, job_id: str) -> dict[str, Any] | None:
+        try:
+            doc = self.col.find_one({"_id": ObjectId(job_id)})
+        except Exception:
+            return None
+        return _serialize(doc) if doc else None
+
+    def set_tracked(
+        self,
+        job_id: str,
+        tracked: bool,
+        note: str | None = None,
+    ) -> dict[str, Any] | None:
+        now = _now()
+        try:
+            oid = ObjectId(job_id)
+        except Exception:
+            return None
+        updates: dict[str, Any] = {
+            "tracked": tracked,
+            "tracked_at": now if tracked else None,
+        }
+        if note is not None:
+            updates["application_note"] = note
+        result = self.col.find_one_and_update(
+            {"_id": oid},
+            {"$set": updates},
+            return_document=ReturnDocument.AFTER,
+        )
+        return _serialize(result) if result else None
 
     def list_jobs(
         self,
@@ -128,6 +165,8 @@ class JobRepository:
         link_ok: bool | None = True,
         status: str = "open",
         company: str | None = None,
+        exclude_tracked: bool = True,
+        tracked_only: bool = False,
         limit: int = 50,
         offset: int = 0,
     ) -> tuple[list[dict[str, Any]], int]:
@@ -138,6 +177,10 @@ class JobRepository:
             filt["filter_pass"] = filter_pass
         if link_ok is not None:
             filt["link_ok"] = link_ok
+        if tracked_only:
+            filt["tracked"] = True
+        elif exclude_tracked:
+            filt["tracked"] = {"$ne": True}
         if company:
             filt["$or"] = [
                 {"company_name": {"$regex": company, "$options": "i"}},
@@ -150,12 +193,8 @@ class JobRepository:
             filt["first_seen_at"] = {"$gte": start}
 
         total = self.col.count_documents(filt)
-        cursor = (
-            self.col.find(filt)
-            .sort([("first_seen_at", DESCENDING)])
-            .skip(offset)
-            .limit(limit)
-        )
+        sort_key = [("tracked_at", DESCENDING)] if tracked_only else [("first_seen_at", DESCENDING)]
+        cursor = self.col.find(filt).sort(sort_key).skip(offset).limit(limit)
         return [_serialize(d) for d in cursor], total
 
     def jobs_needing_verify(self, limit: int = 100) -> list[dict[str, Any]]:

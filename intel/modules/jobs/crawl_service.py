@@ -137,6 +137,7 @@ class CrawlService:
                         "link_ok": False,
                         "source": provider_name,
                         "detection_confidence": det.confidence,
+                        "posted_at": nj.posted_at,
                     }
                     if filt.passed:
                         passed += 1

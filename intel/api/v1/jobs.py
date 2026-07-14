@@ -1,6 +1,7 @@
 """Jobs + crawler + scheduler HTTP API."""
 
 from fastapi import APIRouter, Depends, Header, Query
+from pydantic import BaseModel
 
 from intel.config import get_settings
 from intel.core.errors import AppError
@@ -14,6 +15,11 @@ from intel.modules.scheduler.service import SchedulerService
 router = APIRouter(tags=["jobs"])
 
 
+class TrackJobRequest(BaseModel):
+    tracked: bool = True
+    note: str | None = None
+
+
 @router.get("/jobs", response_model=JobListResponse)
 def list_jobs(
     new_today: bool = Query(False),
@@ -21,6 +27,10 @@ def list_jobs(
     filter_pass: bool | None = Query(True),
     link_ok: bool | None = Query(None, description="Default: no filter; set true for verified only"),
     status: str = Query("open"),
+    exclude_tracked: bool = Query(
+        True, description="Hide jobs marked as applied / tracked"
+    ),
+    tracked_only: bool = Query(False, description="Only tracked applications"),
     limit: int = Query(50, ge=1, le=500),
     offset: int = Query(0, ge=0),
     repo: JobRepository = Depends(get_job_repo),
@@ -31,6 +41,8 @@ def list_jobs(
         filter_pass=filter_pass,
         link_ok=link_ok,
         status=status,
+        exclude_tracked=exclude_tracked,
+        tracked_only=tracked_only,
         limit=limit,
         offset=offset,
     )
@@ -52,6 +64,7 @@ def todays_jobs(
         filter_pass=True,
         link_ok=None,
         status="open",
+        exclude_tracked=True,
         limit=limit,
         offset=0,
     )
@@ -61,6 +74,51 @@ def todays_jobs(
         limit=limit,
         offset=0,
     )
+
+
+@router.get("/jobs/applications", response_model=JobListResponse)
+def list_applications(
+    limit: int = Query(100, ge=1, le=500),
+    offset: int = Query(0, ge=0),
+    repo: JobRepository = Depends(get_job_repo),
+) -> JobListResponse:
+    """Jobs you marked as applied — saved apply links for tracking."""
+    items, total = repo.list_jobs(
+        filter_pass=None,
+        link_ok=None,
+        status="",
+        exclude_tracked=False,
+        tracked_only=True,
+        limit=limit,
+        offset=offset,
+    )
+    return JobListResponse(
+        items=[JobOut(**i) for i in items],
+        total=total,
+        limit=limit,
+        offset=offset,
+    )
+
+
+@router.get("/jobs/{job_id}", response_model=JobOut)
+def get_job(job_id: str, repo: JobRepository = Depends(get_job_repo)) -> JobOut:
+    item = repo.get_by_id(job_id)
+    if not item:
+        raise AppError("Job not found", code="not_found", status_code=404)
+    return JobOut(**item)
+
+
+@router.post("/jobs/{job_id}/track", response_model=JobOut)
+def track_job(
+    job_id: str,
+    body: TrackJobRequest,
+    repo: JobRepository = Depends(get_job_repo),
+) -> JobOut:
+    """Mark applied (hides from main feed) or untrack (shows again)."""
+    item = repo.set_tracked(job_id, body.tracked, note=body.note)
+    if not item:
+        raise AppError("Job not found", code="not_found", status_code=404)
+    return JobOut(**item)
 
 
 @router.get("/crawlers/providers", response_model=dict)

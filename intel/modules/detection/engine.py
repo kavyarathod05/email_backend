@@ -132,6 +132,24 @@ EXCLUDE_RE = re.compile(
     re.I,
 )
 
+# Always drop — even if title also looks engineering
+HARD_EXCLUDE_RE = re.compile(
+    r"\b("
+    # PhD / doctoral tracks
+    r"ph\.?\s*d\.?|doctorate|doctoral|phd\s*intern|phd\s*candidate|"
+    r"research\s*phd|phd\s*researcher|"
+    # Quant / trading / markets
+    r"quant(?:itative)?|quantitative\s*(research|trader|developer|engineer|analyst|intern)|"
+    r"trading(\s+intern)?|trader(\s+intern)?|prop(rietary)?\s*trad|"
+    r"market\s*mak(er|ing)|execution\s*trad|"
+    r"crypto\s*trad|options\s*trad|equities\s*trad|"
+    # IIT-specific / campus-restricted internships
+    r"iit\s*(intern|only|campus)|only\s*for\s*iit|iitians?\b|"
+    r"for\s*iit\s*students|iit\s*(bombay|delhi|madras|kanpur|kharagpur|roorkee|guwahati|hyderabad)"
+    r")\b",
+    re.I,
+)
+
 
 @dataclass
 class DetectionResult:
@@ -145,6 +163,12 @@ def detect_internship(title: str, description: str | None = None) -> DetectionRe
     text = (title or "").strip()
     if not text:
         return DetectionResult(False, None, 1.0, "empty_title")
+
+    blob_head = f"{text}\n{(description or '')[:800]}"
+
+    # PhD / quant / trading / IIT-only — hard reject on title or description head
+    if HARD_EXCLUDE_RE.search(text) or HARD_EXCLUDE_RE.search(blob_head):
+        return DetectionResult(False, None, 0.95, "excluded_phd_quant_trading_iit")
 
     if EXCLUDE_RE.search(text) and not GENERIC_ENG_RE.search(text):
         return DetectionResult(False, None, 0.9, "excluded_non_eng_title")
@@ -161,7 +185,6 @@ def detect_internship(title: str, description: str | None = None) -> DetectionRe
         return DetectionResult(False, None, 0.95, "not_intern")
 
     # Match specific allowlisted roles (title first, then short description head)
-    blob_head = f"{text}\n{(description or '')[:800]}"
     for family, pat in ROLE_PATTERNS:
         if pat.search(text) or pat.search(blob_head):
             return DetectionResult(True, family, 0.95, f"matched:{family}")
