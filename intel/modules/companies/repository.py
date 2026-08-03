@@ -60,6 +60,7 @@ class CompanyRepository:
         q: str | None = None,
         active: bool | None = None,
         ats_provider: str | None = None,
+        with_boards: bool = False,
         limit: int = 50,
         offset: int = 0,
     ) -> tuple[list[dict[str, Any]], int]:
@@ -68,6 +69,11 @@ class CompanyRepository:
             filt["active"] = active
         if ats_provider:
             filt["ats_provider"] = ats_provider
+        if with_boards:
+            filt["board_token"] = {"$exists": True, "$nin": [None, ""]}
+            filt["ats_provider"] = {"$exists": True, "$nin": [None, "", "unknown"]}
+            if ats_provider:
+                filt["ats_provider"] = ats_provider
         if q:
             filt["$or"] = [
                 {"name": {"$regex": q, "$options": "i"}},

@@ -31,10 +31,6 @@ ROLE_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
         re.compile(r"\b(applied\s*scientist|research\s*scientist)\b", re.I),
     ),
     (
-        "research_engineer",
-        re.compile(r"\bresearch\s*engineer\b", re.I),
-    ),
-    (
         "ml",
         re.compile(
             r"\b(machine\s*learning|ml\s*engineer|ml\s*intern|deep\s*learning)\b",
@@ -138,15 +134,25 @@ HARD_EXCLUDE_RE = re.compile(
     # PhD / doctoral tracks
     r"ph\.?\s*d\.?|doctorate|doctoral|phd\s*intern|phd\s*candidate|"
     r"research\s*phd|phd\s*researcher|"
-    # Quant / trading / markets
-    r"quant(?:itative)?|quantitative\s*(research|trader|developer|engineer|analyst|intern)|"
+    # Quant / trading / markets / finance desks (not tech SWE)
+    r"quant(?:itative)?|quantitative\s*(research|trader|developer|engineer|analyst|intern|strateg)|"
     r"trading(\s+intern)?|trader(\s+intern)?|prop(rietary)?\s*trad|"
-    r"market\s*mak(er|ing)|execution\s*trad|"
-    r"crypto\s*trad|options\s*trad|equities\s*trad|"
+    r"market\s*mak(er|ing)|execution\s*trad|high[\s\-]?frequency|hft\b|"
+    r"crypto\s*trad|options\s*trad|equities\s*trad|futures\s*trad|"
+    r"hedge\s*fund|prop\s*shop|electronic\s*trad|algo\s*trad|"
+    r"systematic\s*trad|desk\s*trad|volatility\s*trad|"
     # IIT-specific / campus-restricted internships
     r"iit\s*(intern|only|campus)|only\s*for\s*iit|iitians?\b|"
     r"for\s*iit\s*students|iit\s*(bombay|delhi|madras|kanpur|kharagpur|roorkee|guwahati|hyderabad)"
     r")\b",
+    re.I,
+)
+
+# Non-intern full-time / new-grad language in title
+FULLTIME_RE = re.compile(
+    r"\b(full[\s\-]?time|new\s*grad(uate)?|university\s*grad|"
+    r"entry[\s\-]?level(?!\s*intern)|graduate\s*program|"
+    r"associate\s*software(?!\s*intern))\b",
     re.I,
 )
 
@@ -170,6 +176,14 @@ def detect_internship(title: str, description: str | None = None) -> DetectionRe
     if HARD_EXCLUDE_RE.search(text) or HARD_EXCLUDE_RE.search(blob_head):
         return DetectionResult(False, None, 0.95, "excluded_phd_quant_trading_iit")
 
+    # Strictly internships only — title must say intern / co-op / trainee
+    if not INTERN_RE.search(text):
+        return DetectionResult(False, None, 0.95, "not_intern")
+
+    # Drop full-time / new-grad titles that slipped past (unless also clearly intern)
+    if FULLTIME_RE.search(text) and not re.search(r"\bintern", text, re.I):
+        return DetectionResult(False, None, 0.9, "excluded_fulltime")
+
     if EXCLUDE_RE.search(text) and not GENERIC_ENG_RE.search(text):
         return DetectionResult(False, None, 0.9, "excluded_non_eng_title")
     # If both exclude and eng match (e.g. "Security Intern"), prefer eng paths below
@@ -181,10 +195,7 @@ def detect_internship(title: str, description: str | None = None) -> DetectionRe
     ):
         return DetectionResult(False, None, 0.9, "excluded_non_eng_title")
 
-    if not INTERN_RE.search(text):
-        return DetectionResult(False, None, 0.95, "not_intern")
-
-    # Match specific allowlisted roles (title first, then short description head)
+    # Match specific allowlisted tech roles only (title first, then short description head)
     for family, pat in ROLE_PATTERNS:
         if pat.search(text) or pat.search(blob_head):
             return DetectionResult(True, family, 0.95, f"matched:{family}")

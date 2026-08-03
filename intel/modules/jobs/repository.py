@@ -167,6 +167,10 @@ class JobRepository:
         company: str | None = None,
         exclude_tracked: bool = True,
         tracked_only: bool = False,
+        india_only: bool = False,
+        allow_remote: bool = False,
+        intern_only: bool = False,
+        tech_only: bool = False,
         limit: int = 50,
         offset: int = 0,
     ) -> tuple[list[dict[str, Any]], int]:
@@ -181,11 +185,36 @@ class JobRepository:
             filt["tracked"] = True
         elif exclude_tracked:
             filt["tracked"] = {"$ne": True}
-        if company:
+        if intern_only:
+            filt["is_internship"] = True
+        if india_only and allow_remote:
             filt["$or"] = [
+                {"is_india": True},
+                {"is_remote": True},
+            ]
+        elif india_only:
+            filt["is_india"] = True
+        if company:
+            company_clause = [
                 {"company_name": {"$regex": company, "$options": "i"}},
                 {"company_slug": {"$regex": company, "$options": "i"}},
             ]
+            if "$or" in filt:
+                # combine geo OR with company OR via $and
+                filt = {
+                    **{k: v for k, v in filt.items() if k != "$or"},
+                    "$and": [{"$or": filt["$or"]}, {"$or": company_clause}],
+                }
+            else:
+                filt["$or"] = company_clause
+        if tech_only:
+            # Drop trading / quant leftovers still in DB
+            filt["title"] = {
+                "$not": {
+                    "$regex": r"quant|trading|trader|market\s*mak|hedge\s*fund|hft\b|prop\s*trad",
+                    "$options": "i",
+                }
+            }
         if new_today:
             start = datetime.now(timezone.utc).replace(
                 hour=0, minute=0, second=0, microsecond=0

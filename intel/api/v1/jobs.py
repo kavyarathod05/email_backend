@@ -1,6 +1,11 @@
 """Jobs + crawler + scheduler HTTP API."""
 
-from fastapi import APIRouter, Depends, Header, Query
+from __future__ import annotations
+
+import logging
+
+from bson import ObjectId
+from fastapi import APIRouter, BackgroundTasks, Depends, Header, Query
 from pydantic import BaseModel
 
 from intel.config import get_settings
@@ -11,6 +16,8 @@ from intel.modules.jobs.crawl_service import CrawlService
 from intel.modules.jobs.repository import JobRepository
 from intel.modules.jobs.verify_service import VerifyService
 from intel.modules.scheduler.service import SchedulerService
+
+logger = logging.getLogger("email_automation.intel.api")
 
 router = APIRouter(tags=["jobs"])
 
@@ -31,6 +38,10 @@ def list_jobs(
         True, description="Hide jobs marked as applied / tracked"
     ),
     tracked_only: bool = Query(False, description="Only tracked applications"),
+    india_only: bool = Query(True, description="Strict India locations only"),
+    allow_remote: bool = Query(False, description="Also include generic Remote when india_only"),
+    intern_only: bool = Query(True, description="Internships only"),
+    tech_only: bool = Query(True, description="Exclude trading/quant titles"),
     limit: int = Query(50, ge=1, le=500),
     offset: int = Query(0, ge=0),
     repo: JobRepository = Depends(get_job_repo),
@@ -43,6 +54,10 @@ def list_jobs(
         status=status,
         exclude_tracked=exclude_tracked,
         tracked_only=tracked_only,
+        india_only=india_only,
+        allow_remote=allow_remote,
+        intern_only=intern_only,
+        tech_only=tech_only,
         limit=limit,
         offset=offset,
     )
@@ -57,6 +72,10 @@ def list_jobs(
 @router.get("/jobs/today", response_model=JobListResponse)
 def todays_jobs(
     limit: int = Query(100, ge=1, le=500),
+    india_only: bool = Query(True),
+    allow_remote: bool = Query(False),
+    intern_only: bool = Query(True),
+    tech_only: bool = Query(True),
     repo: JobRepository = Depends(get_job_repo),
 ) -> JobListResponse:
     items, total = repo.list_jobs(
@@ -65,6 +84,10 @@ def todays_jobs(
         link_ok=None,
         status="open",
         exclude_tracked=True,
+        india_only=india_only,
+        allow_remote=allow_remote,
+        intern_only=intern_only,
+        tech_only=tech_only,
         limit=limit,
         offset=0,
     )
@@ -89,6 +112,9 @@ def list_applications(
         status="",
         exclude_tracked=False,
         tracked_only=True,
+        india_only=False,
+        intern_only=False,
+        tech_only=False,
         limit=limit,
         offset=offset,
     )
@@ -149,9 +175,69 @@ async def run_crawlers(
         le=500,
         description="Max companies with boards to crawl this run (use batches on free tier)",
     ),
+    offset: int = Query(0, ge=0),
+    concurrency: int = Query(6, ge=1, le=12),
+    require_india: bool = Query(True),
+    allow_remote: bool = Query(False),
     svc: CrawlService = Depends(get_crawl_service),
 ) -> CrawlRunResult:
-    return await svc.crawl_all(limit=limit)
+    return await svc.crawl_all(
+        limit=limit,
+        offset=offset,
+        concurrency=concurrency,
+        require_india=require_india,
+        allow_remote=allow_remote,
+    )
+
+
+@router.post("/crawlers/run-all")
+async def run_crawlers_all(
+    background_tasks: BackgroundTasks,
+    batch_size: int = Query(30, ge=5, le=80),
+    concurrency: int = Query(6, ge=1, le=12),
+    require_india: bool = Query(True),
+    allow_remote: bool = Query(False),
+    svc: CrawlService = Depends(get_crawl_service),
+) -> dict:
+    """
+    Start a background crawl of EVERY company with a board (batched + concurrent).
+    Poll GET /api/v1/crawlers/runs for progress.
+    """
+    run_id = svc.start_run()
+    background_tasks.add_task(
+        _run_bg, svc, run_id, batch_size, concurrency, require_india, allow_remote
+    )
+    return {
+        "run_id": run_id,
+        "status": "started",
+        "message": "Crawling all companies in background. Poll /api/v1/crawlers/runs.",
+    }
+
+
+async def _run_bg(
+    svc: CrawlService,
+    run_id: str,
+    batch_size: int,
+    concurrency: int,
+    require_india: bool,
+    allow_remote: bool,
+) -> None:
+    try:
+        await svc.crawl_all_batches(
+            batch_size=batch_size,
+            concurrency=concurrency,
+            require_india=require_india,
+            allow_remote=allow_remote,
+            run_id=ObjectId(run_id),
+        )
+    except Exception as e:
+        logger.exception("Background crawl failed: %s", e)
+        from intel.modules.jobs.repository import crawler_runs_col
+
+        crawler_runs_col().update_one(
+            {"_id": ObjectId(run_id)},
+            {"$set": {"status": "error", "error": str(e)[:500]}},
+        )
 
 
 @router.post("/crawlers/verify", response_model=dict)
