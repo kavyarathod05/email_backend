@@ -39,6 +39,10 @@ def list_jobs(
     new_today: bool = Query(False),
     company: str | None = Query(None),
     filter_pass: bool | None = Query(True),
+    show_held: bool = Query(
+        False,
+        description="If true, include jobs that failed geo/India filter (ignore filter_pass)",
+    ),
     link_ok: bool | None = Query(None, description="Default: no filter; set true for verified only"),
     status: str = Query("open"),
     exclude_tracked: bool = Query(
@@ -56,12 +60,12 @@ def list_jobs(
     items, total = repo.list_jobs(
         new_today=new_today,
         company=company,
-        filter_pass=filter_pass,
+        filter_pass=None if show_held else filter_pass,
         link_ok=link_ok,
         status=status,
         exclude_tracked=exclude_tracked,
         tracked_only=tracked_only,
-        india_only=india_only,
+        india_only=False if show_held else india_only,
         allow_remote=allow_remote,
         intern_only=intern_only,
         tech_only=tech_only,

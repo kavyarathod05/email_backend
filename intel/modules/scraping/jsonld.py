@@ -73,24 +73,74 @@ def _parse_date(val: Any) -> datetime | None:
         return None
 
 
-def iter_jobpostings(node: Any) -> list[dict[str, Any]]:
+def _loads_json_blobs(raw: str) -> list[Any]:
+    """Parse one or more JSON values from a script body (tolerant)."""
+    text = raw.strip()
+    if not text:
+        return []
+    # Strip HTML comments / CDATA wrappers some CMS inject
+    text = re.sub(r"^\s*<!--", "", text)
+    text = re.sub(r"-->\s*$", "", text)
+    text = re.sub(r"/\*\s*<!\[CDATA\[\s*\*/", "", text)
+    text = re.sub(r"/\*\s*\]\]>\s*\*/", "", text)
+    text = text.strip()
+    out: list[Any] = []
+    try:
+        out.append(json.loads(text))
+        return out
+    except json.JSONDecodeError:
+        pass
+    # Concatenated objects: }{
+    decoder = json.JSONDecoder()
+    idx = 0
+    while idx < len(text):
+        while idx < len(text) and text[idx].isspace():
+            idx += 1
+        if idx >= len(text):
+            break
+        try:
+            val, end = decoder.raw_decode(text, idx)
+            out.append(val)
+            idx = end
+        except json.JSONDecodeError:
+            break
+    return out
+
+
+def iter_jobpostings(node: Any, *, _seen: set[int] | None = None) -> list[dict[str, Any]]:
     """Recursively collect JobPosting dicts from JSON-LD trees."""
+    if _seen is None:
+        _seen = set()
     out: list[dict[str, Any]] = []
     if isinstance(node, list):
         for item in node:
-            out.extend(iter_jobpostings(item))
+            out.extend(iter_jobpostings(item, _seen=_seen))
         return out
     if not isinstance(node, dict):
         return out
+    node_id = id(node)
+    if node_id in _seen:
+        return out
+    _seen.add(node_id)
     types = node.get("@type")
     type_list = [types] if isinstance(types, str) else list(types or [])
-    if any(str(t).lower() in ("jobposting", "http://schema.org/jobposting", "https://schema.org/jobposting") for t in type_list):
+    if any(
+        str(t).lower()
+        in (
+            "jobposting",
+            "http://schema.org/jobposting",
+            "https://schema.org/jobposting",
+        )
+        for t in type_list
+    ):
         out.append(node)
     if "@graph" in node:
-        out.extend(iter_jobpostings(node["@graph"]))
-    for v in node.values():
+        out.extend(iter_jobpostings(node["@graph"], _seen=_seen))
+    for k, v in node.items():
+        if k in ("@graph", "@type"):
+            continue
         if isinstance(v, (dict, list)):
-            out.extend(iter_jobpostings(v))
+            out.extend(iter_jobpostings(v, _seen=_seen))
     return out
 
 
@@ -99,16 +149,9 @@ def extract_json_ld_jobs(html: str, *, base_url: str) -> list[dict[str, Any]]:
     jobs: list[dict[str, Any]] = []
     for script in soup.find_all("script", attrs={"type": re.compile(r"ld\+json", re.I)}):
         raw = script.string or script.get_text() or ""
-        raw = raw.strip()
-        if not raw:
-            continue
-        try:
-            data = json.loads(raw)
-        except json.JSONDecodeError:
-            # Some pages concatenate multiple JSON objects
-            continue
-        for jp in iter_jobpostings(data):
-            jobs.append(jp)
+        for data in _loads_json_blobs(raw):
+            for jp in iter_jobpostings(data):
+                jobs.append(jp)
     # Dedup by title+url
     seen: set[str] = set()
     unique: list[dict[str, Any]] = []
@@ -138,7 +181,6 @@ def jobposting_to_normalized(
     if not title or not url:
         return None
     desc = _text(jp.get("description"))
-    # Strip crude HTML tags from description
     if "<" in desc:
         desc = BeautifulSoup(desc, "html.parser").get_text(" ", strip=True)
     location_text = _location_from_job(jp)
@@ -160,4 +202,32 @@ def jobposting_to_normalized(
         apply_url=url,
         posted_at=posted,
         raw={"source": provider.value, "title": title},
+    )
+
+
+def heuristic_listing_job(
+    *,
+    title: str,
+    url: str,
+    company_name: str,
+    company_slug: str,
+    provider: AtsProvider,
+    location: str | None = None,
+) -> NormalizedJob | None:
+    title = (title or "").strip()
+    if not title or not url:
+        return None
+    return NormalizedJob(
+        external_job_id=_job_id(url, title),
+        ats_provider=provider,
+        company_slug=company_slug,
+        company_name=company_name,
+        title=title[:300],
+        location_text=location,
+        locations=[location] if location else [],
+        is_remote=("remote" in f"{title} {location or ''}".lower()) or None,
+        description_text=None,
+        apply_url=url,
+        posted_at=datetime.now(timezone.utc),
+        raw={"source": f"{provider.value}_link", "url": url},
     )

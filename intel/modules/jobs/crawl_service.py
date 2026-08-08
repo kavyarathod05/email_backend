@@ -155,14 +155,16 @@ class CrawlService:
                 if filt.passed:
                     counters["passed"] += 1
                     entry["passed_filter"] += 1
-                    if len(samples) < 5:
-                        samples.append(
-                            {
-                                "title": nj.title,
-                                "url": nj.apply_url,
-                                "location": nj.location_text or "",
-                            }
-                        )
+                # Always surface internship apply links in crawl log (even if India filter fails)
+                if len(samples) < 8:
+                    samples.append(
+                        {
+                            "title": nj.title,
+                            "url": nj.apply_url,
+                            "location": nj.location_text or "",
+                            "passed": filt.passed,
+                        }
+                    )
                 status = self.jobs.upsert_observed(doc)
                 if status == "inserted":
                     counters["new"] += 1
