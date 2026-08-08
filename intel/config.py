@@ -19,13 +19,16 @@ class IntelSettings:
     discord_webhook_url: str = ""
     slack_webhook_url: str = ""
     scheduler_secret: str = ""
+    playwright_scrape_enabled: bool = False
 
 
 def get_settings() -> IntelSettings:
+    pw = os.getenv("PLAYWRIGHT_SCRAPE_ENABLED", "").strip().lower()
     return IntelSettings(
         telegram_bot_token=os.getenv("TELEGRAM_BOT_TOKEN", ""),
         telegram_chat_id=os.getenv("TELEGRAM_CHAT_ID", ""),
         discord_webhook_url=os.getenv("DISCORD_WEBHOOK_URL", ""),
         slack_webhook_url=os.getenv("SLACK_WEBHOOK_URL", ""),
         scheduler_secret=os.getenv("SCHEDULER_SECRET", ""),
+        playwright_scrape_enabled=pw in ("1", "true", "yes", "on"),
     )

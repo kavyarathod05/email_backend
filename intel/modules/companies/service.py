@@ -141,6 +141,7 @@ class CompanyService:
                 "careers_url": row.get("careers_url"),
                 "ats_provider": row.get("ats_provider", "unknown"),
                 "board_token": row.get("board_token"),
+                "board_url": row.get("board_url"),
                 "priority": row.get("priority", 3),
                 "active": row.get("active", True),
                 "source": row.get("source", "companies_seed.json"),

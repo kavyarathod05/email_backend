@@ -11,10 +11,17 @@ from pydantic import BaseModel
 from intel.config import get_settings
 from intel.core.errors import AppError
 from intel.core.models.job import CrawlRunResult, JobListResponse, JobOut, SchedulerTickResult
-from intel.deps import get_crawl_service, get_job_repo, get_scheduler_service, get_verify_service
+from intel.deps import (
+    get_crawl_service,
+    get_job_repo,
+    get_notification_service,
+    get_scheduler_service,
+    get_verify_service,
+)
 from intel.modules.jobs.crawl_service import CrawlService
 from intel.modules.jobs.repository import JobRepository
 from intel.modules.jobs.verify_service import VerifyService
+from intel.modules.notifications.service import NotificationService
 from intel.modules.scheduler.service import SchedulerService
 
 logger = logging.getLogger("email_automation.intel.api")
@@ -124,6 +131,17 @@ def list_applications(
         limit=limit,
         offset=offset,
     )
+
+
+@router.get("/jobs/digest")
+def ranked_digest(
+    limit: int = Query(25, ge=1, le=100),
+    require_link_ok: bool = Query(False),
+    svc: NotificationService = Depends(get_notification_service),
+) -> dict:
+    """Ranked internship digest (rule-based preference score)."""
+    items = svc.build_ranked_digest(limit=limit, require_link_ok=require_link_ok)
+    return {"items": items, "total": len(items)}
 
 
 @router.get("/jobs/{job_id}", response_model=JobOut)

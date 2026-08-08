@@ -61,6 +61,8 @@ class JobOut(BaseModel):
     filter_pass: bool = False
     filter_reasons: list[str] = Field(default_factory=list)
     role_family: str | None = None
+    match_score: float | None = None
+    match_reasons: list[str] = Field(default_factory=list)
     posted_at: datetime | None = None
     first_seen_at: datetime
     last_seen_at: datetime

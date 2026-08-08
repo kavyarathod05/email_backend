@@ -21,7 +21,21 @@ class AtsProvider(str, Enum):
     icims = "icims"
     bamboohr = "bamboohr"
     rippling = "rippling"
+    # Custom career-page scrapers (config-driven; need careers_url)
+    json_ld = "json_ld"
+    sitemap = "sitemap"
+    playwright = "playwright"
     unknown = "unknown"
+
+
+# Adapters that scrape HTML career pages instead of ATS JSON APIs
+CUSTOM_SCRAPE_PROVIDERS = frozenset(
+    {
+        AtsProvider.json_ld.value,
+        AtsProvider.sitemap.value,
+        AtsProvider.playwright.value,
+    }
+)
 
 
 class EngineeringSize(str, Enum):

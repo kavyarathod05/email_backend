@@ -61,24 +61,62 @@ class CompanyRepository:
         active: bool | None = None,
         ats_provider: str | None = None,
         with_boards: bool = False,
+        crawlable: bool = False,
         limit: int = 50,
         offset: int = 0,
     ) -> tuple[list[dict[str, Any]], int]:
         filt: dict[str, Any] = {}
         if active is not None:
             filt["active"] = active
-        if ats_provider:
+
+        if crawlable and ats_provider:
             filt["ats_provider"] = ats_provider
-        if with_boards:
+            if ats_provider in ("json_ld", "sitemap", "playwright"):
+                filt["careers_url"] = {"$exists": True, "$nin": [None, ""]}
+            else:
+                filt["board_token"] = {"$exists": True, "$nin": [None, ""]}
+        elif crawlable:
+            filt["$or"] = [
+                {
+                    "board_token": {"$exists": True, "$nin": [None, ""]},
+                    "ats_provider": {
+                        "$exists": True,
+                        "$nin": [
+                            None,
+                            "",
+                            "unknown",
+                            "json_ld",
+                            "sitemap",
+                            "playwright",
+                        ],
+                    },
+                },
+                {
+                    "ats_provider": {"$in": ["json_ld", "sitemap", "playwright"]},
+                    "careers_url": {"$exists": True, "$nin": [None, ""]},
+                },
+            ]
+        elif with_boards:
             filt["board_token"] = {"$exists": True, "$nin": [None, ""]}
             filt["ats_provider"] = {"$exists": True, "$nin": [None, "", "unknown"]}
             if ats_provider:
                 filt["ats_provider"] = ats_provider
+        elif ats_provider:
+            filt["ats_provider"] = ats_provider
+
         if q:
-            filt["$or"] = [
+            name_clause = [
                 {"name": {"$regex": q, "$options": "i"}},
                 {"slug": {"$regex": q, "$options": "i"}},
             ]
+            if "$or" in filt:
+                filt = {
+                    **{k: v for k, v in filt.items() if k != "$or"},
+                    "$and": [{"$or": filt["$or"]}, {"$or": name_clause}],
+                }
+            else:
+                filt["$or"] = name_clause
+
         total = self.col.count_documents(filt)
         cursor = (
             self.col.find(filt)
@@ -174,7 +212,19 @@ class CompanyRepository:
                 continue
             old_val = existing.get(field)
             if overwrite_empty:
-                if old_val in (None, "", "unknown") or field in ("priority", "source", "active"):
+                # Always refresh careers_url / custom adapter from seed when provided
+                if field in ("careers_url", "board_url") and new_val:
+                    if new_val != old_val:
+                        updates[field] = new_val
+                elif field == "ats_provider" and new_val in (
+                    "json_ld",
+                    "sitemap",
+                    "playwright",
+                ):
+                    if old_val in (None, "", "unknown", "json_ld", "sitemap", "playwright"):
+                        if new_val != old_val:
+                            updates[field] = new_val
+                elif old_val in (None, "", "unknown") or field in ("priority", "source", "active"):
                     if new_val != old_val:
                         updates[field] = new_val
             elif new_val != old_val:

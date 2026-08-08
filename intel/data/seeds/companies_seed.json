@@ -444,8 +444,10 @@
     "slug": "roblox",
     "priority": 5,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "playwright",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://careers.roblox.com/",
+    "board_url": "https://careers.roblox.com/"
   },
   {
     "name": "Scale AI",
@@ -482,8 +484,10 @@
     "slug": "spacex",
     "priority": 5,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "playwright",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.spacex.com/careers/",
+    "board_url": "https://www.spacex.com/careers/"
   },
   {
     "name": "Square",
@@ -520,16 +524,20 @@
     "slug": "tesla",
     "priority": 5,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "playwright",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.tesla.com/careers/",
+    "board_url": "https://www.tesla.com/careers/"
   },
   {
     "name": "Twitter",
     "slug": "twitter",
     "priority": 5,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "playwright",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://careers.x.com/",
+    "board_url": "https://careers.x.com/"
   },
   {
     "name": "Uber",
@@ -566,16 +574,20 @@
     "slug": "x",
     "priority": 5,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "playwright",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://careers.x.com/",
+    "board_url": "https://careers.x.com/"
   },
   {
     "name": "xAI",
     "slug": "xai",
     "priority": 5,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "playwright",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://x.ai/careers",
+    "board_url": "https://x.ai/careers"
   },
   {
     "name": "Zomato",
@@ -592,24 +604,30 @@
     "slug": "1mg",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.1mg.com/jobs",
+    "board_url": "https://www.1mg.com/jobs"
   },
   {
     "name": "ABB",
     "slug": "abb",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://careers.abb/",
+    "board_url": "https://careers.abb/"
   },
   {
     "name": "Accenture",
     "slug": "accenture",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.accenture.com/in-en/careers",
+    "board_url": "https://www.accenture.com/in-en/careers"
   },
   {
     "name": "Acko",
@@ -626,8 +644,10 @@
     "slug": "adityabirlagroup",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.adityabirla.com/careers",
+    "board_url": "https://www.adityabirla.com/careers"
   },
   {
     "name": "Adobe",
@@ -664,8 +684,10 @@
     "slug": "ajio",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.ajio.com/careers",
+    "board_url": "https://www.ajio.com/careers"
   },
   {
     "name": "Akamai",
@@ -692,16 +714,20 @@
     "slug": "amplitude",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://amplitude.com/careers",
+    "board_url": "https://amplitude.com/careers"
   },
   {
     "name": "ApolloHospitals",
     "slug": "apollohospitals",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.apollohospitals.com/careers/",
+    "board_url": "https://www.apollohospitals.com/careers/"
   },
   {
     "name": "Arcesium",
@@ -718,40 +744,50 @@
     "slug": "axisbank",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.axisbank.com/careers",
+    "board_url": "https://www.axisbank.com/careers"
   },
   {
     "name": "Bain&Company",
     "slug": "bain-company",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.bain.com/careers/",
+    "board_url": "https://www.bain.com/careers/"
   },
   {
     "name": "Bank of America",
     "slug": "bank-of-america",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "sitemap",
+    "source": "user_list_2026-07",
+    "careers_url": "https://careers.bankofamerica.com/",
+    "board_url": "https://careers.bankofamerica.com/"
   },
   {
     "name": "Barclays",
     "slug": "barclays",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "sitemap",
+    "source": "user_list_2026-07",
+    "careers_url": "https://home.barclays/careers/",
+    "board_url": "https://home.barclays/careers/"
   },
   {
     "name": "BharatPe",
     "slug": "bharatpe",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://bharatpe.com/careers/",
+    "board_url": "https://bharatpe.com/careers/"
   },
   {
     "name": "BigBasket",
@@ -768,24 +804,30 @@
     "slug": "billdesk",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.billdesk.com/careers",
+    "board_url": "https://www.billdesk.com/careers"
   },
   {
     "name": "BlackBuck",
     "slug": "blackbuck",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.blackbuck.com/careers/",
+    "board_url": "https://www.blackbuck.com/careers/"
   },
   {
     "name": "BlackRock",
     "slug": "blackrock",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://careers.blackrock.com/",
+    "board_url": "https://careers.blackrock.com/"
   },
   {
     "name": "Blinkit",
@@ -812,24 +854,30 @@
     "slug": "bosch",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.bosch.com/careers/",
+    "board_url": "https://www.bosch.com/careers/"
   },
   {
     "name": "BostonConsultingGroup",
     "slug": "bostonconsultinggroup",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://careers.bcg.com/",
+    "board_url": "https://careers.bcg.com/"
   },
   {
     "name": "Bounce",
     "slug": "bounce",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.bounceshare.com/careers",
+    "board_url": "https://www.bounceshare.com/careers"
   },
   {
     "name": "Broadcom",
@@ -856,48 +904,60 @@
     "slug": "capgemini",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.capgemini.com/careers/",
+    "board_url": "https://www.capgemini.com/careers/"
   },
   {
     "name": "Capital Float",
     "slug": "capital-float",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.capitalfloat.com/careers",
+    "board_url": "https://www.capitalfloat.com/careers"
   },
   {
     "name": "CarDekho",
     "slug": "cardekho",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://careers.cardekho.com/",
+    "board_url": "https://careers.cardekho.com/"
   },
   {
     "name": "Cars24",
     "slug": "cars24",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.cars24.com/careers/",
+    "board_url": "https://www.cars24.com/careers/"
   },
   {
     "name": "CCAvenue",
     "slug": "ccavenue",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.ccavenue.com/careers.jsp",
+    "board_url": "https://www.ccavenue.com/careers.jsp"
   },
   {
     "name": "Check Point",
     "slug": "check-point",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "sitemap",
+    "source": "user_list_2026-07",
+    "careers_url": "https://careers.checkpoint.com/",
+    "board_url": "https://careers.checkpoint.com/"
   },
   {
     "name": "Chime",
@@ -914,8 +974,10 @@
     "slug": "chingari",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://chingari.io/careers",
+    "board_url": "https://chingari.io/careers"
   },
   {
     "name": "Cisco",
@@ -942,8 +1004,10 @@
     "slug": "citi",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "sitemap",
+    "source": "user_list_2026-07",
+    "careers_url": "https://jobs.citi.com/",
+    "board_url": "https://jobs.citi.com/"
   },
   {
     "name": "ClearTax",
@@ -960,16 +1024,20 @@
     "slug": "cleartrip",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.cleartrip.com/careers",
+    "board_url": "https://www.cleartrip.com/careers"
   },
   {
     "name": "Cognizant",
     "slug": "cognizant",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://careers.cognizant.com/",
+    "board_url": "https://careers.cognizant.com/"
   },
   {
     "name": "CoinSwitch",
@@ -986,8 +1054,10 @@
     "slug": "coverfox",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.coverfox.com/careers",
+    "board_url": "https://www.coverfox.com/careers"
   },
   {
     "name": "CRED",
@@ -1004,8 +1074,10 @@
     "slug": "credit-suisse",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "sitemap",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.ubs.com/global/en/careers.html",
+    "board_url": "https://www.ubs.com/global/en/careers.html"
   },
   {
     "name": "CrowdStrike",
@@ -1022,8 +1094,10 @@
     "slug": "cuemath",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.cuemath.com/careers/",
+    "board_url": "https://www.cuemath.com/careers/"
   },
   {
     "name": "Cult.fit",
@@ -1050,8 +1124,10 @@
     "slug": "dailyhunt",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.dailyhunt.in/careers",
+    "board_url": "https://www.dailyhunt.in/careers"
   },
   {
     "name": "Datadog",
@@ -1068,40 +1144,50 @@
     "slug": "deloitte",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.deloitte.com/global/en/careers.html",
+    "board_url": "https://www.deloitte.com/global/en/careers.html"
   },
   {
     "name": "Deutsche Bank",
     "slug": "deutsche-bank",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "sitemap",
+    "source": "user_list_2026-07",
+    "careers_url": "https://careers.db.com/",
+    "board_url": "https://careers.db.com/"
   },
   {
     "name": "Digit Insurance",
     "slug": "digit-insurance",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.godigit.com/careers",
+    "board_url": "https://www.godigit.com/careers"
   },
   {
     "name": "DigitalOcean",
     "slug": "digitalocean",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.digitalocean.com/careers",
+    "board_url": "https://www.digitalocean.com/careers"
   },
   {
     "name": "Doubtnut",
     "slug": "doubtnut",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.doubtnut.com/careers",
+    "board_url": "https://www.doubtnut.com/careers"
   },
   {
     "name": "Dream11",
@@ -1118,24 +1204,30 @@
     "slug": "drivezy",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.drivezy.com/careers",
+    "board_url": "https://www.drivezy.com/careers"
   },
   {
     "name": "DrReddys",
     "slug": "drreddys",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.drreddys.com/careers",
+    "board_url": "https://www.drreddys.com/careers"
   },
   {
     "name": "Druva",
     "slug": "druva",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.druva.com/company/careers/",
+    "board_url": "https://www.druva.com/company/careers/"
   },
   {
     "name": "DRW",
@@ -1152,8 +1244,10 @@
     "slug": "ecom-express",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.ecomexpress.in/careers/",
+    "board_url": "https://www.ecomexpress.in/careers/"
   },
   {
     "name": "Elastic",
@@ -1170,8 +1264,10 @@
     "slug": "elasticrun",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.elastic.run/careers",
+    "board_url": "https://www.elastic.run/careers"
   },
   {
     "name": "Electronic Arts",
@@ -1188,16 +1284,20 @@
     "slug": "emerson",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.emerson.com/en-us/careers",
+    "board_url": "https://www.emerson.com/en-us/careers"
   },
   {
     "name": "Eruditus",
     "slug": "eruditus",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.eruditus.com/careers",
+    "board_url": "https://www.eruditus.com/careers"
   },
   {
     "name": "Expedia",
@@ -1214,32 +1314,40 @@
     "slug": "ey",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.ey.com/en_in/careers",
+    "board_url": "https://www.ey.com/en_in/careers"
   },
   {
     "name": "FarEye",
     "slug": "fareye",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://fareye.com/careers",
+    "board_url": "https://fareye.com/careers"
   },
   {
     "name": "Fastly",
     "slug": "fastly",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.fastly.com/about/careers",
+    "board_url": "https://www.fastly.com/about/careers"
   },
   {
     "name": "FirstCry",
     "slug": "firstcry",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.firstcry.com/careers",
+    "board_url": "https://www.firstcry.com/careers"
   },
   {
     "name": "FlagRight",
@@ -1266,32 +1374,40 @@
     "slug": "freecharge",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.freecharge.in/careers",
+    "board_url": "https://www.freecharge.in/careers"
   },
   {
     "name": "FreshToHome",
     "slug": "freshtohome",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.freshtohome.com/careers",
+    "board_url": "https://www.freshtohome.com/careers"
   },
   {
     "name": "Games24x7",
     "slug": "games24x7",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.games24x7.com/careers/",
+    "board_url": "https://www.games24x7.com/careers/"
   },
   {
     "name": "GE",
     "slug": "ge",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://jobs.gecareers.com/",
+    "board_url": "https://jobs.gecareers.com/"
   },
   {
     "name": "GE Aerospace",
@@ -1328,16 +1444,20 @@
     "slug": "glance",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://glance.com/careers",
+    "board_url": "https://glance.com/careers"
   },
   {
     "name": "GoIbibo",
     "slug": "goibibo",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.goibibo.com/careers/",
+    "board_url": "https://www.goibibo.com/careers/"
   },
   {
     "name": "Goldman Sachs",
@@ -1354,16 +1474,20 @@
     "slug": "greyorange",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.greyorange.com/careers/",
+    "board_url": "https://www.greyorange.com/careers/"
   },
   {
     "name": "HCL",
     "slug": "hcl",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.hcltech.com/careers",
+    "board_url": "https://www.hcltech.com/careers"
   },
   {
     "name": "HCLTech",
@@ -1380,24 +1504,30 @@
     "slug": "healthifyme",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.healthifyme.com/careers/",
+    "board_url": "https://www.healthifyme.com/careers/"
   },
   {
     "name": "HighRadius",
     "slug": "highradius",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.highradius.com/careers/",
+    "board_url": "https://www.highradius.com/careers/"
   },
   {
     "name": "Honeywell",
     "slug": "honeywell",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://careers.honeywell.com/",
+    "board_url": "https://careers.honeywell.com/"
   },
   {
     "name": "Hudson River Trading",
@@ -1424,16 +1554,20 @@
     "slug": "icertis",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.icertis.com/careers/",
+    "board_url": "https://www.icertis.com/careers/"
   },
   {
     "name": "IDFCFirstBank",
     "slug": "idfcfirstbank",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.idfcfirstbank.com/careers",
+    "board_url": "https://www.idfcfirstbank.com/careers"
   },
   {
     "name": "IMC Trading",
@@ -1450,16 +1584,20 @@
     "slug": "incred",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.incred.com/careers/",
+    "board_url": "https://www.incred.com/careers/"
   },
   {
     "name": "IndusIndBank",
     "slug": "indusindbank",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.indusind.com/in/en/personal/careers.html",
+    "board_url": "https://www.indusind.com/in/en/personal/careers.html"
   },
   {
     "name": "Infosys",
@@ -1476,24 +1614,30 @@
     "slug": "inmobi",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.inmobi.com/company/careers/",
+    "board_url": "https://www.inmobi.com/company/careers/"
   },
   {
     "name": "Innovaccer",
     "slug": "innovaccer",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://innovaccer.com/careers/",
+    "board_url": "https://innovaccer.com/careers/"
   },
   {
     "name": "Inshorts",
     "slug": "inshorts",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://inshorts.com/careers",
+    "board_url": "https://inshorts.com/careers"
   },
   {
     "name": "Intuit",
@@ -1510,8 +1654,10 @@
     "slug": "ixigo",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.ixigo.com/careers",
+    "board_url": "https://www.ixigo.com/careers"
   },
   {
     "name": "Jane Street",
@@ -1528,8 +1674,10 @@
     "slug": "jiomart",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.jiomart.com/careers",
+    "board_url": "https://www.jiomart.com/careers"
   },
   {
     "name": "JPMorgan Chase",
@@ -1556,24 +1704,30 @@
     "slug": "koo",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.kooapp.com/careers",
+    "board_url": "https://www.kooapp.com/careers"
   },
   {
     "name": "KotakMahindraBank",
     "slug": "kotakmahindrabank",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.kotak.com/en/careers.html",
+    "board_url": "https://www.kotak.com/en/careers.html"
   },
   {
     "name": "KPMG",
     "slug": "kpmg",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://kpmg.com/in/en/careers.html",
+    "board_url": "https://kpmg.com/in/en/careers.html"
   },
   {
     "name": "Kraken",
@@ -1590,8 +1744,10 @@
     "slug": "lendingkart",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.lendingkart.com/careers/",
+    "board_url": "https://www.lendingkart.com/careers/"
   },
   {
     "name": "Lenskart",
@@ -1608,24 +1764,30 @@
     "slug": "licious",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.licious.in/careers",
+    "board_url": "https://www.licious.in/careers"
   },
   {
     "name": "Locus",
     "slug": "locus",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://locus.sh/careers/",
+    "board_url": "https://locus.sh/careers/"
   },
   {
     "name": "LTIMindtree",
     "slug": "ltimindtree",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.ltimindtree.com/careers/",
+    "board_url": "https://www.ltimindtree.com/careers/"
   },
   {
     "name": "MakeMyTrip",
@@ -1652,8 +1814,10 @@
     "slug": "mckinsey-company",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.mckinsey.com/careers",
+    "board_url": "https://www.mckinsey.com/careers"
   },
   {
     "name": "Media.net",
@@ -1670,40 +1834,50 @@
     "slug": "milkbasket",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.milkbasket.com/careers",
+    "board_url": "https://www.milkbasket.com/careers"
   },
   {
     "name": "Mindtickle",
     "slug": "mindtickle",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.mindtickle.com/careers/",
+    "board_url": "https://www.mindtickle.com/careers/"
   },
   {
     "name": "Mixpanel",
     "slug": "mixpanel",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://mixpanel.com/careers/",
+    "board_url": "https://mixpanel.com/careers/"
   },
   {
     "name": "MobiKwik",
     "slug": "mobikwik",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.mobikwik.com/careers",
+    "board_url": "https://www.mobikwik.com/careers"
   },
   {
     "name": "Mondelez",
     "slug": "mondelez",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://careers.mondelezinternational.com/",
+    "board_url": "https://careers.mondelezinternational.com/"
   },
   {
     "name": "MongoDB",
@@ -1720,8 +1894,10 @@
     "slug": "moonfrog-labs",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.moonfroglabs.com/careers",
+    "board_url": "https://www.moonfroglabs.com/careers"
   },
   {
     "name": "Morgan Stanley",
@@ -1738,16 +1914,20 @@
     "slug": "motorola",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.motorola.com/us/careers",
+    "board_url": "https://www.motorola.com/us/careers"
   },
   {
     "name": "MPL",
     "slug": "mpl",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.mpl.live/careers",
+    "board_url": "https://www.mpl.live/careers"
   },
   {
     "name": "Myntra",
@@ -1764,40 +1944,50 @@
     "slug": "nazara-technologies",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.nazara.com/careers",
+    "board_url": "https://www.nazara.com/careers"
   },
   {
     "name": "Nestle",
     "slug": "nestle",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.nestle.com/jobs",
+    "board_url": "https://www.nestle.com/jobs"
   },
   {
     "name": "NetApp",
     "slug": "netapp",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.netapp.com/company/careers/",
+    "board_url": "https://www.netapp.com/company/careers/"
   },
   {
     "name": "NewRelic",
     "slug": "newrelic",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://newrelic.com/careers",
+    "board_url": "https://newrelic.com/careers"
   },
   {
     "name": "Nokia",
     "slug": "nokia",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.nokia.com/careers/",
+    "board_url": "https://www.nokia.com/careers/"
   },
   {
     "name": "Nykaa",
@@ -1814,8 +2004,10 @@
     "slug": "octro",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.octro.com/careers",
+    "board_url": "https://www.octro.com/careers"
   },
   {
     "name": "Okta",
@@ -1832,8 +2024,10 @@
     "slug": "oliverwyman",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.oliverwyman.com/careers.html",
+    "board_url": "https://www.oliverwyman.com/careers.html"
   },
   {
     "name": "Optiver",
@@ -1870,8 +2064,10 @@
     "slug": "panasonic",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://careers.na.panasonic.com/",
+    "board_url": "https://careers.na.panasonic.com/"
   },
   {
     "name": "PayPal",
@@ -1898,16 +2094,20 @@
     "slug": "payu",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://corporate.payu.com/careers/",
+    "board_url": "https://corporate.payu.com/careers/"
   },
   {
     "name": "Pepperfry",
     "slug": "pepperfry",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.pepperfry.com/careers.html",
+    "board_url": "https://www.pepperfry.com/careers.html"
   },
   {
     "name": "PharmEasy",
@@ -1924,16 +2124,20 @@
     "slug": "physicswallah",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.pw.live/careers",
+    "board_url": "https://www.pw.live/careers"
   },
   {
     "name": "Pine Labs",
     "slug": "pine-labs",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.pinelabs.com/careers",
+    "board_url": "https://www.pinelabs.com/careers"
   },
   {
     "name": "PolicyBazaar",
@@ -1950,8 +2154,10 @@
     "slug": "portea",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.portea.com/careers",
+    "board_url": "https://www.portea.com/careers"
   },
   {
     "name": "Practo",
@@ -1968,8 +2174,10 @@
     "slug": "pratilipi",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.pratilipi.com/careers",
+    "board_url": "https://www.pratilipi.com/careers"
   },
   {
     "name": "Project44",
@@ -1986,8 +2194,10 @@
     "slug": "pwc",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.pwc.in/careers.html",
+    "board_url": "https://www.pwc.in/careers.html"
   },
   {
     "name": "Qualcomm",
@@ -2004,56 +2214,70 @@
     "slug": "quora",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.quora.com/careers",
+    "board_url": "https://www.quora.com/careers"
   },
   {
     "name": "Rapido",
     "slug": "rapido",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://rapido.bike/careers",
+    "board_url": "https://rapido.bike/careers"
   },
   {
     "name": "Reddit",
     "slug": "reddit",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.redditinc.com/careers",
+    "board_url": "https://www.redditinc.com/careers"
   },
   {
     "name": "Redis",
     "slug": "redis",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://redis.io/careers/",
+    "board_url": "https://redis.io/careers/"
   },
   {
     "name": "Reliance",
     "slug": "reliance",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.ril.com/careers",
+    "board_url": "https://www.ril.com/careers"
   },
   {
     "name": "Rivigo",
     "slug": "rivigo",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.rivigo.com/careers",
+    "board_url": "https://www.rivigo.com/careers"
   },
   {
     "name": "Roposo",
     "slug": "roposo",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.roposo.com/careers",
+    "board_url": "https://www.roposo.com/careers"
   },
   {
     "name": "Salesforce",
@@ -2070,24 +2294,30 @@
     "slug": "samsung",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.samsung.com/in/careers/",
+    "board_url": "https://www.samsung.com/in/careers/"
   },
   {
     "name": "SAP",
     "slug": "sap",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://jobs.sap.com/",
+    "board_url": "https://jobs.sap.com/"
   },
   {
     "name": "SchneiderElectric",
     "slug": "schneiderelectric",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.se.com/ww/en/about-us/careers/",
+    "board_url": "https://www.se.com/ww/en/about-us/careers/"
   },
   {
     "name": "ServiceNow",
@@ -2104,48 +2334,60 @@
     "slug": "shadowfax",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.shadowfax.in/careers",
+    "board_url": "https://www.shadowfax.in/careers"
   },
   {
     "name": "ShareChat",
     "slug": "sharechat",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://sharechat.com/careers",
+    "board_url": "https://sharechat.com/careers"
   },
   {
     "name": "ShopClues",
     "slug": "shopclues",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.shopclues.com/careers.html",
+    "board_url": "https://www.shopclues.com/careers.html"
   },
   {
     "name": "Shopify",
     "slug": "shopify",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.shopify.com/careers",
+    "board_url": "https://www.shopify.com/careers"
   },
   {
     "name": "Siemens",
     "slug": "siemens",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.siemens.com/global/en/company/jobs.html",
+    "board_url": "https://www.siemens.com/global/en/company/jobs.html"
   },
   {
     "name": "Simplilearn",
     "slug": "simplilearn",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.simplilearn.com/careers",
+    "board_url": "https://www.simplilearn.com/careers"
   },
   {
     "name": "Skyscanner",
@@ -2162,8 +2404,10 @@
     "slug": "slack",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://slack.com/careers",
+    "board_url": "https://slack.com/careers"
   },
   {
     "name": "slice",
@@ -2180,16 +2424,20 @@
     "slug": "snapdeal",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.snapdeal.com/info/careers",
+    "board_url": "https://www.snapdeal.com/info/careers"
   },
   {
     "name": "Snowplow",
     "slug": "snowplow",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://snowplow.io/careers/",
+    "board_url": "https://snowplow.io/careers/"
   },
   {
     "name": "SoFi",
@@ -2206,16 +2454,20 @@
     "slug": "sony",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.sony.com/en/careers/",
+    "board_url": "https://www.sony.com/en/careers/"
   },
   {
     "name": "Spinny",
     "slug": "spinny",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.spinny.com/careers/",
+    "board_url": "https://www.spinny.com/careers/"
   },
   {
     "name": "Splunk",
@@ -2242,32 +2494,40 @@
     "slug": "sunpharma",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.sunpharma.com/careers",
+    "board_url": "https://www.sunpharma.com/careers"
   },
   {
     "name": "Supr Daily",
     "slug": "supr-daily",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.suprdaily.com/careers",
+    "board_url": "https://www.suprdaily.com/careers"
   },
   {
     "name": "Tata Cliq",
     "slug": "tata-cliq",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.tatacliq.com/careers",
+    "board_url": "https://www.tatacliq.com/careers"
   },
   {
     "name": "TataGroup",
     "slug": "tatagroup",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.tata.com/careers",
+    "board_url": "https://www.tata.com/careers"
   },
   {
     "name": "TCS",
@@ -2304,8 +2564,10 @@
     "slug": "toppr",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.toppr.com/careers/",
+    "board_url": "https://www.toppr.com/careers/"
   },
   {
     "name": "Tower Research",
@@ -2322,8 +2584,10 @@
     "slug": "trell",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://trell.co/careers",
+    "board_url": "https://trell.co/careers"
   },
   {
     "name": "TripAdvisor",
@@ -2340,8 +2604,10 @@
     "slug": "turtlemint",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.turtlemint.com/careers",
+    "board_url": "https://www.turtlemint.com/careers"
   },
   {
     "name": "Twilio",
@@ -2378,8 +2644,10 @@
     "slug": "ubs",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "sitemap",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.ubs.com/global/en/careers.html",
+    "board_url": "https://www.ubs.com/global/en/careers.html"
   },
   {
     "name": "Unacademy",
@@ -2406,8 +2674,10 @@
     "slug": "upstox",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://upstox.com/careers/",
+    "board_url": "https://upstox.com/careers/"
   },
   {
     "name": "Urban Company",
@@ -2424,16 +2694,20 @@
     "slug": "urban-ladder",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.urbanladder.com/careers",
+    "board_url": "https://www.urbanladder.com/careers"
   },
   {
     "name": "Vedantu",
     "slug": "vedantu",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.vedantu.com/careers",
+    "board_url": "https://www.vedantu.com/careers"
   },
   {
     "name": "Visa",
@@ -2460,24 +2734,30 @@
     "slug": "vogo",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.vogo.in/careers",
+    "board_url": "https://www.vogo.in/careers"
   },
   {
     "name": "Vokal",
     "slug": "vokal",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.vokal.co.in/careers",
+    "board_url": "https://www.vokal.co.in/careers"
   },
   {
     "name": "Wells Fargo",
     "slug": "wells-fargo",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "sitemap",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.wellsfargo.com/about/careers/",
+    "board_url": "https://www.wellsfargo.com/about/careers/"
   },
   {
     "name": "Wipro",
@@ -2514,32 +2794,40 @@
     "slug": "xpressbees",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.xpressbees.com/careers",
+    "board_url": "https://www.xpressbees.com/careers"
   },
   {
     "name": "Yatra",
     "slug": "yatra",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.yatra.com/careers",
+    "board_url": "https://www.yatra.com/careers"
   },
   {
     "name": "Yulu",
     "slug": "yulu",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.yulu.bike/careers",
+    "board_url": "https://www.yulu.bike/careers"
   },
   {
     "name": "Zenoti",
     "slug": "zenoti",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.zenoti.com/careers/",
+    "board_url": "https://www.zenoti.com/careers/"
   },
   {
     "name": "Zepto",
@@ -2566,24 +2854,30 @@
     "slug": "zestmoney",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.zestmoney.in/careers",
+    "board_url": "https://www.zestmoney.in/careers"
   },
   {
     "name": "Zoom",
     "slug": "zoom",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://careers.zoom.us/",
+    "board_url": "https://careers.zoom.us/"
   },
   {
     "name": "Zoomcar",
     "slug": "zoomcar",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.zoomcar.com/careers",
+    "board_url": "https://www.zoomcar.com/careers"
   },
   {
     "name": "Zscaler",
@@ -2600,56 +2894,70 @@
     "slug": "zynga",
     "priority": 4,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "user_list_2026-07"
+    "ats_provider": "json_ld",
+    "source": "user_list_2026-07",
+    "careers_url": "https://www.zynga.com/careers/",
+    "board_url": "https://www.zynga.com/careers/"
   },
   {
     "name": "Alibaba",
     "slug": "alibaba",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://careers.alibaba.com/",
+    "board_url": "https://careers.alibaba.com/"
   },
   {
     "name": "AppliedMaterials",
     "slug": "appliedmaterials",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.appliedmaterials.com/us/en/careers.html",
+    "board_url": "https://www.appliedmaterials.com/us/en/careers.html"
   },
   {
     "name": "ASML",
     "slug": "asml",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.asml.com/en/careers",
+    "board_url": "https://www.asml.com/en/careers"
   },
   {
     "name": "AutomationAnywhere",
     "slug": "automationanywhere",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.automationanywhere.com/company/careers",
+    "board_url": "https://www.automationanywhere.com/company/careers"
   },
   {
     "name": "Baidu",
     "slug": "baidu",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://talent.baidu.com/",
+    "board_url": "https://talent.baidu.com/"
   },
   {
     "name": "BlueOrigin",
     "slug": "blueorigin",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "playwright",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.blueorigin.com/careers",
+    "board_url": "https://www.blueorigin.com/careers"
   },
   {
     "name": "BrowserStack",
@@ -2676,32 +2984,40 @@
     "slug": "cipla",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.cipla.com/careers",
+    "board_url": "https://www.cipla.com/careers"
   },
   {
     "name": "Clevertap",
     "slug": "clevertap",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://clevertap.com/careers/",
+    "board_url": "https://clevertap.com/careers/"
   },
   {
     "name": "CocaCola",
     "slug": "cocacola",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.coca-colacompany.com/careers",
+    "board_url": "https://www.coca-colacompany.com/careers"
   },
   {
     "name": "Cohesity",
     "slug": "cohesity",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.cohesity.com/company/careers/",
+    "board_url": "https://www.cohesity.com/company/careers/"
   },
   {
     "name": "Delhivery",
@@ -2728,8 +3044,10 @@
     "slug": "dunzo",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.dunzo.com/careers",
+    "board_url": "https://www.dunzo.com/careers"
   },
   {
     "name": "Epic Games",
@@ -2746,8 +3064,10 @@
     "slug": "fortis",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.fortishealthcare.com/careers",
+    "board_url": "https://www.fortishealthcare.com/careers"
   },
   {
     "name": "Freshworks",
@@ -2764,88 +3084,110 @@
     "slug": "gojek",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.gojek.com/careers/",
+    "board_url": "https://www.gojek.com/careers/"
   },
   {
     "name": "Grab",
     "slug": "grab",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.grab.com/sg/careers/",
+    "board_url": "https://www.grab.com/sg/careers/"
   },
   {
     "name": "HDFC",
     "slug": "hdfc",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.hdfcbank.com/personal/about-us/careers",
+    "board_url": "https://www.hdfcbank.com/personal/about-us/careers"
   },
   {
     "name": "HSBC",
     "slug": "hsbc",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.hsbc.com/careers",
+    "board_url": "https://www.hsbc.com/careers"
   },
   {
     "name": "HUL",
     "slug": "hul",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.unilever.com/careers/",
+    "board_url": "https://www.unilever.com/careers/"
   },
   {
     "name": "ICICI",
     "slug": "icici",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.icicicareers.com/",
+    "board_url": "https://www.icicicareers.com/"
   },
   {
     "name": "IntelFoundry",
     "slug": "intelfoundry",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://jobs.intel.com/",
+    "board_url": "https://jobs.intel.com/"
   },
   {
     "name": "InVision",
     "slug": "invision",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.invisionapp.com/careers",
+    "board_url": "https://www.invisionapp.com/careers"
   },
   {
     "name": "ITC",
     "slug": "itc",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.itcportal.com/careers/",
+    "board_url": "https://www.itcportal.com/careers/"
   },
   {
     "name": "JDcom",
     "slug": "jdcom",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://campus.jd.com/",
+    "board_url": "https://campus.jd.com/"
   },
   {
     "name": "LamResearch",
     "slug": "lamresearch",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://careers.lamresearch.com/",
+    "board_url": "https://careers.lamresearch.com/"
   },
   {
     "name": "MistralAI",
@@ -2862,8 +3204,10 @@
     "slug": "moengage",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.moengage.com/careers/",
+    "board_url": "https://www.moengage.com/careers/"
   },
   {
     "name": "Nutanix",
@@ -2890,24 +3234,30 @@
     "slug": "olaelectric",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.olaelectric.com/careers",
+    "board_url": "https://www.olaelectric.com/careers"
   },
   {
     "name": "PalantirFoundry",
     "slug": "palantirfoundry",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "playwright",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.palantir.com/careers/",
+    "board_url": "https://www.palantir.com/careers/"
   },
   {
     "name": "PepsiCo",
     "slug": "pepsico",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.pepsicojobs.com/",
+    "board_url": "https://www.pepsicojobs.com/"
   },
   {
     "name": "PerplexityAI",
@@ -2924,8 +3274,10 @@
     "slug": "porter",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://porter.in/careers",
+    "board_url": "https://porter.in/careers"
   },
   {
     "name": "Postman",
@@ -2942,40 +3294,50 @@
     "slug": "purestorage",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.purestorage.com/careers.html",
+    "board_url": "https://www.purestorage.com/careers.html"
   },
   {
     "name": "Rubrik",
     "slug": "rubrik",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.rubrik.com/company/careers",
+    "board_url": "https://www.rubrik.com/company/careers"
   },
   {
     "name": "ScaleAIIndia",
     "slug": "scaleaiindia",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://scale.com/careers",
+    "board_url": "https://scale.com/careers"
   },
   {
     "name": "SeaGroup",
     "slug": "seagroup",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.sea.com/careers",
+    "board_url": "https://www.sea.com/careers"
   },
   {
     "name": "Shopee",
     "slug": "shopee",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://careers.shopee.com/",
+    "board_url": "https://careers.shopee.com/"
   },
   {
     "name": "Snapchat",
@@ -2992,32 +3354,40 @@
     "slug": "stabilityai",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://stability.ai/careers",
+    "board_url": "https://stability.ai/careers"
   },
   {
     "name": "StandardChartered",
     "slug": "standardchartered",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.sc.com/en/careers/",
+    "board_url": "https://www.sc.com/en/careers/"
   },
   {
     "name": "StripeIndia",
     "slug": "stripeindia",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://stripe.com/jobs",
+    "board_url": "https://stripe.com/jobs"
   },
   {
     "name": "Tencent",
     "slug": "tencent",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://careers.tencent.com/",
+    "board_url": "https://careers.tencent.com/"
   },
   {
     "name": "TikTok",
@@ -3034,40 +3404,50 @@
     "slug": "tokopedia",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.tokopedia.com/careers",
+    "board_url": "https://www.tokopedia.com/careers"
   },
   {
     "name": "Traveloka",
     "slug": "traveloka",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.traveloka.com/en-id/careers",
+    "board_url": "https://www.traveloka.com/en-id/careers"
   },
   {
     "name": "TSMC",
     "slug": "tsmc",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "sitemap",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://careers.tsmc.com/",
+    "board_url": "https://careers.tsmc.com/"
   },
   {
     "name": "Udaan",
     "slug": "udaan",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://udaan.com/careers",
+    "board_url": "https://udaan.com/careers"
   },
   {
     "name": "UiPath",
     "slug": "uipath",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://www.uipath.com/company/careers",
+    "board_url": "https://www.uipath.com/company/careers"
   },
   {
     "name": "Unity",
@@ -3084,8 +3464,10 @@
     "slug": "webengage",
     "priority": 3,
     "active": true,
-    "ats_provider": "unknown",
-    "source": "top_tier_companies.txt"
+    "ats_provider": "json_ld",
+    "source": "top_tier_companies.txt",
+    "careers_url": "https://webengage.com/careers/",
+    "board_url": "https://webengage.com/careers/"
   },
   {
     "name": "Wise",

@@ -68,6 +68,8 @@ def _serialize(doc: dict[str, Any]) -> dict[str, Any]:
         "filter_pass": doc.get("filter_pass", False),
         "filter_reasons": doc.get("filter_reasons", []),
         "role_family": doc.get("role_family"),
+        "match_score": doc.get("match_score"),
+        "match_reasons": doc.get("match_reasons") or [],
         "posted_at": doc.get("posted_at"),
         "first_seen_at": doc["first_seen_at"],
         "last_seen_at": doc["last_seen_at"],

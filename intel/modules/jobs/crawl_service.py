@@ -30,9 +30,10 @@ class CrawlService:
         self.jobs = jobs or JobRepository()
 
     def _board_companies(self, *, offset: int = 0, limit: int | None = None) -> tuple[list[dict], int]:
+        # Prefer crawlable (ATS boards + custom scrapers); fall back to boards-only
         return self.companies.list(
             active=True,
-            with_boards=True,
+            crawlable=True,
             limit=limit or 5000,
             offset=offset,
         )
@@ -55,7 +56,12 @@ class CrawlService:
             "intern_found": 0,
         }
         provider_name = company["ats_provider"]
-        token = company.get("board_token") or company.get("board_url")
+        custom = provider_name in ("json_ld", "sitemap", "playwright")
+        token = (
+            (company.get("careers_url") or company.get("board_url") or company.get("board_token"))
+            if custom
+            else (company.get("board_token") or company.get("board_url"))
+        )
         provider = get_provider(provider_name)
         entry: dict[str, Any] = {
             "company": company["name"],
@@ -73,12 +79,18 @@ class CrawlService:
         if not provider or not token:
             counters["failed"] = 1
             entry["status"] = "skipped"
-            entry["error"] = "no provider/token"
+            entry["error"] = "no provider/token" if not custom else "no careers_url"
             return entry, counters
 
         try:
             board_token = company.get("board_token") or ""
-            if company.get("board_url") and str(company["board_url"]).startswith("http"):
+            if custom:
+                board_token = (
+                    company.get("careers_url")
+                    or company.get("board_url")
+                    or board_token
+                )
+            elif company.get("board_url") and str(company["board_url"]).startswith("http"):
                 if provider_name in (
                     "workday",
                     "oracle",
